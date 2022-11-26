@@ -16,7 +16,7 @@ The usual terms and conditions from codeforces contests apply to 1v1 as well. Th
   
  ## Techstack 👩‍💻
  
- ``` HTML CSS JS Node ```
+ ``` HTML, CSS, JS, Node ```
  
  ## Other details 📑
  
