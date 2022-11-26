@@ -1,5 +1,5 @@
 ﻿# Codeforces-Problem-of-The-Day
- Cannonforces is a game to improve your coding efficiency by solving short programming problems with other people, at the same time. Players share their solutions at the end of a game to help other players improve their coding skills.
+ Canonforces is a game to improve your coding efficiency by solving short programming problems with other people, at the same time. Players share their solutions at the end of a game to help other players improve their coding skills.
  
 We aim to build a 1 vs 1 coding platform for codeforces. 
 
