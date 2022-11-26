@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>CodeForces Problem of The Day</title>
+	<link rel="apple-touch-icon" sizes="180x180" href="favicon_io/apple-touch-icon.png" />
+	<link rel="icon" type="image/png" sizes="32x32" href="favicon_io/apple-touch-icon.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="favicon_io/apple-touch-icon.png" />
+	<link rel="manifest" href="/site.webmanifest" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+	<link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+	<div class="container mx-auto my-5 text-center">
+		<h1 class="heading display-5">Codeforces Problem of The Day</h1>
+	</div>
+	<div class="container mx-auto text-center" id="divo">
+		<div class="row justify-content-center my-5">
+			<div class="col-11 col-md-6 problem-statement fw-bold text-center rounded-start mb-2 mb-md-0">
+				Loading Problem ...
+			</div>
+			<div class="col-11 col-md-1 px-0">
+				<button class="w-100 btn btn-primary rounded-end float-end solve-button"
+					id="solve-button">Solve</button>
+			</div>
+		</div>
+		<div class="row justify-content-center problem-details my-5">
+			<div class="col-md-4 mb-3">
+				<div class="row justify-content-center">
+					<div class="col-7 bg-dark rounded-start p-2">
+						ContestID
+					</div>
+					<div class="col-3 detail-value rounded-end p-2" id="contestID">-</div>
+				</div>
+			</div>
+			<div class="col-md-4 mb-3">
+				<div class="row justify-content-center">
+					<div class="col-7 bg-dark rounded-start p-2">
+						Problem Index
+					</div>
+					<div class="col-3 detail-value rounded-end p-2" id="problemID">-</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="row justify-content-center">
+					<div class="col-7 bg-dark rounded-start p-2">
+						Difficulty Rating
+					</div>
+					<div class="col-3 detail-value rounded-end p-2" id="problem-rating">-</div>
+				</div>
+			</div>
+		</div>
+		<div class="row justify-content-center mt-3 mt-md-5">
+			<form class="col-11 col-md-7 filter-problems" method="get"
+				onsubmit="updateProblemByRating(); return false;">
+				<fieldset class="py-3">
+					<legend>
+						Filter Problems By Difficulty Rating
+					</legend>
+					<div class="row justify-content-center">
+						<div class="col-auto px-0">
+							<input class="form-control w-100" type="number" name="rating" id="filter-rating" min="800"
+								max="3500" step="100" placeholder="Enter your rating" required>
+							<label class="form-text fst-italic" for="filter-rating">
+								Problem rating lies between 800 to 3500 with step size of 100.
+							</label>
+						</div>
+						<div class="col-sm-auto col-lg-3 px-0 mt-2 mt-lg-0">
+							<button class="btn btn-secondary filter-button">Fetch Problem</button>
+						</div>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+
+		<!-- Visitors counter -->
+		<div id="visitors">
+			<span class="text">Total visits</span>
+			<span class="number">0</span>
+		</div>
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+		crossorigin="anonymous"></script>
+	<script src="script.js"></script>
+</body>
+
+</html>

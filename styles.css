@@ -1,0 +1,68 @@
+body {
+    background-color: #2F004F;
+	color: white;
+}
+
+.heading {
+	color: white;
+}
+
+.filter-problems {
+	background-color: #5F0A87;
+	border-radius: 5px;
+}
+
+.filter-button {
+	background-color: #EABFCB;
+	color: black;
+}
+
+.form-text {
+	color: whitesmoke;
+}
+
+.detail-value {
+	background-color: white;
+	color: black;
+}
+
+.problem-statement {
+    background-color: white;
+	align-content: center;
+	color: black;
+	padding: 0.375rem 0.75rem;
+}
+
+.solve-button {
+	border-radius: 0;
+}
+
+@media only screen and (max-width: 720px) {
+	.problem-statement,
+	.solve-button {
+		border-radius: 0.25rem;
+	}
+}
+
+/* Visitors counter */
+#visitors {
+	color: black;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background: white;
+    border-radius: 30px;
+}
+
+#visitors>span {
+    font-weight: 400;
+    font-family: 'Barlow', sans-serif;
+}
+
+@media only screen and (max-width: 768px) {
+    #visitors {
+        bottom: 20px;
+        top: unset;
+    }
+}
