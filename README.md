@@ -22,6 +22,16 @@ The usual terms and conditions from codeforces contests apply to 1v1 as well. Th
  
  This project is in its first iteration hence have to be started from Scratch. You need not to be proficient in the Techstack mentioned but should have basic understanding of the things.
  
+ ## Features ✨
+ - Login using Codeforces user id.
+ - Maintiain Rating graph and Streak.
+ - Rated and available throughout the month for that particular Problem of the day.
+ - Compete with other Codeforcers. Compete against your friends
+  
+ 
+ ## Maintainers ☀️
+ 
+  [@Sudhir Sharma](https://github.com/Sudhir878786) 
  
  ## [live site](https://canonforces.vercel.app/)
 
