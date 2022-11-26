@@ -30,3 +30,8 @@ The usual terms and conditions from codeforces contests apply to 1v1 as well. Th
 ## solve the problem
 ![image](https://user-images.githubusercontent.com/84634405/195653582-28de27f8-0188-4895-aaf7-63d6dcfc0206.png)
 
+# Contribution Guidelines
+
+[How to Create PR?](https://github.com/OpenLake/Canonforces.wiki.git)
+
+[PR Format Guidelines](https://github.com/OpenLake/Canonforces.wiki.git)
