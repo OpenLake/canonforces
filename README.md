@@ -13,10 +13,18 @@ The usual terms and conditions from codeforces contests apply to 1v1 as well. Th
  
  3) You make an AC submission
   The time provided for the challenge is complete without any AC submission from either player.
+  
+ ## Techstack 👩‍💻
+ 
+ ``` HTML CSS JS Node ```
+ 
+ ## Other details 📑
+ 
+ This project is in its first iteration hence have to be started from Scratch. You need not to be proficient in the Techstack mentioned but should have basic understanding of the things.
+ 
+ 
  ## [live site](https://canonforces.vercel.app/)
- ## Responsive across all the devices
 
-![resp](https://user-images.githubusercontent.com/84634405/195657435-573cfab6-b954-48ee-b9ff-9bdc62d29a07.png)
  ## Gives a new problem everyday
 
 ![image](https://user-images.githubusercontent.com/84634405/195651847-10863575-5363-41cd-bcd3-d2afa9db379a.png)
@@ -31,6 +39,8 @@ The usual terms and conditions from codeforces contests apply to 1v1 as well. Th
 ![image](https://user-images.githubusercontent.com/84634405/195653582-28de27f8-0188-4895-aaf7-63d6dcfc0206.png)
 
 # Contribution Guidelines
+
+Please go through the Wiki. Even a small contribution helps. All forms of contributions are highly welcomed and valued.
 
 [How to Create PR?](https://github.com/OpenLake/Canonforces.wiki.git)
 
