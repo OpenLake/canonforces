@@ -1,4 +1,18 @@
 ﻿# Codeforces-Problem-of-The-Day
+ Cannonforces is a game to improve your coding efficiency by solving short programming problems with other people, at the same time. Players share their solutions at the end of a game to help other players improve their coding skills.
+ 
+We aim to build a 1 vs 1 coding platform for codeforces. 
+
+Rules / Instructions
+
+The usual terms and conditions from codeforces contests apply to 1v1 as well. The contestant MIGHT NOT indulge in plagiarism or gain an unfair advantage in any way. Be fair.
+
+ 1) The duration of each challenge is mentioned on the challenge page. The game ends when either of the following happens.
+  
+ 2) Your opponent has made an AC submission
+ 
+ 3) You make an AC submission
+  The time provided for the challenge is complete without any AC submission from either player.
  ## [live site](https://canonforces.vercel.app/)
  ## Responsive across all the devices
 
