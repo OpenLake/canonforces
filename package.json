@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prepare": "cd .. && husky install canonforces/.husky"
   },
   "dependencies": {
     "@next/font": "13.0.7",
@@ -24,7 +25,9 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.13",
+    "husky": "^8.0.0",
     "postcss": "^8.4.20",
+    "prettier": "^2.8.1",
     "tailwindcss": "^3.2.4"
   }
 }

@@ -13,7 +13,7 @@ const firebaseConfig = {
   storageBucket: "canonforces.appspot.com",
   messagingSenderId: "894877771650",
   appId: "1:894877771650:web:9d0e9241dbc9e6292a519b",
-  measurementId: "G-J7XRTMN1JB"
+  measurementId: "G-J7XRTMN1JB",
 };
 
 // Initialize Firebase
