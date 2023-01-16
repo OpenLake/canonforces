@@ -2,7 +2,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "../styles/Signup.module.css";
-import * as ROUTES from "../constants/routes";
+import * as ROUTES from "../../constants/routes";
 import { FcGoogle } from "react-icons/fc";
 import { HiMail } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
