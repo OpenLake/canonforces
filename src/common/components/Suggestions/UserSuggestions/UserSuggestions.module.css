@@ -1,0 +1,18 @@
+.user{ 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    margin-top: 24px;
+    margin-left: 20px;
+}
+
+.follow_button {
+    border: none;
+    background-color: rgb(91, 150, 198);
+    color: #ffffff;
+    min-width: 82px;
+    border-radius: 7px;
+    height: 27px;
+    font-size: 0.8rem;
+}

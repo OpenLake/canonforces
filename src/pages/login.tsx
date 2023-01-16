@@ -3,13 +3,13 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import styles from "../../styles/Login.module.css";
-import * as ROUTES from "../../constants/routes";
+import * as ROUTES from "../constants/routes";
 import { FcGoogle } from "react-icons/fc";
 import { HiMail } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../lib/firebase";
-import { signupWithGoogle } from "../../services/firebase";
+import { auth } from "../lib/firebase";
+import { signupWithGoogle } from "../services/firebase";
 
 export default function Login() {
     const router = useRouter();
