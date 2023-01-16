@@ -1,0 +1,94 @@
+.navigation {
+    width: 15rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    padding: 1.6rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.logo img {
+    position: relative;
+}
+
+.logo img::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    box-shadow: 10px 15px 15px rgba(0, 0, 0, 0.5);
+    width: 100px;
+    border: 1px solid red;
+    height: 100px;
+}
+
+.logo h3 {  
+    color: rgb(93, 96, 101);
+}
+
+.navbar {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.87rem;
+    padding: 20px;
+    color: #68696c;
+}
+
+.navbar {
+    height: 40%;
+    margin-top: 10px;
+}
+
+.navbar h4 {
+    font-size: 0.95rem;
+    color: #68696c;
+}
+
+.navbar nav {
+    
+}
+
+.navbar ul {
+    display: flex;
+    flex-direction: column;
+}
+
+.active {
+    background-color: rgb(214, 229, 241);
+    border-radius: 8px;
+    /* padding: 10px; */
+}
+
+.navbar ul li {
+    margin-top: 20px;
+}
+
+.navbar ul li a{
+    display: flex;
+    align-items: center;
+    color: rgb(93, 96, 101);
+    padding: 10px;
+}
+
+.navbar ul li a span {
+    margin-left: 20px;
+}
+
+.user_section {
+    height: 40%;
+    display: flex;
+    align-items: flex-end;
+    margin-top: 30px;
+    justify-content: space-between;
+}
+
+.logout {
+    cursor: pointer;
+}
