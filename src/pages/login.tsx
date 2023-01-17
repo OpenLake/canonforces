@@ -82,7 +82,7 @@ export default function Login() {
                         </div>
                         <div className={styles.form__buttons}>
                             <button className={styles.login__button} disabled={isInvalid} type="submit"> Login </button>
-                            <button className={styles.google__button} onClick={() => signupWithGoogle(email)} > <FcGoogle size={"1.6em"} className={styles.google__icon}/> <span> Sign in with Google </span> </button>
+                            <button className={styles.google__button}> <FcGoogle size={"1.6em"} className={styles.google__icon}/> <span> Sign in with Google </span> </button>
                         </div>
                         <div className={styles.login__text}>
                            <p> Already a user ? <Link href={ROUTES.SIGNUP}> Signup </Link> </p>
