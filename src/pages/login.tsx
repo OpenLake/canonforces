@@ -9,7 +9,7 @@ import { HiMail } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../lib/firebase";
-// import { signupWithGoogle } from "../services/firebase";
+import { signupWithGoogle } from "../services/firebase";
 
 export default function Login() {
     const router = useRouter();
@@ -25,7 +25,7 @@ export default function Login() {
             signInWithEmailAndPassword(auth, email, password)
                 .then(userCred => {
                     console.log(userCred);
-                    router.push("/login/username");   
+                    router.push(ROUTES.DASHBOARD);   
                 })
                 .catch(err => {
                     console.error(err);
@@ -35,6 +35,13 @@ export default function Login() {
             setPassword('');
             setError(err.message);
         }        
+    }
+
+    const googleSignup = () => {
+        const user = signupWithGoogle();
+        if(user !== null) {
+            router.push(ROUTES.DASHBOARD);
+        }
     }
 
     useEffect(() => {
@@ -54,7 +61,7 @@ export default function Login() {
                 <div className={`${styles.login__form} w-6/12 flex flex-col items-center justify-center`}>  
                     <h3> Welcome Back! </h3>
                     <p> Lorem Ipsum is simply dummy text of the printing and typesetting industry. </p>
-
+                    {error && <p className="mb-4 text-xs text-read-primary">{error} </p>}
                     <form onSubmit={(e) => handleLogin(e)} className={styles.form} method="POST">
                         <div className="flex flex-col">
                             <div className={styles.form__credentials}>
@@ -81,8 +88,8 @@ export default function Login() {
                             </div>
                         </div>
                         <div className={styles.form__buttons}>
-                            <button className={styles.login__button} disabled={isInvalid} type="submit"> Login </button>
-                            <button className={styles.google__button}> <FcGoogle size={"1.6em"} className={styles.google__icon}/> <span> Sign in with Google </span> </button>
+                            <button className={`${styles.login__button} ${isInvalid ? styles.invalid : ""}`} disabled={isInvalid}  type="submit"> Login </button>
+                            <button className={styles.google__button} onClick={() => googleSignup()} > <FcGoogle size={"1.6em"} className={styles.google__icon}/> <span> Sign in with Google </span> </button>
                         </div>
                         <div className={styles.login__text}>
                            <p> Already a user ? <Link href={ROUTES.SIGNUP}> Signup </Link> </p>
