@@ -97,3 +97,6 @@
     color: rgb(121, 121, 121);
 }
 
+.invalid {
+    opacity: 65%;
+}
