@@ -8,11 +8,10 @@ import { FcGoogle } from "react-icons/fc";
 import { HiMail } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { BsPatchExclamation, BsPatchCheck} from "react-icons/bs";
-import { doesUsernameExists } from "../../services/firebase";
+import { doesUsernameExists , signupWithGoogle} from "../../services/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
 import { addDoc, collection, setDoc } from "firebase/firestore";
-
 
 export default function Signup() {
     const router = useRouter();
@@ -64,6 +63,13 @@ export default function Signup() {
         } else {
             setError('Username does not exists on codeforces');
             setUsername('');
+        }
+    }
+
+    const googleSignup = async () => {
+        const user  = await signupWithGoogle();
+        if(user !== null) {
+            router.push(ROUTES.DASHBOARD);
         }
     }
 
@@ -123,7 +129,7 @@ export default function Signup() {
                         </div>
                         <div className={styles.form__buttons}>
                             <button className={`${styles.signup__button} ${isInvalid ? styles.invalid : ""}`} disabled={isInvalid} onClick={(e) => handleSignup(e)}>  Signup </button>
-                            <button className={styles.google__button}> <FcGoogle size={"1.6em"} className={styles.google__icon}/> <span> Sign in with Google </span> </button>
+                            <button className={styles.google__button} onClick={() => googleSignup()}> <FcGoogle size={"1.6em"} className={styles.google__icon}/> <span> Sign in with Google </span> </button>
                         </div>
                         <div className={styles.signup__text}>
                            <p> Already a user ? <Link href={ROUTES.LOGIN}> Login </Link> </p>

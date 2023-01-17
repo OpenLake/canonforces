@@ -37,8 +37,8 @@ export default function Login() {
         }        
     }
 
-    const googleSignup = () => {
-        const user = signupWithGoogle();
+    const googleSignup = async () => {
+        const user = await signupWithGoogle();
         if(user !== null) {
             router.push(ROUTES.DASHBOARD);
         }
