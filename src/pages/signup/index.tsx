@@ -1,18 +1,61 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import styles from "../styles/Signup.module.css";
+import styles from "../../styles/Signup.module.css";
 import * as ROUTES from "../../constants/routes";
 import { FcGoogle } from "react-icons/fc";
 import { HiMail } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { BsPatchExclamation, BsPatchCheck} from "react-icons/bs";
+import { doesUsernameExists } from "../../services/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "../../lib/firebase";
+import { addDoc, collection, setDoc } from "firebase/firestore";
 
 export default function Signup() {
-    const [username, setUsername] = useState("u");
-    
+    const [username, setUsername] = useState("");
+    const [fullname, setFullname] = useState(""); 
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
 
+    const handleSignup = async (e: any) => {
+        e.preventDefault();
+
+        const usernameExists = await doesUsernameExists(username);
+        if(usernameExists !== null) {
+            try {
+                createUserWithEmailAndPassword(auth, email, password)
+                .then((user) => {
+                    addDoc(collection(db, "users"), {
+                        username: username.toLowerCase(),
+                        userId: "",
+                        fullname,
+                        emailAddress: email.toLowerCase(),
+                        following: [],
+                        dateCreated: Date.now()
+                    })
+                        .then((userRef) => {
+                            console.log(userRef);
+                            setDoc(userRef, {userId: user.user.uid}, {merge: true}) 
+                                .then(() => {
+                                    const currentUser: any = auth.currentUser;
+                                    if(currentUser) {
+                                        currentUser.displayName = username;
+                                    } 
+                                    // navigate the user
+                                });
+                        });
+                }) 
+            } catch (err: any) {
+                setFullname('');
+                setEmail("");
+                setPassword('');
+                setError(err.message);
+            }
+        }
+    }
 
     return (
         <div className={`${styles.signup}`}>
@@ -39,7 +82,7 @@ export default function Signup() {
                             </div>
                         </div>
                         <div className={styles.form__buttons}>
-                            <button className={styles.signup__button}> Signup </button>
+                            <button className={styles.signup__button} onClick={(e) => handleSignup(e)}>  Signup </button>
                             <button className={styles.google__button}> <FcGoogle size={"1.6em"} className={styles.google__icon}/> <span> Sign in with Google </span> </button>
                         </div>
                         <div className={styles.signup__text}>
