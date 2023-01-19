@@ -19,6 +19,7 @@ import { faker } from '@faker-js/faker'
 import { useEffect, useState } from "react";
 import { doesUsernameExists } from "../../../services/firebase";
 import useUser from "../../../hooks/use-user";
+import { User } from "../../../types/user";
 
 ChartJS.register(
   RadialLinearScale,
@@ -112,7 +113,7 @@ export default function MainMenu() {
 
   const [userData, setUserData] = useState<any>(null);
 
-  const user = useUser();
+  const user: any = useUser();
   console.log(user);
 
   useEffect( () => {
