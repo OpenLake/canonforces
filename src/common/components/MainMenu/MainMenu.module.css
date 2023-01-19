@@ -1,0 +1,137 @@
+/* F7F8FA */
+.main {
+    background-color: #F7F8FA;
+    display: flex;
+    width: 100%;
+    padding: 20px;
+    padding-top: 30px;
+    border-radius: 30px;
+    height: 100vh;
+}
+
+.main_menu {
+    display: flex;
+    flex-direction: column;
+    /* background-color: antiquewhite; */
+    width: 73%;
+}
+
+.main_menu_header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 3rem;
+    align-items: center;
+}
+
+.search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    /* padding: 10px; */
+}
+
+
+.search_icon {
+    position: absolute;
+    z-index: 10;
+    top: 11px;
+    left: 20px;
+    color: rgb(149, 149, 149);
+}
+
+.search > input {
+    border: 1px solid rgb(221, 221, 221);
+    background-color: #F7F8FA;
+    padding: 10px;
+    padding-left: 50px;
+    border-radius: 40px;
+    font-size: 14px;
+}
+
+.search > input:focus {
+    outline: none;
+}
+
+.notification_icon {
+    min-width: 50px;
+    margin-left: 10px;
+    color: #898c92;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid rgb(221, 221, 221);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.main_menu_stats {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 40px;
+    margin-left: 10px;
+}
+
+.main_menu_stats > h3{
+    font-size: 1.8rem;
+    color: #76777a;
+}
+
+.user_stats {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: 30px;
+    justify-content: space-around;
+}
+
+.stats {
+    /* display: flex; */
+}
+
+.stats1 , .stats2{
+    display: flex;
+    width: 100%;
+    align-items: center;
+    /* justify-content: space-around; */
+}
+
+.stats2 {
+    margin-top: 20px;
+}
+
+.questions, .ranking , .contest{
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(97, 159, 209);
+    color: #ffffff;
+    height: 220px;
+    min-width: 220px;
+    border-radius: 15px;
+    padding: 20px;
+    align-items: center;
+    justify-content: center;
+    margin-left: 20px;
+}
+
+.languages_stat {
+    margin-left: 30px;
+}
+
+.number {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.ranking {
+    background-color: rgb(194, 103, 83);
+}
+
+.suggestions {
+    border-left: 1px solid rgb(231, 231, 231);
+    margin-left: 20px;
+    display: flex;
+    width: 100%;
+}
