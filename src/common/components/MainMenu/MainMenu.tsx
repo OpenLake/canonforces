@@ -16,6 +16,9 @@ import {
 } from 'chart.js';
 import { Radar, Bubble , Bar} from 'react-chartjs-2';
 import { faker } from '@faker-js/faker'
+import { useEffect, useState } from "react";
+import { doesUsernameExists } from "../../../services/firebase";
+import useUser from "../../../hooks/use-user";
 
 ChartJS.register(
   RadialLinearScale,
@@ -106,7 +109,24 @@ export const data3 = {
 };
 
 export default function MainMenu() {
-  return (
+
+  const [userData, setUserData] = useState<any>(null);
+
+  const user = useUser();
+  console.log(user);
+
+  useEffect( () => {
+    if(user.user?.username) {
+      (async () => {
+        const codeforcesData = await doesUsernameExists(user.user?.username);
+        setUserData(codeforcesData?.result[0]);
+        console.log(codeforcesData);  
+      })();
+    }
+  }, [user.user]);
+
+
+  return (  
     <div className={styles.main}>
       <div className={styles.main_menu}>
         <div className={styles.main_menu_header}>
@@ -124,8 +144,7 @@ export default function MainMenu() {
             <div className={styles.stats}>
               <div className={styles.stats1}> 
                   <div className={styles.questions}>
-                    <span className={styles.number}> 3256 </span>  <span>Problems Solved </span>  
-                    <span className={styles.number}> 4000 </span>  <span>Submissions </span>
+                    <span className={styles.number}> {userData?.contribution ? userData?.contribution : "0"} </span>  <span> Contributions </span>  
                   </div>
                   <div className={styles.questions}>
                     <span className={styles.number}> 3256 </span>  <span>Problems Solved </span>  
@@ -135,11 +154,11 @@ export default function MainMenu() {
               </div>
               <div className={styles.stats2}> 
                 <div className={styles.ranking}>
-                  <span className={styles.number}> 65 </span> <span> Rank </span>
+                  <span className={styles.number}> {userData?.maxRating ? userData?.maxRating : "Improve your rating by plaing more"} </span> <span> Max Rating </span>
                 </div>
                 <div className={styles.contest}>
-                  <span className={styles.number}> 234 </span> <span> Contest played</span>
-                  <span className={styles.number}> 32 </span> <span> Won </span>
+                  <span className={styles.number}> {user.user?.contestPlayed ? user.user?.contestPlayed : "0"} </span> <span> Contest played</span>
+                  <span className={styles.number}> {user.user?.contestWon ? user.user?.contestWon: "0"} </span> <span> Won </span>
                 </div> 
               </div>  
             </div>
@@ -150,7 +169,7 @@ export default function MainMenu() {
         </div>
       </div>
       <div className={styles.suggestions}>
-        <Suggestions />
+        <Suggestions rating={userData?.rating} />
       </div>
     </div>
 
