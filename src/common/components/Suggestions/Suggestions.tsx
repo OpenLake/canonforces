@@ -3,7 +3,7 @@ import styles from "./Suggestions.module.css";
 import UserSuggestions from "./UserSuggestions/UserSuggestions";
 import { SlGraph } from "react-icons/sl";
 
-export default function Suggestions() {
+export default function Suggestions({ rating }) {
     return (
       <div className={styles.suggestions}>
         <div className={styles.user}>
@@ -24,7 +24,7 @@ export default function Suggestions() {
         <div className={styles.rating}>
           <h2> Rating </h2>
           <SlGraph size={"2.7em"}/>
-          <span> 23 </span>
+          <span> {rating ? rating: 0} </span>
         </div>
       </div>
     )
