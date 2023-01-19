@@ -54,10 +54,10 @@
     color: #ffffff;
 }
 
-.rank > div > span {
-    font-size: 30px;
-    margin-right: -5px;
-    font-weight: bold;
+.rank > div {
+    display: flex;
+    flex-direction: column;
+    margin-left: 15px;
 }
 
 .rank > div {
