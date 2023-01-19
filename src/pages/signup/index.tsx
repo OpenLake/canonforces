@@ -41,6 +41,7 @@ export default function Signup() {
                     })
                         .then((userRef) => {
                             console.log(userRef);
+                            console.log(user);
                             setDoc(userRef, {userId: user.user.uid}, {merge: true}) 
                                 .then(() => {
                                     const currentUser: any = auth.currentUser;
