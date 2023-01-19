@@ -1,27 +1,41 @@
-import { signInWithPopup } from "firebase/auth"
-import { auth , provider} from "../lib/firebase"
-import { useRouter } from "next/router"
+import { signInWithPopup } from "firebase/auth";
+import { auth, db, provider } from "../lib/firebase";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { User } from "../types/user";
 
-
-export const signupWithGoogle = (username: string) => {
-    const router = useRouter();
-
-    if(username !== '') {
-        signInWithPopup(auth, provider)
-        .then((res) => {
-            router.push("/login/username");
-            
-        })
-        .catch((err) => {
-            // handle error
-            console.error(err.message);
-        })
-    } else {
-        return "Username does not exists!";
-    }
+export const signupWithGoogle = async () => {
+    signInWithPopup(auth, provider)
+    .then(res => {
+        if(res) {
+            return res.user;
+        } else {
+            return null;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+    })
 }
 
-signupWithGoogle.getInitialProps = async (ctx) => {
-    const user = await fetch(`https://codeforces.com/api/user.info?handle=${username}`);
-    console.log(user);
+export const doesUsernameExists = async (username: string)=> {
+    const user = await fetch(`https://codeforces.com/api/user.info?handles=${username}`);
+    if(user.status === 200) {
+        return user.json().then((res) => {
+            return res;
+        });
+    } else {
+        return null;
+    }
 };
+
+
+export async function getUserByUserId(userId: string) {
+    const q = query(collection(db, "users"), where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    const user = querySnapshot.docs.map((item) => ({
+    ...item.data(),
+    docId: item.id,
+    }));
+
+    return user;    
+}

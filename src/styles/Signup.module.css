@@ -138,3 +138,7 @@
 .username__label2 {
     font-size: 30px;
 }
+
+.invalid {
+    opacity: 65%;
+}
