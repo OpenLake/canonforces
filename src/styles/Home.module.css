@@ -1,0 +1,45 @@
+.fs_big {
+    font-size: 9em;
+}
+
+.para {
+    width: 70%;
+    font-size: 17px;
+}
+
+.buttons {
+    width: 50%;
+    margin-top: 30px;
+}
+
+.buttons > button {
+    height: 50px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.button_blue {
+    width: 140px;
+    background-color: rgb(40, 101, 198);
+    border: none;
+    color: #ffffff;
+}
+
+.button_black {
+    border: 1px solid #474545;
+    margin-left: 20px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 160px;
+}
+
+.button_black:hover {
+    background-color: #2d2d2d;
+    color: #ffffff;    
+}
+
+.image > img {
+    width: 90em;
+}

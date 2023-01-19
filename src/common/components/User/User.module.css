@@ -1,0 +1,19 @@
+.user {
+    display: flex;
+}
+
+.user img {
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.user_details {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.76rem;
+    margin-left: 10px;
+}
+
+.user_details span {
+    color: rgb(93, 96, 101);
+}

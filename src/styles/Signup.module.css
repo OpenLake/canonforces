@@ -1,0 +1,144 @@
+.signup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.container {
+    border: 1px solid #eeeeee;
+    /* font-family: 'Roboto', sans-serif; */
+}
+
+.signup__form > h3 {
+    font-size: 30px;
+    font-family: Poppins;
+}
+
+.signup__form > p {
+    margin-top: 5px;
+    font-size: 15px;
+    color: rgb(89, 89, 89);
+    text-align: center;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.username__label, .username__label2 {
+    color: rgb(89, 89, 89); 
+    font-size: 15px;
+}
+
+.input:first-of-type , .input2:first-of-type{
+    margin-bottom: 30px;
+}
+
+.input, .input2 {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.input > input , .input2 > input{
+    border: 1px solid rgb(233, 233, 233);
+}
+
+.mail__icon , .lock__icon, .check__icon, .exclaimation__icon {
+    position: absolute;
+    right: 12px;
+}
+
+.check__icon {
+    color: rgb(0, 194, 107);
+}
+
+.exclaimation__icon {
+    color: rgb(237, 65, 30);
+}
+
+.form__credentials {
+    display: flex;
+    flex-direction: column;
+
+    position: relative;
+}
+
+.form__buttons {
+    width: 18em;
+    margin-top: 20px;
+}
+
+.form__buttons > button {
+    width: 100%;
+    cursor: pointer;
+    border-radius: 6px;
+    height: 38px;
+    font-family: poppins;
+}
+
+.signup__button {
+    background-color: #FEC802;
+    color: #fff;
+    border: none;
+    /* font-weight: bold; */
+    font-family: poppins;
+    font-size: 15px;
+}
+
+.google__button {
+    display: flex;
+    border: 1px solid rgb(200, 200, 200);
+    align-items: center;
+    justify-content: center;
+    color: rgb(89, 89, 89);
+    font-size: 14px;
+    margin-top: 12px;
+}
+
+.google__icon {
+    margin-right: 10px;
+}
+
+.signup__text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.signup__text > p {
+    font-size: 14px;
+    color: rgb(121, 121, 121);
+}
+
+
+/* Username login routes */
+.username__div {
+    width: 80%;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    align-items: center;
+}
+
+.input2 {
+    width: 100%;
+}
+
+.input2 > input {
+    width: 100%;
+}
+
+.username__label2 {
+    font-size: 30px;
+}
+
+.invalid {
+    opacity: 65%;
+}

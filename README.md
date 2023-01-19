@@ -1,57 +1,34 @@
-﻿# Codeforces-Problem-of-The-Day
- Canonforces is a game to improve your coding efficiency by solving short programming problems with other people, at the same time. Players share their solutions at the end of a game to help other players improve their coding skills.
- 
-We aim to build a 1 vs 1 coding platform for codeforces. 
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-Rules / Instructions
+## Getting Started
 
-The usual terms and conditions from codeforces contests apply to 1v1 as well. The contestant MIGHT NOT indulge in plagiarism or gain an unfair advantage in any way. Be fair.
+First, run the development server:
 
- 1) The duration of each challenge is mentioned on the challenge page. The game ends when either of the following happens.
-  
- 2) Your opponent has made an AC submission
- 
- 3) You make an AC submission
-  The time provided for the challenge is complete without any AC submission from either player.
-  
- ## Techstack 👩‍💻
- 
- ``` HTML, CSS, JS, Node ```
- 
- ## Other details 📑
- 
- This project is in its first iteration hence have to be started from Scratch. You need not to be proficient in the Techstack mentioned but should have basic understanding of the things.
- 
- ## Features ✨
- - Login using Codeforces user id.
- - Maintiain Rating graph and Streak.
- - Rated and available throughout the month for that particular Problem of the day.
- - Compete with other Codeforcers. Compete against your friends
-  
- 
- ## Maintainers ☀️
- 
-  [@Sudhir Sharma](https://github.com/Sudhir878786) 
- 
- ## [live site](https://canonforces.vercel.app/)
+```bash
+npm run dev
+# or
+yarn dev
+```
 
- ## Gives a new problem everyday
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-![image](https://user-images.githubusercontent.com/84634405/195651847-10863575-5363-41cd-bcd3-d2afa9db379a.png)
-## Filter problem by difficulty
-![image](https://user-images.githubusercontent.com/84634405/195651671-c919cb42-e3fb-40e2-baab-0c79809649b3.png)
-![image](https://user-images.githubusercontent.com/84634405/195651689-640ef541-8ebd-4d75-a6a3-94654b7fffea.png)
+You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
-## Click on the solve button to go to the probem
-![image](https://user-images.githubusercontent.com/84634405/195653564-a0eeda04-302b-4daa-abca-3bb210bd4bd4.png)
+[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
 
-## solve the problem
-![image](https://user-images.githubusercontent.com/84634405/195653582-28de27f8-0188-4895-aaf7-63d6dcfc0206.png)
+The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-# Contribution Guidelines
+## Learn More
 
-Please go through the Wiki. Even a small contribution helps. All forms of contributions are highly welcomed and valued.
+To learn more about Next.js, take a look at the following resources:
 
-[How to Create PR?](https://github.com/OpenLake/Canonforces.wiki.git)
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-[PR Format Guidelines](https://github.com/OpenLake/Canonforces.wiki.git)
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
