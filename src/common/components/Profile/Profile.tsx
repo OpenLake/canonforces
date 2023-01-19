@@ -1,6 +1,7 @@
 import { Bar, Pie } from "react-chartjs-2";
 import styles from "./Profile.module.css";
 import { faker } from '@faker-js/faker';
+import useUser from "../../../hooks/use-user";
 
 import {
     Chart as ChartJS,
@@ -12,6 +13,9 @@ import {
     Title,
     ArcElement,
 } from 'chart.js';
+import { doesUsernameExists } from "../../../services/firebase";
+import { useEffect, useState } from "react";
+
 
 ChartJS.register(
     CategoryScale,
@@ -73,11 +77,26 @@ export const data = {
 };
 
 export default function Profile() {
+  const [userData, setUserData] = useState<any>(null);
+
+  const user = useUser();
+  console.log(user);
+
+  useEffect( () => {
+    if(user.user?.username) {
+      (async () => {
+        const codeforcesData = await doesUsernameExists(user.user?.username);
+        setUserData(codeforcesData?.result[0]);
+        console.log(codeforcesData);  
+      })();
+    }
+  }, [user.user]);
+  
   return (
     <div className={styles.profile}>
         <div className={styles.profile_stats}>
             <div className={styles.profile_user}>
-                <h1> Hey Kanish </h1>
+                <h1> Hey {user.user?.fullname.split(" ")[0]} </h1>
                 <span> Hope you are doing well! </span>
             </div>
             <div className={styles.bar_chart}>
@@ -87,15 +106,18 @@ export default function Profile() {
         <div className={styles.sidebar}>
             <div className={styles.rank}>
                 <Pie data={data} />
-                <div> <span> 34 </span> Rank </div>
+                <div>
+                  <span> Ranking </span>
+                  <span> {userData?.rank ?  userData?.rank : "Do contests to improve your ranking"} </span> 
+                </div>
             </div>
             <div className={styles.user}>
                 <div className={styles.followers}>
-                    <span> 10 </span>
+                    <span> {user.user?.followers ? user.user?.followers.length : "0"}</span>
                     <span> followers </span>            
                 </div>
                 <div className={styles.following}>
-                    <span> 20 </span>
+                    <span> {user.user?.following ? user.user?.following.length : "0"} </span>
                     <span> following </span>            
                 </div>
             </div>
