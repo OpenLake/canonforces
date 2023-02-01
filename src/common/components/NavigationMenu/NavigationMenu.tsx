@@ -1,5 +1,7 @@
 import Image from "next/image";
 import * as ROUTES from "../../../constants/routes";
+import { signOut } from "firebase/auth";
+import { auth } from "../../../lib/firebase";
 import styles from "./NavigationMenu.module.css";
 import Link from "next/link";
 import { AiFillHome } from "react-icons/ai";
@@ -34,7 +36,7 @@ export default function NavigationMenu() {
         </div>
         <div className={styles.user_section}>
             <User />
-            <IoMdLogOut size={"1.4em"} className={styles.logout}/>
+            <IoMdLogOut onClick={() => signOut(auth)} size={"1.4em"} className={styles.logout}/>
         </div>
     </div>
   )

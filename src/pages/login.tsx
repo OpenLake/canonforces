@@ -29,6 +29,7 @@ export default function Login() {
                 })
                 .catch(err => {
                     console.error(err);
+                    setError(err.message);
                 })
         } catch (err: any) {
             setEmail('');
@@ -38,7 +39,8 @@ export default function Login() {
     }
 
     const googleSignup = async () => {
-        const user = await signupWithGoogle();
+        const user: any = await signupWithGoogle();
+        console.log(user);
         if(user !== null) {
             router.push(ROUTES.DASHBOARD);
         }
@@ -50,7 +52,7 @@ export default function Login() {
 
     return (
         <div className={`${styles.login}`}>
-            <div className={`${styles.container} flex w-full w-10/12`}>
+            <div className={`${styles.container} flex w-10/12`}>
                 <div className="flex justify-center items-center w-6/12">
                     <Image 
                         width={800}
@@ -60,7 +62,7 @@ export default function Login() {
                 </div>
                 <div className={`${styles.login__form} w-6/12 flex flex-col items-center justify-center`}>  
                     <h3> Welcome Back! </h3>
-                    <p> Lorem Ipsum is simply dummy text of the printing and typesetting industry. </p>
+                    <p> Login to you account to connect and code </p>
                     {error && <p className="mb-4 text-xs text-read-primary">{error} </p>}
                     <form onSubmit={(e) => handleLogin(e)} className={styles.form} method="POST">
                         <div className="flex flex-col">
@@ -79,6 +81,7 @@ export default function Login() {
                                     <input 
                                         className="shadow appearance-none text-sm rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
                                         id="password" 
+                                        type="password"
                                         name="password" 
                                         placeholder="Password"
                                         onChange={({target}) => setPassword(target.value)}

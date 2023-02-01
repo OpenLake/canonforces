@@ -8,7 +8,7 @@ import { FcGoogle } from "react-icons/fc";
 import { HiMail } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { BsPatchExclamation, BsPatchCheck} from "react-icons/bs";
-import { doesUsernameExists , signupWithGoogle} from "../../services/firebase";
+import { doesUsernameExists, doesUsernameExitsInFirebase , signupWithGoogle} from "../../services/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
 import { addDoc, collection, setDoc } from "firebase/firestore";
@@ -27,39 +27,45 @@ export default function Signup() {
     const handleSignup = async (e: any) => {
         e.preventDefault();
         const usernameExists = await doesUsernameExists(username);
+        const usernameExistsInFirebase = await doesUsernameExitsInFirebase(username);
         if(usernameExists !== null) {
-            try {
-                createUserWithEmailAndPassword(auth, email, password)
-                .then((user) => {
-                    addDoc(collection(db, "users"), {
-                        username: username.toLowerCase(),
-                        userId: "",
-                        fullname,
-                        emailAddress: email.toLowerCase(),
-                        following: [],
-                        dateCreated: Date.now()
+            if(usernameExistsInFirebase.length === 0) {
+                try {
+                    createUserWithEmailAndPassword(auth, email, password)
+                    .then((user) => {
+                        addDoc(collection(db, "users"), {
+                            username: username.toLowerCase(),
+                            userId: "",
+                            fullname,
+                            emailAddress: email.toLowerCase(),
+                            following: [],
+                            dateCreated: Date.now()
+                        })
+                            .then((userRef) => {
+                                console.log(userRef);
+                                console.log(user);
+                                setDoc(userRef, {userId: user.user.uid}, {merge: true}) 
+                                    .then(() => {
+                                        const currentUser: any = auth.currentUser;
+                                        if(currentUser) {
+                                            currentUser.displayName = username;
+                                        } 
+                                        router.push(ROUTES.DASHBOARD);
+                                    });
+                            });
+                    }).catch(err => {
+                        console.error(err);
+                        setError(err.message);
                     })
-                        .then((userRef) => {
-                            console.log(userRef);
-                            console.log(user);
-                            setDoc(userRef, {userId: user.user.uid}, {merge: true}) 
-                                .then(() => {
-                                    const currentUser: any = auth.currentUser;
-                                    if(currentUser) {
-                                        currentUser.displayName = username;
-                                    } 
-                                    router.push(ROUTES.DASHBOARD);
-                                });
-                        });
-                }).catch(err => {
-                    console.error(err);
+                } catch (err: any) {
+                    setFullname('');
+                    setEmail('');
+                    setPassword('');
                     setError(err.message);
-                })
-            } catch (err: any) {
-                setFullname('');
-                setEmail('');
-                setPassword('');
-                setError(err.message);
+                }
+            } else {
+                setError('Username already exists on canonforces');
+                setUsername('');
             }
         } else {
             setError('Username does not exists on codeforces');
@@ -76,11 +82,11 @@ export default function Signup() {
 
     return (
         <div className={`${styles.signup}`}>
-            <div className={`${styles.container} flex w-full w-10/12`}>
+            <div className={`${styles.container} flex w-10/12`}>
                 <div className={`${styles.signup__form} w-6/12 flex flex-col items-center justify-center`}>  
                     <h3> Welcome to Canonforces! </h3>
-                    <p> Lorem Ipsum is simply dummy text of the printing and typesetting industry. printing and typesetting industry. </p>
-                    {error && <p className="mb-4 text-xs text-read-primary">{error} </p>}
+                    <p> A platform where you can grow  </p>
+                    {error && <p className="error"> {error} </p>}
                     <form className={styles.form} method="POST">
                         <div className="flex flex-col">
                             <div className={styles.form__credentials}>
@@ -122,6 +128,7 @@ export default function Signup() {
                                         name="password" 
                                         placeholder="Password"
                                         value={password}
+                                        type="password"
                                         onChange={({target}) => setPassword(target.value)}
                                     />
                                     <RiLockPasswordFill className={styles.lock__icon}/>  
