@@ -33,3 +33,8 @@ a {
 .fc-hr {
   background-color: #9f9f9f;
 }
+
+.error {
+  color: rgb(146, 8, 8);
+  font-size: small;
+}

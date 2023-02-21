@@ -28,6 +28,17 @@ export const doesUsernameExists = async (username: string)=> {
     }
 };
 
+export const doesUsernameExitsInFirebase = async (username: string) => {
+    const q = query(collection(db, "users"), where("username", "==", username));
+    const querySnapshot = await getDocs(q);
+    const user = querySnapshot.docs.map((item) => ({
+        ...item.data(),
+        docId: item.id,
+    }));
+
+    return user;
+}
+
 
 export async function getUserByUserId(userId: string) {
     const q = query(collection(db, "users"), where("userId", "==", userId));
