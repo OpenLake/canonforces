@@ -11,15 +11,13 @@
   "dependencies": {
     "@next/font": "13.0.7",
     "@types/node": "18.11.15",
-    "@types/react": "18.0.26",
-    "@types/react-dom": "18.0.9",
     "chart.js": "^4.1.2",
     "eslint": "8.29.0",
     "eslint-config-next": "13.0.7",
     "faker": "^6.6.6",
-    "firebase": "^9.15.0",
+    "firebase": "^9.23.0",
     "next": "13.0.7",
-    "react": "18.2.0",
+    "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.7.1",
@@ -27,6 +25,8 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.20",
     "tailwindcss": "^3.2.4"

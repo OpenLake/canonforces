@@ -76,7 +76,7 @@ export default function Signup() {
 
     return (
         <div className={`${styles.signup}`}>
-            <div className={`${styles.container} flex w-full w-10/12`}>
+            <div className={`${styles.container} flex w-10/12`}>
                 <div className={`${styles.signup__form} w-6/12 flex flex-col items-center justify-center`}>  
                     <h3> Welcome to Canonforces! </h3>
                     <p> Lorem Ipsum is simply dummy text of the printing and typesetting industry. printing and typesetting industry. </p>

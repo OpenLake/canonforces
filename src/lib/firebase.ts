@@ -1,27 +1,27 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// import { getAuth , signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword , updateProfile, signInAnonymously, onAuthStateChanged} from "firebase/auth";
-// import {getFirestore, updateDoc, arrayUnion, arrayRemove, FieldValue, query, limit, collection, doc, getDocs,setDoc, addDoc, where} from "firebase/firestore";
-import { getAuth , GoogleAuthProvider} from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+// src/lib/firebase.ts
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { GoogleAuthProvider} from 'firebase/auth';
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// Add this line to create the provider
+const provider = new GoogleAuthProvider();
+// ✅ Replace these with your new Firebase config
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyALv8c-_lut4-NJExgIXKmgRxz-CZHQjIU",
-  authDomain: "canonforces.firebaseapp.com",
-  projectId: "canonforces",
-  storageBucket: "canonforces.appspot.com",
-  messagingSenderId: "894877771650",
-  appId: "1:894877771650:web:9d0e9241dbc9e6292a519b",
-  measurementId: "G-J7XRTMN1JB"
+  apiKey: "AIzaSyBAwDmj5YSTCKQRB6E9qz_9lElFwGYK8PM",
+  authDomain: "canonforces-a743b.firebaseapp.com",
+  projectId: "canonforces-a743b",
+  storageBucket: "canonforces-a743b.firebasestorage.app",
+  messagingSenderId: "530076439567",
+  appId: "1:530076439567:web:d4c1d986fc02b76718bf7a",
+  measurementId: "G-P11PC4XZR8"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const provider = new GoogleAuthProvider();
-export const auth = getAuth(app);
-export const db = getFirestore();
+
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+export { provider };
+export { app, auth, db };
