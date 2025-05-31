@@ -50,7 +50,7 @@ export default function Login() {
 
     return (
         <div className={`${styles.login}`}>
-            <div className={`${styles.container} flex w-full w-10/12`}>
+            <div className={`${styles.container} flex w-10/12`}>
                 <div className="flex justify-center items-center w-6/12">
                     <Image 
                         width={800}

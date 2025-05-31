@@ -55,7 +55,7 @@ export default function username({}){
 
     return (
         <div className={styles.signup}>
-            <div className={`${styles.container} flex w-full w-5/12 items-center flex-col`}> 
+            <div className={`${styles.container} flex w-5/12 items-center flex-col`}> 
                 <div className={styles.username__div}>
                     <label className={styles.username__label2}> Codeforces Username </label>
                     <div className={styles.input2}>

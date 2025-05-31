@@ -4,38 +4,69 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { User } from "../types/user";
 
 export const signupWithGoogle = async () => {
-    signInWithPopup(auth, provider)
-    .then(res => {
-        if(res) {
-            return res.user;
-        } else {
-            return null;
-        }
-    })
-    .catch(err => {
+    try {
+        const res = await signInWithPopup(auth, provider);
+        return res?.user || null;
+    } catch (err) {
         console.error(err);
-    })
-}
+        return null;
+    }
+};
+
 
 export const doesUsernameExists = async (username: string)=> {
     const user = await fetch(`https://codeforces.com/api/user.info?handles=${username}`);
     if(user.status === 200) {
         return user.json().then((res) => {
+            console.log('Success',res)
             return res;
         });
     } else {
-        return null;
+       console.log('APi limit crossed');
     }
 };
+
 
 
 export async function getUserByUserId(userId: string) {
     const q = query(collection(db, "users"), where("userId", "==", userId));
     const querySnapshot = await getDocs(q);
     const user = querySnapshot.docs.map((item) => ({
-    ...item.data(),
-    docId: item.id,
+        ...item.data(),
+        docId: item.id,
     }));
 
     return user;    
 }
+
+export const getContestCount = async (username: string) => {
+    const res = await fetch(`https://codeforces.com/api/user.rating?handle=${username}`);
+    if (res.status === 200) {
+        const data = await res.json();
+        if (data.status === "OK") {
+            return data.result.length; 
+        }
+    }
+    return 0; 
+};
+
+
+export const getSolvedCount = async (username: string) => {
+  const res = await fetch(`https://codeforces.com/api/user.status?handle=${username}`);
+  if (res.status === 200) {
+    const data = await res.json();
+    if (data.status === "OK") {
+      const solvedSet = new Set();
+        
+      for (const submission of data.result) {
+        if (submission.verdict === "OK") {
+          const problemId = `${submission.problem.contestId}-${submission.problem.index}`;
+          solvedSet.add(problemId);
+        }
+      }
+
+      return {solved:solvedSet.size,attempt:data.result.length};
+    }
+  }
+  return 0;
+};
