@@ -86,9 +86,6 @@
     color: #ffffff;
 }
 
-.following  {
-    /* margin-left: 2rem;    */
-}
 
 .followers > span:first-of-type , .following > span:first-of-type{
     font-weight: bold;

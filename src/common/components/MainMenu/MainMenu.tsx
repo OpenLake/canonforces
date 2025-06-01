@@ -164,7 +164,7 @@ export default function MainMenu() {
               </div>
               <div className={styles.stats2}> 
                 <div className={styles.ranking}>
-                  <span className={styles.number}> {userData?.maxRating ? userData?.maxRating : "Improve your rating by plaing more"} </span> <span> Max Rating </span>
+                  <span className={styles.number}> {userData?.maxRating ? userData?.maxRating : "Rating"} </span> <span> Max Rating </span>
                 </div>
                 <div className={styles.contest}>
                   <span className={styles.number}> {userData?.contestsGiven ? userData?.contestsGiven : "0"} </span> <span> Contest played</span>

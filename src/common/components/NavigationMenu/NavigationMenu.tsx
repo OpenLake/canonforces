@@ -8,6 +8,7 @@ import { SiGooglemessages } from "react-icons/si";
 import { FaUser } from "react-icons/fa";
 import { TbSwords } from "react-icons/tb";
 import { IoMdLogOut } from "react-icons/io";
+import { FaChartBar } from 'react-icons/fa';
 import User from "../User/User";
 
 export default function NavigationMenu() {
@@ -30,7 +31,8 @@ export default function NavigationMenu() {
                     <li className={active==1 ? styles.active :''} onClick={()=>setActive(1)}> <Link href={ROUTES.DASHBOARD}> <AiFillHome size={"1.5em"}/> <span>  Home </span> </Link></li>
                     <li className={active==2 ? styles.active :''} onClick={()=>setActive(2)}> <Link href={ROUTES.MESSAGES}> <SiGooglemessages size={"1.5em"}/> <span> Messages </span> </Link></li>
                     <li className={active==3 ? styles.active :''} onClick={()=>setActive(3)}> <Link href={ROUTES.PROFILE}> <FaUser size={"1.5em"}/> <span> Profile </span> </Link></li>
-                    <li className={active==4 ? styles.active :''} onClick={()=>setActive(4)}> <Link href={ROUTES.CONTESTS}> <TbSwords size={"1.5em"}/> <span> Contest </span> </Link></li>
+                    <li className={active==4 ? styles.active :''} onClick={()=>setActive(4)}> <Link href={ROUTES.STATS}> <FaChartBar size={"1.5em"}/> <span> Stats </span> </Link></li>
+                    <li className={active==5 ? styles.active :''} onClick={()=>setActive(5)}> <Link href={ROUTES.CONTESTS}> <TbSwords size={"1.5em"}/> <span> Contest </span> </Link></li>
                 </ul>
             </nav>
         </div>

@@ -1,9 +1,9 @@
 import React from 'react'
+import NavigationMenu from '../common/components/NavigationMenu/NavigationMenu'
 
 const message = () => {
   return (
-    <div>message</div>
-  )
+    <></>)
 }
 
 export default message
