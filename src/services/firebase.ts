@@ -70,3 +70,18 @@ export const getSolvedCount = async (username: string) => {
   }
   return 0;
 };
+
+
+export const getRatingGraph = async (username: string)=>{
+    const res=await fetch(`https://codeforces.com/api/user.rating?handle=${username}`)
+    if (res.status===200){
+        const data=await res.json()
+        const ratings=data.result
+        const ans =[]
+        for (const rating of ratings){
+                ans.push(rating.newRating)
+        }
+        return ans
+    }
+    return []
+}
