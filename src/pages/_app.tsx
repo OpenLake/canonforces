@@ -8,6 +8,7 @@ import {User} from "../types/user";
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { useRouter }from 'next/router';
+import Layout from '../common/components/Layout/Layout';
 
 const poppins = Poppins({
   weight: "500",
@@ -16,6 +17,10 @@ const poppins = Poppins({
 export default function App({ Component, pageProps }: AppProps) {
   const [user, setUser] = useState(null);
   const router = useRouter();
+const noLayoutRoutes = ['/', '/login', '/signup'];
+
+  // Check if current route is in the list
+  const showLayout = !noLayoutRoutes.includes(router.pathname);
 
   useEffect(() => {
     onAuthStateChanged(auth, (authUser: any) => {
@@ -37,9 +42,17 @@ export default function App({ Component, pageProps }: AppProps) {
           font-family: ${poppins.style.fontFamily};
         }
       `}</style>
-      <UserContext.Provider value={user}>
-        <Component {...pageProps} />
-      </UserContext.Provider> 
+      {showLayout ? (
+        <Layout>
+          <UserContext.Provider value={user}>
+            <Component {...pageProps} />
+          </UserContext.Provider>
+        </Layout>
+      ) : (
+        <UserContext.Provider value={user}>
+          <Component {...pageProps} />
+        </UserContext.Provider>
+      )}
     </>
   )
 }

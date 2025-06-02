@@ -19,6 +19,8 @@ import { faker } from '@faker-js/faker'
 import { useEffect, useState } from "react";
 import { doesUsernameExists } from "../../../services/firebase";
 import useUser from "../../../hooks/use-user";
+import { getContestCount } from "../../../services/firebase";
+import { getSolvedCount } from "../../../services/firebase";
 
 ChartJS.register(
   RadialLinearScale,
@@ -113,18 +115,24 @@ export default function MainMenu() {
   const [userData, setUserData] = useState<any>(null);
 
   const user = useUser();
-  console.log(user);
+  console.log('user logged', user);
 
-  useEffect( () => {
-    if(user.user?.username) {
-      (async () => {
-        const codeforcesData = await doesUsernameExists(user.user?.username);
-        setUserData(codeforcesData?.result[0]);
-        console.log(codeforcesData);  
-      })();
-    }
-  }, [user.user]);
-
+ useEffect(() => {
+  const username = user.user?.username;
+  if (typeof username === "string" && username.trim() !== "") {
+    (async () => {
+      const codeforcesData = await doesUsernameExists(username);
+      const contests = await getContestCount(username);
+      const solver = await getSolvedCount(username);
+      console.log('solver logged', solver);
+      setUserData({
+        ...codeforcesData?.result[0],
+        ...solver,
+        contestsGiven: contests
+      });
+    })();
+  }
+}, [user.user]);
 
   return (  
     <div className={styles.main}>
@@ -144,21 +152,21 @@ export default function MainMenu() {
             <div className={styles.stats}>
               <div className={styles.stats1}> 
                   <div className={styles.questions}>
-                    <span className={styles.number}> {userData?.contribution ? userData?.contribution : "0"} </span>  <span> Contributions </span>  
+                    <span className={styles.number}> {userData?.rank ? userData?.rank : "pupil"} </span>  <span> Rank</span>  
                   </div>
                   <div className={styles.questions}>
-                    <span className={styles.number}> 3256 </span>  <span>Problems Solved </span>  
-                    <span className={styles.number}> 4000 </span>  <span>Submissions </span>
+                    <span className={styles.number}> {userData?.solved ? userData?.solved : "0"} </span>  <span>Problems Solved </span>  
+                    <span className={styles.number}>{userData?.attempt ? userData?.attempt : "0"} </span>  <span>Submissions </span>
                   </div> 
                   
               </div>
               <div className={styles.stats2}> 
                 <div className={styles.ranking}>
-                  <span className={styles.number}> {userData?.maxRating ? userData?.maxRating : "Improve your rating by plaing more"} </span> <span> Max Rating </span>
+                  <span className={styles.number}> {userData?.maxRating ? userData?.maxRating : "Rating"} </span> <span> Max Rating </span>
                 </div>
                 <div className={styles.contest}>
-                  <span className={styles.number}> {user.user?.contestPlayed ? user.user?.contestPlayed : "0"} </span> <span> Contest played</span>
-                  <span className={styles.number}> {user.user?.contestWon ? user.user?.contestWon: "0"} </span> <span> Won </span>
+                  <span className={styles.number}> {userData?.contestsGiven ? userData?.contestsGiven : "0"} </span> <span> Contest played</span>
+                  {/* <span className={styles.number}> {user.user?.contestWon ? user.user?.contestWon: "0"} </span> <span> Won </span> */}
                 </div> 
               </div>  
             </div>
