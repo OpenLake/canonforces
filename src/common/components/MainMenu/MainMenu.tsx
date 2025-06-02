@@ -117,24 +117,22 @@ export default function MainMenu() {
   const user = useUser();
   console.log('user logged', user);
 
-  useEffect( () => {
-    if(user.user?.username) {
-      (async () => {
-        const codeforcesData = await doesUsernameExists(user.user?.username);
-        const contests= await getContestCount(user.user?.username)
-        const solver= await getSolvedCount(user.user?.username)
-      console.log('solver logged',solver)
-        setUserData({
-  ...codeforcesData?.result[0],...solver,
-  contestsGiven: contests
-});
-        
-        
-
-      })();
-    }
-  }, [user.user]);
-
+ useEffect(() => {
+  const username = user.user?.username;
+  if (typeof username === "string" && username.trim() !== "") {
+    (async () => {
+      const codeforcesData = await doesUsernameExists(username);
+      const contests = await getContestCount(username);
+      const solver = await getSolvedCount(username);
+      console.log('solver logged', solver);
+      setUserData({
+        ...codeforcesData?.result[0],
+        ...solver,
+        contestsGiven: contests
+      });
+    })();
+  }
+}, [user.user]);
 
   return (  
     <div className={styles.main}>

@@ -1,23 +1,19 @@
-// src/lib/firebase.ts
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { GoogleAuthProvider} from 'firebase/auth';
+import { GoogleAuthProvider } from 'firebase/auth';
 
-// Add this line to create the provider
 const provider = new GoogleAuthProvider();
-// ✅ Replace these with your new Firebase config
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBAwDmj5YSTCKQRB6E9qz_9lElFwGYK8PM",
-  authDomain: "canonforces-a743b.firebaseapp.com",
-  projectId: "canonforces-a743b",
-  storageBucket: "canonforces-a743b.firebasestorage.app",
-  messagingSenderId: "530076439567",
-  appId: "1:530076439567:web:d4c1d986fc02b76718bf7a",
-  measurementId: "G-P11PC4XZR8"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
-
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
