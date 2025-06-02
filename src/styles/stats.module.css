@@ -1,9 +1,31 @@
 /* Stats Page Wrapper */
 .statsPageWrapper {
-  padding: 2rem 2.5rem;
+  padding: 2rem;
   min-height: 100vh;
   background-color: #f8fafc;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  max-width: 100vw;
+  overflow-x: hidden;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+}
+
+/* Left Content Area */
+.leftContent {
+  max-width: 100%;
+  min-width: 0; /* Prevents grid overflow */
+}
+
+/* Right Sidebar (for future small graphs) */
+.rightSidebar {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  height: fit-content;
+  position: sticky;
+  top: 2rem;
 }
 
 /* Page Title */
@@ -13,6 +35,7 @@
   color: #1e293b;
   margin-bottom: 2rem;
   text-align: left;
+  line-height: 1.2;
 }
 
 /* Floating Input Bar */
@@ -23,10 +46,17 @@
   background: white;
   padding: 1rem 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  margin-bottom: 2.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  width: 100%;
   max-width: 500px;
   border: 1px solid #e2e8f0;
+  transition: box-shadow 0.2s ease;
+}
+
+.floatingInputBar:focus-within {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
 }
 
 /* Input Field */
@@ -38,6 +68,7 @@
   color: #475569;
   background: transparent;
   padding: 0.5rem 0;
+  min-width: 0; /* Prevents overflow */
 }
 
 .input::placeholder {
@@ -61,6 +92,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .compareBtn:hover {
@@ -73,58 +106,104 @@
   transform: translateY(0);
 }
 
-/* Chart Area */
-.chartArea {
-  background: white;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
-  max-width: 1000px;
+/* Comparison Header */
+.comparisonHeader {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #cbd5e1;
+  position: relative;
+  overflow: hidden;
 }
 
-.chartArea span {
-  display: block;
+.comparisonHeader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+}
+
+.comparisonHeader span {
   font-size: 1.1rem;
   color: #475569;
-  margin-bottom: 1.5rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.comparisonText {
+  color: #64748b;
 }
 
 /* User Highlight */
 .userHighlight {
   color: #3b82f6;
   font-weight: 600;
-  background: rgba(59, 130, 246, 0.1);
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
+  background: rgba(59, 130, 246, 0.12);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  position: relative;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
+.userHighlight::before {
+  content: '👤';
+  font-size: 0.9rem;
+}
+
+/* Chart Area */
+.chartArea {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Single Column Layout for Mobile */
+@media (max-width: 1200px) {
   .statsPageWrapper {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
     padding: 1.5rem;
   }
   
-  .pageTitle {
-    font-size: 2rem;
-  }
-  
-  .floatingInputBar {
-    max-width: 100%;
-  }
-  
-  .chartArea {
-    max-width: 100%;
-    padding: 1.5rem;
+  .rightSidebar {
+    order: -1;
+    position: static;
+    height: auto;
   }
 }
 
 @media (max-width: 768px) {
+  .statsPageWrapper {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .pageTitle {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
   .floatingInputBar {
     flex-direction: column;
     align-items: stretch;
     gap: 0.75rem;
+    max-width: 100%;
   }
   
   .compareBtn {
@@ -133,12 +212,40 @@
     min-width: 120px;
   }
   
+  .comparisonHeader {
+    padding: 1rem 1.5rem;
+  }
+  
+  .comparisonHeader span {
+    font-size: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .chartArea {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
   .statsPageWrapper {
-    padding: 1rem;
+    padding: 0.75rem;
   }
   
   .pageTitle {
     font-size: 1.75rem;
-    margin-bottom: 1.5rem;
+  }
+  
+  .floatingInputBar {
+    padding: 0.75rem 1rem;
+  }
+  
+  .comparisonHeader {
+    padding: 1rem;
+  }
+  
+  .chartArea {
+    padding: 1rem;
   }
 }
