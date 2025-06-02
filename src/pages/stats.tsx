@@ -19,9 +19,9 @@ ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip,
 
 export default function StatsComparison() {
   const user = useUser();
-  const [myRatings, setMyRatings] = useState([]);
+  const [myRatings, setMyRatings] = useState<number[]>([]);
   const [compareName, setCompareName] = useState('');
-  const [otherRatings, setOtherRatings] = useState([]);
+  const [otherRatings, setOtherRatings] = useState<number[]>([]);
   const [entered, setEntered] = useState(false);
 
   useEffect(() => {
