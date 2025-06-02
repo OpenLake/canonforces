@@ -103,7 +103,7 @@ export default function StatsComparison() {
 
       <div className={styles.chartArea}>
         <span>
-          Comparing your rating{entered && compareName ? ` with ` : ''} 
+          Comparing {entered && compareName ? ` with ` : ''} 
           {entered && compareName ? (
             <span className={styles.userHighlight}>{compareName}</span>
           ) : null}
