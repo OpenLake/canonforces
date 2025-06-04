@@ -7,25 +7,26 @@
   max-width: 100vw;
   overflow-x: hidden;
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 350px;
   gap: 2rem;
 }
 
 /* Left Content Area */
 .leftContent {
   max-width: 100%;
-  min-width: 0; /* Prevents grid overflow */
+  min-width: 0;
 }
 
-/* Right Sidebar (for future small graphs) */
+/* Right Sidebar */
 .rightSidebar {
   background: white;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
-  padding: 1.5rem;
+  padding: 0;
   height: fit-content;
   position: sticky;
   top: 2rem;
+  overflow: hidden;
 }
 
 /* Page Title */
@@ -68,7 +69,7 @@
   color: #475569;
   background: transparent;
   padding: 0.5rem 0;
-  min-width: 0; /* Prevents overflow */
+  min-width: 0;
 }
 
 .input::placeholder {
@@ -173,7 +174,130 @@
   overflow: hidden;
 }
 
-/* Single Column Layout for Mobile */
+/* Chart Container */
+.chartContainer {
+  height: 350px;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* Stats Table */
+.statsTable {
+  width: 100%;
+}
+
+.tableTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.tableContainer {
+  padding: 0;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.table thead {
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.metricLabel {
+  font-weight: 500;
+  color: #374151;
+  min-width: 140px;
+}
+
+.valueCell {
+  font-weight: 600;
+  color: #1f2937;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Better/Worse Value Highlighting */
+.betterValue {
+  color: #059669 !important;
+  background-color: rgba(16, 185, 129, 0.08);
+  position: relative;
+}
+
+.betterValue::before {
+  content: '↗';
+  position: absolute;
+  left: 0.5rem;
+  color: #059669;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.worseValue {
+  color: #dc2626 !important;
+  background-color: rgba(239, 68, 68, 0.08);
+  position: relative;
+}
+
+.worseValue::before {
+  content: '↘';
+  position: absolute;
+  left: 0.5rem;
+  color: #dc2626;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* Scrollbar Styling */
+.tableContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Responsive Design */
 @media (max-width: 1200px) {
   .statsPageWrapper {
     grid-template-columns: 1fr;
@@ -182,9 +306,13 @@
   }
   
   .rightSidebar {
-    order: -1;
+    order: 2;
     position: static;
     height: auto;
+  }
+  
+  .chartContainer {
+    height: 300px;
   }
 }
 
@@ -226,6 +354,20 @@
   .chartArea {
     padding: 1.5rem;
   }
+  
+  .chartContainer {
+    height: 250px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.75rem 1rem;
+  }
+  
+  .tableTitle {
+    padding: 1rem 1rem 0.75rem 1rem;
+    font-size: 1.1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -248,4 +390,80 @@
   .chartArea {
     padding: 1rem;
   }
+  
+  .chartContainer {
+    height: 220px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  .tableTitle {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+  
+  .metricLabel {
+    min-width: 100px;
+  }
+}
+
+/* ✅ Table container: show full content, no scroll */
+.tableContainer {
+  padding: 0;
+  max-height: none;
+  overflow-y: visible;
+}
+
+/* ✅ Reduce spacing for table cells */
+.table th,
+.table td {
+  padding: 0.6rem 1rem;
+}
+
+.metricLabel {
+  font-weight: 500;
+  color: #374151;
+  min-width: 100px; /* reduced from 140px */
+}
+
+/* ✅ More compact comparison header */
+.comparisonHeader {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  padding: 1rem 1.25rem; /* slightly reduced */
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid #cbd5e1;
+}
+
+.comparisonHeader span {
+  font-size: 1rem;
+  color: #475569;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  line-height: 1.3;
+}
+
+/* ✅ More elegant chart style */
+.chartArea {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background-image: linear-gradient(white, white), linear-gradient(to right, #3b82f6, #06b6d4, #10b981);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.chartContainer {
+  height: 320px; /* slightly reduced */
+  width: 100%;
+  margin-top: 1.25rem;
 }

@@ -32,7 +32,7 @@ export default function NavigationMenu() {
                     <li className={active==2 ? styles.active :''} onClick={()=>setActive(2)}> <Link href={ROUTES.MESSAGES}> <SiGooglemessages size={"1.5em"}/> <span> Messages </span> </Link></li>
                     <li className={active==3 ? styles.active :''} onClick={()=>setActive(3)}> <Link href={ROUTES.PROFILE}> <FaUser size={"1.5em"}/> <span> Profile </span> </Link></li>
                     <li className={active==4 ? styles.active :''} onClick={()=>setActive(4)}> <Link href={ROUTES.STATS}> <FaChartBar size={"1.5em"}/> <span> Stats </span> </Link></li>
-                    <li className={active==5 ? styles.active :''} onClick={()=>setActive(5)}> <Link href={ROUTES.CONTESTS}> <TbSwords size={"1.5em"}/> <span> Contest </span> </Link></li>
+                    <li className={active==5 ? styles.active :''} onClick={()=>setActive(5)}> <Link href={ROUTES.CONTESTS}> <TbSwords size={"1.5em"}/> <span> Practise</span> </Link></li>
                 </ul>
             </nav>
         </div>
