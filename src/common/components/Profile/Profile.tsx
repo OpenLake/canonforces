@@ -82,21 +82,22 @@ export default function Profile() {
   const user = useUser();
   console.log(user);
 
-  useEffect( () => {
-    if(user.user?.username) {
-      (async () => {
-        const codeforcesData = await doesUsernameExists(user.user?.username);
-        setUserData(codeforcesData?.result[0]);
-        console.log(codeforcesData);  
-      })();
-    }
-  }, [user.user]);
-  
+ useEffect(() => {
+  if (user && user.user && user.user.username) {
+    const username = user.user.username;
+    (async () => {
+      const codeforcesData = await doesUsernameExists(username);
+      setUserData(codeforcesData?.result[0]);
+      console.log(codeforcesData);  
+    })();
+  }
+}, [user]);
+
   return (
     <div className={styles.profile}>
         <div className={styles.profile_stats}>
             <div className={styles.profile_user}>
-                <h1> Hey {user.user?.fullname.split(" ")[0]} </h1>
+                <h1>Hey {user.user?.fullname ? user.user.fullname.split(" ")[0] : user.user?.username}</h1>
                 <span> Hope you are doing well! </span>
             </div>
             <div className={styles.bar_chart}>

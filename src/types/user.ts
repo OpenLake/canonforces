@@ -1,5 +1,5 @@
 export interface User {
-    fullname: string;
+    fullname?: string;
     username: string;
     dateCreated: Date | null;
     userId: string;

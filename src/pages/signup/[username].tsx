@@ -8,7 +8,7 @@ import { db } from "../../lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
 
-export default function username({}){
+export default function Username({}){
     const [username, setUsername] = useState('');
     const authUser = useContext(UserContext);
 

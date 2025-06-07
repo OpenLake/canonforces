@@ -6,8 +6,11 @@ import { getUserByUserId } from "../services/firebase";
 interface User {
   docId: string;
   username?: string;
+  fullname?: string;
   contestPlayed?: number;
   contestWon?: number;
+  followers?: any[];
+  following?: any[];
 }
 
 export default function useUser() {
