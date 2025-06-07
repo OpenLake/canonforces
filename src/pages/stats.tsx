@@ -28,16 +28,17 @@ export default function StatsComparison() {
   const [myAttribute, setMyAttribute] = useState<any>(null);
   const [otherAttribute, setOtherAttribute] = useState<any>(null);
 
-  useEffect(() => {
-    if (user.user && user.user.username) {
-      getRatingGraph(user.user.username).then(setMyRatings);
-      (async () => {
-        const data1 = await getSolvedCount(user.user!.username);
-        const data2 = await doesUsernameExists(user.user!.username);
-        setMyAttribute({ ...data1, ...data2.result[0] });
-      })();
-    }
-  }, [user.user]);
+ useEffect(() => {
+  if (user.user && user.user.username) {
+    const username = user.user.username;
+    getRatingGraph(username).then(setMyRatings);
+    (async () => {
+      const data1 = await getSolvedCount(username);
+      const data2 = await doesUsernameExists(username);
+      setMyAttribute({ ...data1, ...data2.result[0] });
+    })();
+  }
+}, [user.user]);
 
   const handleCompare = async () => {
     if (!compareName.trim()) {
@@ -102,7 +103,7 @@ export default function StatsComparison() {
             padding: 15,
             font: {
               size: 12,
-              weight: '500',
+              weight: 500,
             },
           },
         },
