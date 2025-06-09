@@ -2,8 +2,9 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { idToProblemMap } from '../../constants/Twomaps';
 import styles from '../../styles/CodeEditor.module.css'
+import CodeEditor from '../../common/components/CodeEditor/CodeEditor';
 
-const CodeEditor = () => {
+const QuestionBar = () => {
   const router = useRouter();
   const { id } = router.query;
 
@@ -45,11 +46,11 @@ const CodeEditor = () => {
       <div className={styles.rightPane}>
         {/* You can place your actual code editor here later */}
         <div className={styles.editorPlaceholder}>
-          <p style={{ color: '#ccc' }}>Editor coming soon...</p>
+          <CodeEditor id={typeof id === 'string' ? id : ''} />
         </div>
       </div>
     </div>
   );
 };
 
-export default CodeEditor;
+export default QuestionBar;
