@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@next/font": "13.0.7",
     "@types/node": "18.11.15",
     "chart.js": "^4.4.9",
