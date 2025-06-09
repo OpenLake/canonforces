@@ -68,7 +68,7 @@ const Output: React.FC<OutputProps> = ({ id, language, value }) => {
             </div>
           ))
         ) : (
-          <p>Click "Run Code" to see the output here</p>
+          <p>Click &quot;Run Code&quot; to see the output here</p>
         )}
       </div>
     </div>
