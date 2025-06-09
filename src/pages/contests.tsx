@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import QuesList from '../common/components/Ques/QuesList';
-import styles from '../styles/Contests.module.css'; // ⬅️ import your CSS here
+import styles from '../styles/Contests.module.css'; 
 
 const Contests = () => {
   const ratingList = ['800', '1000', '1200', '1400', '1600'];
