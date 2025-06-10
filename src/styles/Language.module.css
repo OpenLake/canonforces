@@ -1,0 +1,28 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: 'Segoe UI', sans-serif;
+  margin-bottom: 16px;
+}
+
+.label {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+.select {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  background-color: #f9f9f9;
+  transition: border 0.2s ease;
+}
+
+.select:focus {
+  border-color: #3182ce;
+  background-color: #fff;
+}
