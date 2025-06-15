@@ -16,7 +16,7 @@ interface User {
 export default function useUser() {
   const [activeUser, setActiveUser] = useState<User | undefined>();
   const user = useContext(UserContext);
-  console.log('user logged1',user)
+  // console.log('user logged1',user)
   useEffect(() => {
     async function getUserObjByUserId() {
       const [response] = await getUserByUserId(user.uid);
@@ -27,8 +27,9 @@ export default function useUser() {
       getUserObjByUserId();
     }
   }, [user]);
-
-  console.log(activeUser?.username, activeUser?.contestPlayed, activeUser?.contestWon);
+  console.log(activeUser?.docId)
+  console.log(activeUser)
+  // console.log(activeUser?.username, activeUser?.contestPlayed, activeUser?.contestWon);
 
   return { user: activeUser };
 }

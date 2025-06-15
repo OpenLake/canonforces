@@ -10,6 +10,7 @@ import { RiLockPasswordFill } from "react-icons/ri";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { signupWithGoogle } from "../services/firebase";
+import { getUserByUserId } from "../services/firebase";
 
 export default function Login() {
     const router = useRouter();
@@ -37,12 +38,28 @@ export default function Login() {
         }        
     }
 
-    const googleSignup = async () => {
-        const user = await signupWithGoogle();
-        if(user !== null) {
+
+const googleSignup = async () => {
+    const user = await signupWithGoogle(); // should return Firebase User
+    console.log(user)
+    if (user !== null) {
+        const userId = user.uid; 
+        const dbUserArray = await getUserByUserId(userId);
+        // console.log(dbUserArray)
+
+        // Check for username property safely
+        if (
+            dbUserArray.length === 0 ||
+            !('username' in dbUserArray[0]) ||
+            !dbUserArray[0].username
+        ) {
+            router.push("/CompleteProfile");
+        } else {
             router.push(ROUTES.DASHBOARD);
         }
     }
+};
+
 
     useEffect(() => {
         document.title = "Canonforces Login"
