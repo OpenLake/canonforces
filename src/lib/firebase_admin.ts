@@ -1,9 +1,22 @@
 import admin from 'firebase-admin';
-import serviceAccount from './service.json';
+
+const projectId = process.env.FIREBASE_PROJECT_ID;
+const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+if (!projectId || !clientEmail || !privateKey) {
+  console.error(
+    'Firebase Admin SDK requires FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY environment variables.'
+  );
+}
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-  databaseURL: "https://console.firebase.google.com/project/canonforces-a743b/database/canonforces-a743b-default-rtdb/data/~2F"
+  credential: admin.credential.cert({
+    projectId,
+    clientEmail,
+    privateKey,
+  }),
+  databaseURL: `https://${projectId}.firebaseio.com`,
 });
 
 export const adminDb = admin.firestore();
