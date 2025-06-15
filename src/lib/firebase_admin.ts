@@ -10,13 +10,17 @@ if (!projectId || !clientEmail || !privateKey) {
   );
 }
 
-admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId,
-    clientEmail,
-    privateKey,
-  }),
-  databaseURL: `https://${projectId}.firebaseio.com`,
-});
+try {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId,
+      clientEmail,
+      privateKey,
+    }),
+    databaseURL: `https://${projectId}.firebaseio.com`,
+  });
+} catch (error) {
+  console.error('Firebase Admin initialization error', error);
+}
 
 export const adminDb = admin.firestore();
