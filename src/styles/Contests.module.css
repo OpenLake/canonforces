@@ -1,38 +1,116 @@
+/* Contests.module.css */
+
 .contest-container {
+  min-height: 100vh;
+  background: #f7f9fb;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 4rem; /* keeps it lower from the top */
-  font-family: 'Poppins', sans-serif;
+  padding: 0 0 40px 0;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+.header-section {
+  width: 100%;
+  max-width: 800px;
+  margin-top: 48px;
+  margin-bottom: 36px;
+  background: #fff;
+  box-shadow: 0 2px 12px 0 rgba(44, 83, 100, 0.06);
+  border-radius: 18px;
+  padding: 36px 40px;
+  border: 1.5px solid #e6f0fa;
+  text-align: left;
+}
+
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #222e3a;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  line-height: 1.1;
+}
+
+.subtitle {
+  color: #3a7bd5;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.description {
+  color: #5c6e85;
+  font-size: 1.06rem;
+  margin-bottom: 0;
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 800px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(44, 83, 100, 0.06);
+  border-radius: 16px;
+  padding: 32px 30px 36px 30px;
+  margin-top: 0;
+  border: 1.5px solid #e6f0fa;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #222e3a;
+  margin-bottom: 18px;
+  letter-spacing: 0.5px;
 }
 
 .rating-tabs {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 12px;
   flex-wrap: wrap;
-  justify-content: center;
+  margin-bottom: 28px;
+  justify-content: flex-start;
 }
 
 .rating-button {
-  padding: 10px 20px;
+  background: #e6f0fa;
+  color: #3a7bd5;
   border: none;
-  border-radius: 9999px;
-  background-color: #f1f5f9;
-  color: #0f172a;
-  font-size: 1rem;
-  font-weight: 500;
+  outline: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 22px;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  box-shadow: 0 1px 4px rgba(44, 83, 100, 0.06);
+  transition: 
+    background 0.18s cubic-bezier(.4,0,.2,1), 
+    color 0.18s cubic-bezier(.4,0,.2,1), 
+    transform 0.13s;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
 
-.rating-button:hover {
-  background-color: #e2e8f0;
+.rating-button:hover,
+.rating-button:focus {
+  background: #3a7bd5;
+  color: #fff;
+  transform: translateY(-2px) scale(1.04);
 }
 
-.rating-button.active {
-  background-color: #0f172a;
-  color: white;
-  font-weight: bold;
+.active {
+  background: #3a7bd5;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(58, 123, 213, 0.12);
+  border: 2px solid #a4c8e1;
+  transform: scale(1.07);
+}
+
+.questions-container {
+  margin-top: 0;
+  border-radius: 12px;
+  background: #f7f9fb;
+  box-shadow: 0 1px 8px rgba(44, 83, 100, 0.05);
+  padding: 20px 18px;
+  min-height: 180px;
 }
