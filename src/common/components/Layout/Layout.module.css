@@ -3,11 +3,19 @@
   display: flex;
   min-height: 100vh;
   width: 100vw;
+<<<<<<< HEAD
   /* position:fixed;  */
 }
 
 .main {
   /* margin-left:15rem ; */
+=======
+  position:fixed;
+}
+
+.main {
+  margin-left:15rem ;
+>>>>>>> 83e4f7c (Sidebar is now fixed)
   flex: 1;
   min-width: 0;
   background: #f7f9fb;
@@ -16,6 +24,7 @@
 }
 
 
+<<<<<<< HEAD
 .main {
   margin-left: 15rem;      /* Same as sidebar width */
   height: 100vh;
@@ -25,3 +34,5 @@
   min-width: 0;
   box-sizing: border-box;
 }
+=======
+>>>>>>> 83e4f7c (Sidebar is now fixed)
