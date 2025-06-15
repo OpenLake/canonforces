@@ -5,6 +5,22 @@
     justify-content: space-between;
     height: 100vh;
     padding: 1.6rem;
+    position: relative;
+}
+.navigation {
+    width: 15rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    padding: 1.6rem;
+           
+    left: 0;
+    top: 0;
+    background: #fff;
+    z-index: 100;
+    box-shadow: 2px 0 16px rgba(44, 83, 100, 0.07);
+    border-right: 1.5px solid #e6f0fa;
 }
 
 .logo {
@@ -49,10 +65,6 @@
 .navbar h4 {
     font-size: 0.95rem;
     color: #68696c;
-}
-
-.navbar nav {
-    
 }
 
 .navbar ul {
