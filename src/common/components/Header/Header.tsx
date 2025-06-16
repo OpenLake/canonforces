@@ -21,6 +21,7 @@ export default function Header() {
             </div>
             <div className="basis-1/4 flex items-center justify-center">
               <ul className="flex-row flex w-full justify-around">
+
                 <li> <Link href={ROUTES.SIGNUP}> Signup </Link> </li>
                 <li> <Link href={ROUTES.LOGIN}> Login </Link> </li>
               </ul>

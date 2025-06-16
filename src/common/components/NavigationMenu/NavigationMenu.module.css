@@ -36,8 +36,8 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 1.6rem;
-}
 
+}
 .logo {
     display: flex;
     align-items: center;

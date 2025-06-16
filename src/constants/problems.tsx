@@ -461,6 +461,7 @@ export const problem: ProblemsMap = {
 }
 
   ],
+
   '1500':[
 
     {
@@ -585,6 +586,7 @@ export const problem: ProblemsMap = {
       'test_case': "5\n2 3 4 1 5",
       'answer': "3",
       'solved': false
+
     },
     {
   "id": "p1600-1",

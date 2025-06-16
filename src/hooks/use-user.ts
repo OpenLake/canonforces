@@ -16,6 +16,7 @@ interface User {
 export default function useUser() {
   const [activeUser, setActiveUser] = useState<User | undefined>();
   const user = useContext(UserContext);
+
   // console.log('user logged1',user)
   useEffect(() => {
     async function getUserObjByUserId() {

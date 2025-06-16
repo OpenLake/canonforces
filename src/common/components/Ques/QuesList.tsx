@@ -66,6 +66,7 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
         <ul className={styles.list}>
           {questions.map((q) => (
             <li key={q.id} className={styles.listItem}>
+
               <button
                 onClick={() => router.push(`/questions/${q.id}`)}
                 className={styles.questionButton}
