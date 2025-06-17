@@ -17,7 +17,7 @@ const poppins = Poppins({
 export default function App({ Component, pageProps }: AppProps) {
   const [user, setUser] = useState(null);
   const router = useRouter();
-  const noLayoutRoutes = ['/', '/login', '/signup','/questions/[id]'];
+  const noLayoutRoutes = ['/', '/login', '/signup','/questions/[id]','/CompleteProfile'];
 
   // Check if current route is in the list
   const showLayout = !noLayoutRoutes.includes(router.pathname);

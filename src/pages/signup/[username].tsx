@@ -78,20 +78,3 @@ export default function Username({}){
     )
 };
 
-
-// username.getInitialProps = async () => {
-//     const currentTime = new Date().getTime();
-
-//     // const [username, setUsername] = useState('');    
-//     const randomNumber = (): number => Math.floor(Math.random() * 1000000);
-//     // sha512Hex(${randomNumber}/user.info?apiKey=5bb4c6ecab438b6aa0beff73ac3e257115afb642&time=${currentTime}#874a1d7cde02549386ef85897bb65bf7d3ca4060)
-    
-//     const res = await fetch(`https://codeforces.com/api/user.info?handles=${username}`);
-//     const data = await res.json();
-//     console.log(data);
-//     return {
-//         props: {
-//             user: data
-//         }
-//     };
-// };

@@ -44,7 +44,6 @@ const QuestionBar = () => {
       </div>
 
       <div className={styles.rightPane}>
-        {/* You can place your actual code editor here later */}
         <div className={styles.editorPlaceholder}>
           <CodeEditor id={typeof id === 'string' ? id : ''} />
         </div>

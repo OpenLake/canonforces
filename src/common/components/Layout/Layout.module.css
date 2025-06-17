@@ -1,0 +1,27 @@
+/* Layout.module.css */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  /* position:fixed;  */
+}
+
+.main {
+  /* margin-left:15rem ; */
+  flex: 1;
+  min-width: 0;
+  background: #f7f9fb;
+  padding: 2rem;
+  /* Add more styles as needed */
+}
+
+
+.main {
+  margin-left: 15rem;      /* Same as sidebar width */
+  height: 100vh;
+  overflow-y: auto;
+  background: #f7f9fb;
+  padding: 2rem;
+  min-width: 0;
+  box-sizing: border-box;
+}
