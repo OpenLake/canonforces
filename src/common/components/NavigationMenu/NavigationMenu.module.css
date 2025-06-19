@@ -21,6 +21,7 @@
     z-index: 100;
     box-shadow: 2px 0 16px rgba(44, 83, 100, 0.07);
     border-right: 1.5px solid #e6f0fa;
+    
 }
 .navigation {
   position: fixed;

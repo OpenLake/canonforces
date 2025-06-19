@@ -3,11 +3,9 @@ import { CODE_SNIPPETS } from '../../../constants/boilerplate'
 import { Editor } from '@monaco-editor/react'
 import {useState,useEffect,useRef} from 'react'
 import Language from './Language'
-import { idToProblemMap } from '../../../constants/Twomaps'
 import Output from './Output'
 
 const CodeEditor = ({ id }: { id: string }) => {
-    const ques=idToProblemMap[id]
     const [language, setLanguage] = useState<string>('python');
     const [value, setValue] = useState(CODE_SNIPPETS[language as keyof typeof CODE_SNIPPETS]);
    

@@ -1,64 +1,133 @@
+/* CodeEditor.module.css */
+
+/* Container and Layout */
 .container {
   display: flex;
-  height: 100vh;
-  background-color: #1e1e1e;
+  min-height: 100vh;
+  background: #1e1e1e;
   color: #d4d4d4;
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
 }
 
 .leftPane {
-  flex: 1;
+  flex: 1 1 45%;
+  background: #252526;
+  padding: 2rem 2rem 2rem 3rem;
+  border-right: 1px solid #333842;
   overflow-y: auto;
-  padding: 20px;
-  background-color: #1e1e1e;
-  border-right: 1px solid #333;
 }
 
 .rightPane {
-  flex: 1;
-  padding: 20px;
-  background-color: #252526;
+  flex: 1 1 55%;
+  background: #1e1e1e;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 2rem 3rem 2rem 2rem;
+  min-width: 0;
 }
 
+/* Title and Sections */
 .title {
-  color: #569cd6;
-  font-size: 1.8rem;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #61dafb;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
 }
 
 .section {
-  margin-bottom: 18px;
-  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  line-height: 1.7;
 }
 
 .label {
-  font-weight: bold;
-  color: #dcdcaa;
+  color: #c678dd;
+  font-weight: 600;
+  font-size: 1.07rem;
+  letter-spacing: 0.5px;
 }
 
+/* Code/Test Case/Sample Output Blocks */
 .code {
-  background-color: #1e1e1e;
-  padding: 10px;
-  border-left: 4px solid #007acc;
+  background: #23272f;
+  color: #b5cea8;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
   overflow-x: auto;
   white-space: pre-wrap;
-  margin-top: 5px;
+  word-break: break-word;
+  box-shadow: 0 1px 8px 0 #16161644;
+}
+
+/* You can use these for enhanced sample input/output styling if you want */
+.sampleInput {
+  background: #23272f;
   color: #9cdcfe;
+  border-left: 4px solid #61dafb;
 }
 
+.sampleOutput {
+  background: #23272f;
+  color: #b5cea8;
+  border-left: 4px solid #4ec9b0;
+}
+
+.wrongOutput {
+  background: #23272f;
+  color: #f44747;
+  border-left: 4px solid #f44747;
+}
+
+/* Loading State */
 .loading {
+  color: #aaaaaa;
   font-style: italic;
-  color: #888;
+  font-size: 1.1rem;
+  margin-top: 2rem;
 }
 
+/* Editor Placeholder */
 .editorPlaceholder {
-  width: 100%;
-  height: 100%;
-  border: 2px dashed #3c3c3c;
+  flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  background: #181a1b;
+  border: 1.5px solid #2c313a;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 #0002;
+  padding: 0.5rem;
+  min-height: 400px;
+  margin-top: 0.5rem;
+}
+
+/* Scrollbar Styling
+::-webkit-scrollbar {
+  width: 8px;
+  background: #23272f;
+}
+::-webkit-scrollbar-thumb {
+  background: #333842;
+  border-radius: 8px;
+}
+ */
+/* Responsive for Mobile */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+  .leftPane, .rightPane {
+    padding: 1rem;
+    border: none;
+  }
+  .rightPane {
+    min-width: 100%;
+  }
 }

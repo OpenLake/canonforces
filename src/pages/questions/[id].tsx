@@ -1,19 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { idToProblemMap } from '../../constants/Twomaps';
-import styles from '../../styles/CodeEditor.module.css'
+import { doc, getDoc } from 'firebase/firestore';
+import styles from '../../styles/CodeEditor.module.css';
 import CodeEditor from '../../common/components/CodeEditor/CodeEditor';
+import { db } from '../../lib/firebase';
 
 const QuestionBar = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  const ques = typeof id === 'string' ? idToProblemMap[id] : undefined;
+  const [ques, setQues] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchQuestion = async () => {
+      if (typeof id === 'string') {
+        try {
+          const docRef = doc(db, 'problems', id);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setQues(docSnap.data());
+          } else {
+            console.warn('No such question found!');
+          }
+        } catch (error) {
+          console.error('Error fetching question:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchQuestion();
+  }, [id]);
 
   return (
     <div className={styles.container}>
       <div className={styles.leftPane}>
-        {ques ? (
+        {loading ? (
+          <p className={styles.loading}>Loading question...</p>
+        ) : ques ? (
           <>
             <h2 className={styles.title}>{ques.title}</h2>
             <p className={styles.section}>
@@ -39,7 +65,7 @@ const QuestionBar = () => {
             </p>
           </>
         ) : (
-          <p className={styles.loading}>Loading question...</p>
+          <p className={styles.loading}>Question not found</p>
         )}
       </div>
 
