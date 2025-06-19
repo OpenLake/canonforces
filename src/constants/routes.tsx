@@ -8,3 +8,4 @@ export const USERS = "/users";
 export const NOT_FOUND = "/not-found";
 export const PROFILE = "/user/:id";
 export const STATS="/stats"
+export const POTD="/potd"
