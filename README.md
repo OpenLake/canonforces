@@ -1,34 +1,48 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ⚔️ CanonForces
 
-## Getting Started
+**CanonForces** is a multiplayer Codeforces companion platform built to make competitive programming more **collaborative, analytical, and fun**. Challenge friends, compare your growth, solve problems together, and sharpen your DSA skills — all in one place.
 
-First, run the development server:
+
+## 🚀 Features
+
+### ✅ Live Features
+- 🧩 **Practice Problems with Ratings & Tags**
+- 🧠 **Built-in CP IDE** with stdin/stdout support
+- 📊 **Codeforces Stats Comparison** between users (rating, problems solved, ranks, etc.)
+- 📆 **Problem of the Day (POTD)** to keep consistency
+- 🔍 **Explore Problems by Difficulty or Topic**
+- 💬 **Direct Messaging between Users** *(planned)*
+
+### 🧪 In Development / Planned
+- ⚔️ **1v1 Contests** – Real-time battles with friends
+- 🗣️ **In-app Messaging & Group Chat**
+
+
+---
+
+## 🛠️ Tech Stack
+
+### 🖥️ Frontend
+- Next.js + React
+- Tailwind CSS
+- ShadCN UI
+- Socket.IO (real-time)
+
+### 🗄️ Backend
+- Node.js + Express
+- Firebase for authentication and database
+- Codeforces Public API
+- Judge0 and Monoco editor
+
+---
+
+## 🧑‍💻 Local Development Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-```
+# 1. Clone the repo
+git clone https://github.com/OpenLake/canonforces.git
+cd canonforces
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+# 2. Install frontend and backend dependencies
+cd client && npm install
+cd ../server && npm install
