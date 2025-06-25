@@ -24,7 +24,6 @@ export default function Signup() {
 
     const isInvalid = password === "" || email === "" || username === "";
 
-    // ✅ Check redirect after Google Signup
     useEffect(() => {
         const isGoogleSignup = localStorage.getItem("googleSignup");
         if (isGoogleSignup === "true") {
@@ -92,8 +91,8 @@ export default function Signup() {
     };
 
     const googleSignup = async () => {
-        localStorage.setItem("googleSignup", "true"); // ✅ Persist intent
-        await signupWithGoogle(); // Let Firebase reload the page
+        localStorage.setItem("googleSignup", "true"); 
+        await signupWithGoogle(); 
     };
 
     return (
@@ -101,7 +100,7 @@ export default function Signup() {
             <div className={`${styles.container} flex w-10/12`}>
                 <div className={`${styles.signup__form} w-6/12 flex flex-col items-center justify-center`}>
                     <h3>Welcome to Canonforces!</h3>
-                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+                    <p> Level up your DSA journey — not alone, but with friends.</p>
                     {error && <p className="mb-4 text-xs text-read-primary">{error}</p>}
                     <form className={styles.form} method="POST">
                         <div className="flex flex-col">

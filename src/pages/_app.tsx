@@ -44,13 +44,13 @@ export default function App({ Component, pageProps }: AppProps) {
           }
           `}</style>
         {showLayout ? (
+            <UserContext.Provider value={user}>
           <Layout>
           
-            <UserContext.Provider value={user}>
               <Component {...pageProps} />
-            </UserContext.Provider>
            
           </Layout>
+            </UserContext.Provider>
         ) : (
           <UserContext.Provider value={user}>
             <Component {...pageProps} />
