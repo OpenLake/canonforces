@@ -29,7 +29,7 @@ export default function useUser() {
     }
   }, [user]);
   // console.log(activeUser?.docId)
-  console.log("hook",activeUser)
+  // console.log("hook",activeUser)
   
   return { user: activeUser };
 }
