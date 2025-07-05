@@ -31,19 +31,6 @@
   border-radius: 8px;
 }
 
-/* Optional shadow effect for logo image */
-.logo img::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: 50%;
-  box-shadow: 10px 15px 15px rgba(0, 0, 0, 0.5);
-  width: 100px;
-  height: 100px;
-  border: 1px solid red;
-}
-
 /* Canonforces text - keeping the great styling */
 .logo h3 {
   color: rgb(93, 96, 101);
@@ -137,18 +124,34 @@
   gap: 0.6rem;
 }
 
-/* Logout icon */
-.logout {
+/* Logout button wrapper */
+.logout_button {
+  background: none;
+  border: none;
+  outline: none;
   cursor: pointer;
-  color: #94a3b8;
-  transition: all 0.2s ease;
-  padding: 6px;
-  border-radius: 4px;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.logout:hover {
-  color: #ef4444;
+.logout_button:hover {
   background: #fef2f2;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.08);
+}
+
+/* Larger logout icon */
+.logout_icon {
+  color: #94a3b8;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.logout_button:hover .logout_icon {
+  color: #ef4444;
+  transform: scale(1.15);
 }
 
 /* Icon styling */
