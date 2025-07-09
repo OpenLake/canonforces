@@ -85,3 +85,13 @@ export const getRatingGraph = async (username: string)=>{
     }
     return []
 }
+
+
+export async function getAllUsers() {
+  const usersSnapshot = await getDocs(collection(db, "users"));
+  const users = usersSnapshot.docs.map((doc) => ({
+    ...doc.data(),
+    docId: doc.id,
+  }));
+  return users;
+}

@@ -1,133 +1,403 @@
-/* CodeEditor.module.css */
-
-/* Container and Layout */
+/* Main Container */
 .container {
   display: flex;
   min-height: 100vh;
-  background: #1e1e1e;
-  color: #d4d4d4;
-  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+  background: #0d1117;
+  color: #e6edf3;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+  overflow: hidden;
 }
 
+/* Left Panel - Problem Description */
 .leftPane {
-  flex: 1 1 45%;
-  background: #252526;
-  padding: 2rem 2rem 2rem 3rem;
-  border-right: 1px solid #333842;
-  overflow-y: auto;
-}
-
-.rightPane {
-  flex: 1 1 55%;
-  background: #1e1e1e;
+  flex: 0 0 45%;
+  background: #161b22;
+  border-right: 1px solid #30363d;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
-  padding: 2rem 3rem 2rem 2rem;
-  min-width: 0;
+  transition: all 0.3s ease;
+  min-width: 350px;
 }
 
-/* Title and Sections */
-.title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #61dafb;
-  margin-bottom: 1.5rem;
-  letter-spacing: 1px;
+.leftPane.collapsed {
+  flex: 0 0 50px;
+  min-width: 50px;
 }
 
-.section {
-  margin-bottom: 1.5rem;
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #21262d;
+  border-bottom: 1px solid #30363d;
+  min-height: 60px;
+}
+
+.panelTitle {
   font-size: 1.1rem;
-  line-height: 1.7;
+  font-weight: 600;
+  color: #f0f6fc;
+  margin: 0;
 }
 
-.label {
-  color: #c678dd;
+.collapseBtn {
+  background: #238636;
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.collapseBtn:hover {
+  background: #2ea043;
+}
+
+.problemContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+/* Problem Header */
+.problemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f0f6fc;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.difficulty {
+  flex-shrink: 0;
+}
+
+.difficultyBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
-  font-size: 1.07rem;
+  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-/* Code/Test Case/Sample Output Blocks */
-.code {
-  background: #23272f;
-  color: #b5cea8;
+.difficultyBadge.easy {
+  background: #238636;
+  color: #ffffff;
+}
+
+.difficultyBadge.medium {
+  background: #fb8500;
+  color: #ffffff;
+}
+
+.difficultyBadge.hard {
+  background: #da3633;
+  color: #ffffff;
+}
+
+/* Sections */
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #79c0ff;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.875rem;
+}
+
+.description {
+  color: #e6edf3;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.constraints {
+  color: #e6edf3;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* Code Blocks */
+.codeBlock {
+  background: #0d1117;
   border: 1px solid #30363d;
   border-radius: 6px;
-  padding: 1rem 1.2rem;
-  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
-  font-size: 1rem;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+  padding: 1rem;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.875rem;
+  color: #e6edf3;
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  box-shadow: 0 1px 8px 0 #16161644;
+  margin: 0;
+  line-height: 1.5;
 }
 
-/* You can use these for enhanced sample input/output styling if you want */
 .sampleInput {
-  background: #23272f;
-  color: #9cdcfe;
-  border-left: 4px solid #61dafb;
+  border-left: 4px solid #238636;
+  background: #0d1117;
 }
 
 .sampleOutput {
-  background: #23272f;
-  color: #b5cea8;
-  border-left: 4px solid #4ec9b0;
+  border-left: 4px solid #1f6feb;
+  background: #0d1117;
 }
 
 .wrongOutput {
-  background: #23272f;
-  color: #f44747;
-  border-left: 4px solid #f44747;
+  border-left: 4px solid #da3633;
+  background: #0d1117;
 }
 
-/* Loading State */
-.loading {
-  color: #aaaaaa;
-  font-style: italic;
-  font-size: 1.1rem;
-  margin-top: 2rem;
+/* Right Panel - Code Editor */
+.rightPane {
+  flex: 1;
+  background: #0d1117;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
 }
 
-/* Editor Placeholder */
-.editorPlaceholder {
+.rightPane.expanded {
+  flex: 1;
+}
+
+.editorContainer {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #181a1b;
-  border: 1.5px solid #2c313a;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 #0002;
-  padding: 0.5rem;
-  min-height: 400px;
-  margin-top: 0.5rem;
+  background: #0d1117;
+  overflow: hidden;
 }
 
-/* Scrollbar Styling
-::-webkit-scrollbar {
+/* Loading States */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #30363d;
+  border-top: 3px solid #1f6feb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading {
+  color: #7d8590;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Error States */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+}
+
+.error {
+  color: #f85149;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.retryBtn {
+  background: #238636;
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.retryBtn:hover {
+  background: #2ea043;
+}
+
+/* Scrollbar Styling */
+.problemContent::-webkit-scrollbar {
   width: 8px;
-  background: #23272f;
 }
-::-webkit-scrollbar-thumb {
-  background: #333842;
-  border-radius: 8px;
+
+.problemContent::-webkit-scrollbar-track {
+  background: #161b22;
 }
- */
-/* Responsive for Mobile */
-@media (max-width: 900px) {
+
+.problemContent::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 4px;
+}
+
+.problemContent::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .leftPane {
+    flex: 0 0 50%;
+    min-width: unset;
+    border-right: none;
+    border-bottom: 1px solid #30363d;
+  }
+  
+  .leftPane.collapsed {
+    flex: 0 0 60px;
+  }
+  
+  .rightPane {
+    flex: 1;
+  }
+  
+  .problemContent {
+    padding: 1rem;
+  }
+  
+  .title {
+    font-size: 1.25rem;
+  }
+  
+  .problemHeader {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    height: 100vh;
+  }
+  
+  .leftPane {
+    flex: 0 0 45%;
+  }
+  
+  .leftPane.collapsed {
+    flex: 0 0 50px;
+  }
+  
+  .problemContent {
+    padding: 0.75rem;
+  }
+  
+  .panelHeader {
+    padding: 0.75rem 1rem;
+  }
+  
+  .title {
+    font-size: 1.125rem;
+  }
+  
+  .codeBlock {
+    font-size: 0.8rem;
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
   .container {
     flex-direction: column;
   }
-  .leftPane, .rightPane {
-    padding: 1rem;
-    border: none;
+  
+  .leftPane {
+    flex: 0 0 40%;
+    min-height: 200px;
   }
-  .rightPane {
-    min-width: 100%;
+  
+  .leftPane.collapsed {
+    flex: 0 0 40px;
+    min-height: 40px;
+  }
+  
+  .problemContent {
+    padding: 0.5rem;
+  }
+  
+  .section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .codeBlock {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .container {
+    background: #000000;
+    color: #ffffff;
+  }
+  
+  .leftPane {
+    background: #111111;
+    border-right-color: #555555;
+  }
+  
+  .panelHeader {
+    background: #222222;
+    border-bottom-color: #555555;
+  }
+  
+  .codeBlock {
+    background: #000000;
+    border-color: #555555;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .leftPane,
+  .rightPane,
+  .collapseBtn,
+  .retryBtn {
+    transition: none;
+  }
+  
+  .spinner {
+    animation: none;
   }
 }

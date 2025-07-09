@@ -1,0 +1,238 @@
+/* Output.module.css */
+
+
+.outputWrapper {
+  background: var(--panel);
+  border-radius: 10px;
+  box-shadow: 0 2px 16px 0 #0006;
+  padding: 0;
+  margin-top: 2rem;
+  color: var(--text);
+  font-family: var(--code-font);
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.actionBar {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.5rem 0.5rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--background);
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  background: var(--button-bg);
+  color: var(--text);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5em 1.2em;
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.runButton {
+  background: var(--primary);
+  color: #fff;
+}
+
+.runButton:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.submitButton {
+  background: var(--success);
+  color: #fff;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.spinner {
+  border: 2px solid var(--tab-inactive);
+  border-top: 2px solid var(--primary);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: spin 0.7s linear infinite;
+  margin-right: 0.5em;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.tabBar {
+  display: flex;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  flex: 1;
+  padding: 0.7em 0;
+  background: var(--tab-inactive);
+  color: var(--text-secondary);
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  outline: none;
+}
+
+.activeTab {
+  background: var(--tab-active);
+  color: #fff;
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary);
+}
+
+.contentArea {
+  flex: 1;
+  padding: 1.5rem;
+  background: var(--output-bg);
+  overflow-y: auto;
+}
+
+.outputContent {
+  width: 100%;
+}
+
+.resultContainer {
+  background: var(--output-bg);
+  border: 1px solid var(--output-border);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 1px 6px 0 #0002;
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1em;
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid var(--border);
+}
+
+.statusIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success {
+  color: var(--success);
+}
+
+.error {
+  color: var(--error);
+}
+
+.statusText {
+  font-size: 1.1em;
+}
+
+.errorSection {
+  background: #2d1b1b;
+  color: var(--error);
+  border-radius: 6px;
+  padding: 0.7em 1em;
+  margin-bottom: 1em;
+}
+
+.sectionTitle {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.3em;
+  margin-top: 0.7em;
+}
+
+.outputSection {
+  margin-bottom: 0.7em;
+}
+
+.output {
+  background: #191d22;
+  color: var(--text);
+  font-family: var(--code-font);
+  border-radius: 6px;
+  font-size: 1em;
+  padding: 0.8em 1em;
+  margin: 0.2em 0;
+  border: 1px solid var(--output-border);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.correctOutput {
+  border-left: 4px solid var(--success);
+}
+
+.incorrectOutput {
+  border-left: 4px solid var(--error);
+}
+
+.expectedOutput {
+  background: #20232a;
+  color: var(--primary);
+  border-left: 4px solid var(--primary);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  margin-top: 2em;
+  gap: 1em;
+}
+
+.testCasesContent {
+  background: var(--output-bg);
+  border-radius: 8px;
+  padding: 1.2rem 1rem;
+}
+
+.testCase {
+  margin-bottom: 1em;
+}
+
+.testCaseSection {
+  margin-bottom: 0.7em;
+}
+
+.testInput,
+.testOutput {
+  background: #23272f;
+  color: var(--text);
+  font-family: var(--code-font);
+  border-radius: 6px;
+  padding: 0.5em 1em;
+  font-size: 1em;
+  border: 1px solid var(--output-border);
+  margin: 0.2em 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}

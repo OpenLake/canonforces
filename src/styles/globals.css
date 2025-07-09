@@ -15,6 +15,42 @@
   height: 100vh;
 }
 
+:root {
+  --background: #181a1b;
+  --panel: #212325;
+  --border: #282c34;
+  --primary: #3b82f6;
+  --success: #22c55e;
+  --error: #ef4444;
+  --warning: #f59e42;
+  --text: #f3f4f6;
+  --text-secondary: #b3bac2;
+  --button-bg: #23272f;
+  --button-hover: #2d333b;
+  --tab-bg: #23272f;
+  --tab-active: #3b82f6;
+  --tab-inactive: #2d333b;
+  --output-bg: #1e2227;
+  --output-border: #31343a;
+  --code-font: 'Fira Mono', 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
+}
+
+
+
+:root {
+  --background: #181a1b;
+  --editor-bg: #1e1e1e;
+  --panel: #23272f;
+  --border: #282c34;
+  --primary: #3b82f6;
+  --text: #f3f4f6;
+  --text-secondary: #b3bac2;
+  --icon-hover: #31343a;
+  --header-bg: #202124;
+  --shadow: 0 2px 16px 0 #000a;
+  --radius: 10px;
+  --code-font: 'Fira Mono', 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
+}
 
 html,
 body {

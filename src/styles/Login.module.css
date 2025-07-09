@@ -1,102 +1,72 @@
 .login {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(120deg, #f8fafc 0%, #fffbe6 100%);
 }
 
 .container {
-    border: 1px solid #eeeeee;
-    /* font-family: 'Roboto', sans-serif; */
+  border: none;
+  box-shadow: 0 6px 32px 0 rgba(0,0,0,0.08);
+  background: #fff;
 }
 
 .login__form > h3 {
-    font-size: 30px;
-    font-family: Poppins;
+  font-size: 30px;
+  font-family: Poppins, sans-serif;
 }
 
 .login__form > p {
-    margin-top: 5px;
-    font-size: 15px;
-    color: rgb(89, 89, 89);
+  margin-top: 5px;
+  font-size: 15px;
+  color: rgb(89, 89, 89);
 }
 
 .form {
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
 }
-
-.input {
-    display: flex;
-    align-items: center;
-    margin-top: 8px;
-}
-
-.input > input {
-    border: 1px solid rgb(233, 233, 233);
-}
-
-.mail__icon , .lock__icon {
-    position: absolute;
-    right: 12px;
-}
-
-.form__credentials {
-    display: flex;
-    flex-direction: column;
-
-    position: relative;
-}
-
-.form__buttons {
-    width: 18em;
-    margin-top: 20px;
-}
-
-.form__buttons > button {
-    width: 100%;
-    cursor: pointer;
-    border-radius: 6px;
-    height: 38px;
-    font-family: poppins;
-}
-
 .login__button {
-    background-color: #FEC802;
+    background-color: #f6c606; /* Tailwind blue-600 */
     color: #fff;
     border: none;
-    /* font-weight: bold; */
     font-family: poppins;
     font-size: 15px;
 }
 
-.google__button {
-    display: flex;
-    border: 1px solid rgb(200, 200, 200);
-    align-items: center;
-    justify-content: center;
-    color: rgb(89, 89, 89);
-    font-size: 14px;
-    margin-top: 12px;
+
+.button_blue {
+    width: 140px;
+    background-color: rgb(40, 101, 198);
+    border: none;
+    color: #ffffff;
 }
 
-.google__icon {
-    margin-right: 10px;
+.input {
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  position: relative;
 }
 
-.login__text {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 15px;
+.mail__icon,
+.lock__icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.7rem;
+  font-size: 1.3em;
+  color: #bdbdbd;
 }
 
-.login__text > p {
-    font-size: 14px;
-    color: rgb(121, 121, 121);
-}
-
-.invalid {
-    opacity: 65%;
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    border-radius: 1.2rem;
+  }
+  .login__form {
+    width: 100% !important;
+    padding: 2rem 1rem !important;
+  }
 }

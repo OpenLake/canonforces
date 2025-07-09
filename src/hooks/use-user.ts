@@ -28,9 +28,8 @@ export default function useUser() {
       getUserObjByUserId();
     }
   }, [user]);
-  console.log(activeUser?.docId)
-  console.log(activeUser)
-  // console.log(activeUser?.username, activeUser?.contestPlayed, activeUser?.contestWon);
-
+  // console.log(activeUser?.docId)
+  // console.log("hook",activeUser)
+  
   return { user: activeUser };
 }

@@ -105,7 +105,7 @@
 .questions, .ranking , .contest{
     display: flex;
     flex-direction: column;
-    background-color: rgb(97, 159, 209);
+    background-color: rgb(63, 161, 242);
     color: #ffffff;
     height: 220px;
     min-width: 220px;
@@ -126,7 +126,7 @@
 }
 
 .ranking {
-    background-color: rgb(194, 103, 83);
+    background-color: rgb(206, 86, 59);
 }
 
 .suggestions {
