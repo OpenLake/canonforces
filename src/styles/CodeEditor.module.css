@@ -388,6 +388,26 @@
   }
 }
 
+.container {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.leftPane {
+  overflow-y: auto;
+}
+
+.rightPane {
+  overflow-y: auto;
+}
+
+.editorContainer {
+  height: 100%;
+  overflow-y: auto;
+}
+
+
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .leftPane,

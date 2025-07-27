@@ -23,6 +23,30 @@
   text-align: left;
 }
 
+.header-section,
+.content-wrapper {
+  max-width: 95%;   /* instead of fixed 800px */
+  width: 95%;       /* ensures full width is used */
+  margin: 20px auto;
+}
+.content-wrapper {
+  max-width: 95%;  /* or 100% */
+  width: 95%;
+}
+
+.header-section,
+.content-wrapper {
+  width: 95%;         /* stretches nicely */
+  max-width: 1200px;  /* you can increase or remove this cap */
+  margin: 20px auto;  /* keeps it centered */
+}
+
+.contest-container {
+  width: 100%;        /* makes sure QuesList uses full width inside */
+}
+
+
+
 .main-title {
   font-size: 2.5rem;
   font-weight: 800;
@@ -113,4 +137,35 @@
   box-shadow: 0 1px 8px rgba(44, 83, 100, 0.05);
   padding: 20px 18px;
   min-height: 180px;
+}
+
+/* Contests.module.css */
+
+.header-section,
+.content-wrapper {
+  width: 95%;             /* Use a percentage for responsive width */
+  max-width: 1200px;      /* Set a max-width for larger screens */
+  margin-left: auto;      /* Center the containers */
+  margin-right: auto;     /* Center the containers */
+  box-sizing: border-box; /* Ensure padding is included in the width */
+}
+
+.header-section {
+  margin-top: 48px;
+  margin-bottom: 36px;
+  background: #fff;
+  box-shadow: 0 2px 12px 0 rgba(44, 83, 100, 0.06);
+  border-radius: 18px;
+  padding: 36px 40px;
+  border: 1.5px solid #e6f0fa;
+  text-align: left;
+}
+
+.content-wrapper {
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(44, 83, 100, 0.06);
+  border-radius: 16px;
+  padding: 32px 30px 36px 30px;
+  margin-top: 0;
+  border: 1.5px solid #e6f0fa;
 }
