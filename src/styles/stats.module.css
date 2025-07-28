@@ -1,4 +1,7 @@
-/* Stats Page Wrapper */
+/* ==========================================================================
+   Stats Comparison Page - Professional Design with Current Theme
+   ========================================================================== */
+
 .statsPageWrapper {
   padding: 2rem;
   min-height: 100vh;
@@ -6,40 +9,46 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   max-width: 100vw;
   overflow-x: hidden;
-  display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 2rem;
 }
 
-/* Left Content Area */
 .leftContent {
-  max-width: 100%;
-  min-width: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-/* Right Sidebar */
-.rightSidebar {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  padding: 0;
-  height: fit-content;
-  position: sticky;
-  top: 2rem;
-  overflow: hidden;
+/* ==========================================================================
+   Header Section
+   ========================================================================== */
+
+.headerSection {
+  margin-bottom: 2rem;
 }
 
-/* Page Title */
 .pageTitle {
   font-size: 2.5rem;
   font-weight: 600;
   color: #1e293b;
-  margin-bottom: 2rem;
+  margin: 0 0 0.5rem 0;
   text-align: left;
   line-height: 1.2;
 }
 
-/* Floating Input Bar */
+.pageSubtitle {
+  font-size: 1.1rem;
+  color: #64748b;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ==========================================================================
+   Controls Section
+   ========================================================================== */
+
+.controlsSection {
+  margin-bottom: 2rem;
+}
+
 .floatingInputBar {
   display: flex;
   align-items: center;
@@ -48,11 +57,11 @@
   padding: 1rem 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   width: 100%;
   max-width: 500px;
   border: 1px solid #e2e8f0;
-  transition: box-shadow 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .floatingInputBar:focus-within {
@@ -60,16 +69,19 @@
   border-color: #3b82f6;
 }
 
-/* Input Field */
-.input {
+.inputWrapper {
   flex: 1;
+  min-width: 0;
+}
+
+.input {
+  width: 100%;
   border: none;
   outline: none;
   font-size: 1rem;
   color: #475569;
   background: transparent;
   padding: 0.5rem 0;
-  min-width: 0;
 }
 
 .input::placeholder {
@@ -81,20 +93,27 @@
   color: #1e293b;
 }
 
-/* Compare Button */
-.compareBtn {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  color: white;
-  border: none;
+.buttonGroup {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.compareBtn, .clearBtn {
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   font-weight: 500;
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
   white-space: nowrap;
-  flex-shrink: 0;
+  border: none;
+}
+
+.compareBtn {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
 }
 
 .compareBtn:hover {
@@ -103,16 +122,23 @@
   transform: translateY(-1px);
 }
 
-.compareBtn:active {
-  transform: translateY(0);
+.clearBtn {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
 }
 
-/* Comparison Header */
+.clearBtn:hover {
+  background: #e2e8f0;
+  color: #475569;
+  transform: translateY(-1px);
+}
+
 .comparisonHeader {
   background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-  padding: 1.5rem 2rem;
+  padding: 1rem 1.5rem;
   border-radius: 12px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   border: 1px solid #cbd5e1;
   position: relative;
   overflow: hidden;
@@ -128,203 +154,174 @@
   background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
 }
 
-.comparisonHeader span {
-  font-size: 1.1rem;
-  color: #475569;
-  font-weight: 500;
+.comparisonBadge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
 
+.comparisonIcon {
+  font-size: 1.2rem;
+}
+
 .comparisonText {
-  color: #64748b;
+  font-size: 1rem;
+  color: #475569;
+  font-weight: 500;
+  line-height: 1.3;
 }
 
-/* User Highlight */
-.userHighlight {
-  color: #3b82f6;
-  font-weight: 600;
-  background: rgba(59, 130, 246, 0.12);
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  position: relative;
-}
+/* ==========================================================================
+   Dashboard Grid
+   ========================================================================== */
 
-.userHighlight::before {
-  content: '👤';
-  font-size: 0.9rem;
-}
-
-/* Chart Area */
-.chartArea {
-  background: white;
-  padding: 2rem;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  overflow: hidden;
-}
-
-/* Chart Container */
-.chartContainer {
-  height: 350px;
-  width: 100%;
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  gap: 1.5rem;
   margin-top: 1rem;
 }
 
-/* Stats Table */
-.statsTable {
-  width: 100%;
+/* ==========================================================================
+   Chart Cards
+   ========================================================================== */
+
+.chartCard {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  min-height: 450px;
 }
 
-.tableTitle {
-  font-size: 1.2rem;
+.chartCard:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.chartHeader {
+  padding: 1.5rem 2rem 1rem 2rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.chartTitle {
+  font-size: 1.3rem;
   font-weight: 600;
   color: #1e293b;
-  margin: 0;
-  padding: 1.5rem 1.5rem 1rem 1.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.tableContainer {
-  padding: 0;
-  max-height: 500px;
-  overflow-y: auto;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
+.chartSubtitle {
   font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+  font-weight: 400;
 }
 
-.table thead {
-  background: #f8fafc;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.table th {
-  padding: 1rem 1.5rem;
-  text-align: left;
-  font-weight: 600;
-  color: #374151;
-  border-bottom: 2px solid #e5e7eb;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.table td {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #f1f5f9;
-  transition: background-color 0.2s ease;
-}
-
-.table tbody tr:hover {
-  background-color: #f9fafb;
-}
-
-.metricLabel {
-  font-weight: 500;
-  color: #374151;
-  min-width: 140px;
-}
-
-.valueCell {
-  font-weight: 600;
-  color: #1f2937;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Better/Worse Value Highlighting */
-.betterValue {
-  color: #059669 !important;
-  background-color: rgba(16, 185, 129, 0.08);
+.chartContainer {
+  padding: 1.5rem 2rem 2rem 2rem;
+  height: 320px;
   position: relative;
 }
 
-.betterValue::before {
-  content: '↗';
-  position: absolute;
-  left: 0.5rem;
-  color: #059669;
-  font-size: 0.8rem;
-  opacity: 0.7;
+/* ==========================================================================
+   Difficulty Chart Specific Styles
+   ========================================================================== */
+
+.splitChart {
+  grid-column: 1 / -1;
+  min-height: 550px;
 }
 
-.worseValue {
-  color: #dc2626 !important;
-  background-color: rgba(239, 68, 68, 0.08);
+.difficultyChartContainer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 1.5rem 2rem 2rem 2rem;
+  gap: 2rem;
+  min-height: 400px;
+}
+
+.doughnutWrapper {
+  flex: 1;
+  max-width: 350px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: relative;
 }
 
-.worseValue::before {
-  content: '↘';
-  position: absolute;
-  left: 0.5rem;
-  color: #dc2626;
-  font-size: 0.8rem;
-  opacity: 0.7;
+.chartLabel {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+  text-align: center;
+  padding: 0.5rem 1.25rem;
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  border-radius: 25px;
+  border: 1px solid #e2e8f0;
 }
 
-/* Scrollbar Styling */
-.tableContainer::-webkit-scrollbar {
-  width: 6px;
-}
+/* ==========================================================================
+   Uniform Color Scheme for Charts
+   ========================================================================== */
 
-.tableContainer::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
+/* Chart.js Global Colors Override */
 
-.tableContainer::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
 
-.tableContainer::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
 
-/* Responsive Design */
 @media (max-width: 1200px) {
-  .statsPageWrapper {
+  .dashboardGrid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+  
+  .chartCard {
+    min-height: 400px;
+  }
+  
+  .difficultyChartContainer {
+    flex-direction: column;
+    gap: 1.5rem;
+    min-height: 650px;
     padding: 1.5rem;
   }
   
-  .rightSidebar {
-    order: 2;
-    position: static;
-    height: auto;
+  .splitChart {
+    min-height: 700px;
   }
   
-  .chartContainer {
-    height: 300px;
+  .doughnutWrapper {
+    max-width: 300px;
+    height: 280px;
   }
 }
 
 @media (max-width: 768px) {
   .statsPageWrapper {
-    padding: 1rem;
-    gap: 1rem;
+    padding: 1.5rem;
   }
   
   .pageTitle {
     font-size: 2rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .pageSubtitle {
+    font-size: 1rem;
   }
   
   .floatingInputBar {
@@ -332,47 +329,72 @@
     align-items: stretch;
     gap: 0.75rem;
     max-width: 100%;
+    padding: 1rem;
   }
   
-  .compareBtn {
-    align-self: flex-end;
-    width: auto;
-    min-width: 120px;
+  .buttonGroup {
+    justify-content: flex-end;
+  }
+  
+  .compareBtn, .clearBtn {
+    min-width: 100px;
   }
   
   .comparisonHeader {
-    padding: 1rem 1.5rem;
+    padding: 1rem;
   }
   
-  .comparisonHeader span {
-    font-size: 1rem;
+  .comparisonBadge {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
   }
   
-  .chartArea {
-    padding: 1.5rem;
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .chartCard {
+    border-radius: 12px;
+    min-height: 380px;
   }
   
   .chartContainer {
+    padding: 1rem;
+    height: 280px;
+  }
+  
+  .chartHeader {
+    padding: 1rem 1.5rem 0.75rem 1.5rem;
+  }
+  
+  .chartTitle {
+    font-size: 1.2rem;
+  }
+  
+  .chartSubtitle {
+    font-size: 0.85rem;
+  }
+  
+  .difficultyChartContainer {
+    padding: 1rem;
+    min-height: 600px;
+  }
+  
+  .doughnutWrapper {
     height: 250px;
+    max-width: 280px;
   }
   
-  .table th,
-  .table td {
-    padding: 0.75rem 1rem;
-  }
-  
-  .tableTitle {
-    padding: 1rem 1rem 0.75rem 1rem;
-    font-size: 1.1rem;
+  .splitChart {
+    min-height: 650px;
   }
 }
 
 @media (max-width: 480px) {
   .statsPageWrapper {
-    padding: 0.75rem;
+    padding: 1rem;
   }
   
   .pageTitle {
@@ -380,90 +402,115 @@
   }
   
   .floatingInputBar {
-    padding: 0.75rem 1rem;
+    padding: 0.75rem;
   }
   
   .comparisonHeader {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
   }
   
-  .chartArea {
-    padding: 1rem;
+  .chartCard {
+    min-height: 350px;
   }
   
   .chartContainer {
-    height: 220px;
-  }
-  
-  .table th,
-  .table td {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-  }
-  
-  .tableTitle {
     padding: 0.75rem;
-    font-size: 1rem;
+    height: 250px;
   }
   
-  .metricLabel {
-    min-width: 100px;
+  .chartHeader {
+    padding: 1rem;
+  }
+  
+  .chartTitle {
+    font-size: 1.1rem;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: left;
+  }
+  
+  .chartSubtitle {
+    font-size: 0.8rem;
+  }
+  
+  .doughnutWrapper {
+    height: 220px;
+    max-width: 250px;
+  }
+  
+  .chartLabel {
+    font-size: 1rem;
+    padding: 0.4rem 1rem;
+  }
+  
+  .difficultyChartContainer {
+    min-height: 550px;
+  }
+  
+  .splitChart {
+    min-height: 600px;
   }
 }
 
-/* ✅ Table container: show full content, no scroll */
-.tableContainer {
-  padding: 0;
-  max-height: none;
-  overflow-y: visible;
+/* ==========================================================================
+   Animation Enhancements
+   ========================================================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ✅ Reduce spacing for table cells */
-.table th,
-.table td {
-  padding: 0.6rem 1rem;
+.chartCard {
+  animation: fadeInUp 0.4s ease forwards;
 }
 
-.metricLabel {
-  font-weight: 500;
-  color: #374151;
-  min-width: 100px; /* reduced from 140px */
+.chartCard:nth-child(1) { animation-delay: 0.05s; }
+.chartCard:nth-child(2) { animation-delay: 0.1s; }
+.chartCard:nth-child(3) { animation-delay: 0.15s; }
+.chartCard:nth-child(4) { animation-delay: 0.2s; }
+
+/* ==========================================================================
+   Focus and Accessibility
+   ========================================================================== */
+
+.compareBtn:focus,
+.clearBtn:focus,
+.input:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
-/* ✅ More compact comparison header */
-.comparisonHeader {
-  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-  padding: 1rem 1.25rem; /* slightly reduced */
-  border-radius: 10px;
-  margin-bottom: 1rem;
-  border: 1px solid #cbd5e1;
+.chartCard:focus-within {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
-.comparisonHeader span {
-  font-size: 1rem;
-  color: #475569;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  line-height: 1.3;
-}
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
 
-/* ✅ More elegant chart style */
-.chartArea {
-  background: white;
-  padding: 2rem;
-  border-radius: 16px;
-  border: 1px solid transparent;
-  background-image: linear-gradient(white, white), linear-gradient(to right, #3b82f6, #06b6d4, #10b981);
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-}
-
-.chartContainer {
-  height: 320px; /* slightly reduced */
-  width: 100%;
-  margin-top: 1.25rem;
+@media print {
+  .statsPageWrapper {
+    background: white;
+    padding: 1rem;
+  }
+  
+  .chartCard {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+  
+  .floatingInputBar,
+  .buttonGroup {
+    display: none;
+  }
 }

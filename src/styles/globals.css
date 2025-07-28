@@ -50,6 +50,16 @@
   --shadow: 0 2px 16px 0 #000a;
   --radius: 10px;
   --code-font: 'Fira Mono', 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
+
+  --primary-blue: #3b82f6;
+  --primary-green: #10b981;
+  --primary-orange: #f59e0b;
+  --primary-red: #ef4444;
+  --primary-purple: #8b5cf6;
+  --primary-cyan: #06b6d4;
+  --primary-pink: #ec4899;
+  --primary-indigo: #6366f1;
+
 }
 
 html,

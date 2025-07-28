@@ -95,3 +95,72 @@ export async function getAllUsers() {
   }));
   return users;
 }
+
+// services/firebase.ts (or services/codeforces.ts if separate)
+
+export async function getProblemsByTags(username: string) {
+  const res = await fetch(`https://codeforces.com/api/user.status?handle=${username}`);
+  const data = await res.json();
+  if (data.status !== 'OK') return {};
+
+  const solvedTags: Record<string, number> = {};
+
+  data.result.forEach((submission: any) => {
+    if (submission.verdict === 'OK') {
+      submission.problem.tags.forEach((tag: string) => {
+        solvedTags[tag] = (solvedTags[tag] || 0) + 1;
+      });
+    }
+  });
+
+  // Sort by highest solved first
+  const sorted = Object.fromEntries(
+    Object.entries(solvedTags).sort((a, b) => b[1] - a[1])
+  );
+
+  return sorted;
+}
+
+
+export async function getProblemsByDifficulty(username: string) {
+  const res = await fetch(`https://codeforces.com/api/user.status?handle=${username}`);
+  const data = await res.json();
+  if (data.status !== 'OK') return {};
+
+  const difficultyBuckets: Record<string, number> = {
+    "<800": 0,
+    "800-1200": 0,
+    "1200-1600": 0,
+    "1600-2000": 0,
+    "2000+": 0
+  };
+
+  data.result.forEach((submission: any) => {
+    if (submission.verdict === 'OK' && submission.problem.rating) {
+      const r = submission.problem.rating;
+      if (r < 800) difficultyBuckets["<800"]++;
+      else if (r < 1200) difficultyBuckets["800-1200"]++;
+      else if (r < 1600) difficultyBuckets["1200-1600"]++;
+      else if (r < 2000) difficultyBuckets["1600-2000"]++;
+      else difficultyBuckets["2000+"]++;
+    }
+  });
+
+  return difficultyBuckets;
+}
+
+
+export async function getContestHistory(username: string) {
+  const res = await fetch(`https://codeforces.com/api/user.rating?handle=${username}`);
+  const data = await res.json();
+  if (data.status !== 'OK') return [];
+
+  const contests = data.result.map((c: any) => ({
+    contestName: c.contestName,
+    gain: c.newRating - c.oldRating,
+    newRating: c.newRating,
+    rank: c.rank,
+  }));
+
+  return contests;
+}
