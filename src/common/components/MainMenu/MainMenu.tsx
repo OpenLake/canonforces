@@ -2,113 +2,15 @@ import styles from "./MainMenu.module.css";
 import { IoNotifications } from "react-icons/io5";
 import { RiSearch2Line } from "react-icons/ri";
 import Suggestions from "../Suggestions/Suggestions";
-import {
-  Chart as ChartJS,
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  CategoryScale,
-  BarElement,
-  Filler,
-  Tooltip,
-  Legend,
-  LinearScale,
-} from 'chart.js';
-import { Radar, Bubble , Bar} from 'react-chartjs-2';
-import { faker } from '@faker-js/faker'
 import { useEffect, useState } from "react";
 import { doesUsernameExists } from "../../../services/firebase";
 import useUser from "../../../hooks/use-user";
 import { getContestCount } from "../../../services/firebase";
 import { getSolvedCount } from "../../../services/firebase";
 
-ChartJS.register(
-  RadialLinearScale,
-  PointElement,
-  CategoryScale,
-  BarElement,
-  LinearScale,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend
-);
-
-export const data = {
-  labels: ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5', 'Thing 6'],
-  datasets: [
-    {
-      label: '# of Votes',
-      data: [2, 9, 3, 5, 2, 3],
-      backgroundColor: 'rgba(255, 99, 132, 0.2)',
-      borderColor: 'rgba(255, 99, 132, 1)',
-      borderWidth: 1,
-    },
-  ],
-}; // no of languages 
-
-const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-
-export const data2 = {
-  labels,
-  datasets: [
-    {
-      label: 'Dataset 1',
-      data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-      backgroundColor: 'rgba(255, 99, 132, 0.5)',
-    },
-    {
-      label: 'Dataset 2',
-      data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-      backgroundColor: 'rgba(53, 162, 235, 0.5)',
-    },
-  ],
-};
+import Image from "next/image";
 
 
-export const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top' as const,
-    },
-    title: {
-      display: true,
-      text: 'Chart.js Bar Chart',
-    },
-  },
-};
-
-export const options3 = {
-  scales: {
-    y: {
-      beginAtZero: true,
-    },
-  },
-};
-
-export const data3 = {
-  datasets: [
-    {
-      label: 'Red dataset',
-      data: Array.from({ length: 50 }, () => ({
-        x: faker.datatype.number({ min: -100, max: 100 }),
-        y: faker.datatype.number({ min: -100, max: 100 }),
-        r: faker.datatype.number({ min: 5, max: 20 }),
-      })),
-      backgroundColor: 'rgba(255, 99, 132, 0.5)',
-    },
-    {
-      label: 'Blue dataset',
-      data: Array.from({ length: 50 }, () => ({
-        x: faker.datatype.number({ min: -100, max: 100 }),
-        y: faker.datatype.number({ min: -100, max: 100 }),
-        r: faker.datatype.number({ min: 5, max: 20 }),
-      })),
-      backgroundColor: 'rgba(53, 162, 235, 0.5)',
-    },
-  ],
-};
 
 export default function MainMenu() {
 
@@ -171,8 +73,16 @@ export default function MainMenu() {
               </div>  
             </div>
             <div className={styles.languages_stat}>
-              <Radar data={data} />
-            </div>
+ <img
+  src="/images/teacher.png"
+  alt="Teacher"
+  width={1000}
+  height={1000}
+  className={styles.teacherImg}
+ 
+/>
+
+</div>
          </div>
         </div>
       </div>

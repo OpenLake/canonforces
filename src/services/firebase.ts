@@ -27,7 +27,12 @@ export const doesUsernameExists = async (username: string)=> {
 };
 
 
-
+// Add this function to your services/firebase.js
+export async function updateUserProfile(docId: string, updateData: Record<string, any>) {
+  const userRef = doc(db, "users", docId);
+  await updateDoc(userRef, updateData);
+}
+import { doc, updateDoc } from "firebase/firestore";
 export async function getUserByUserId(userId: string) {
     const q = query(collection(db, "users"), where("userId", "==", userId));
     const querySnapshot = await getDocs(q);
