@@ -1,5 +1,5 @@
 'use client';
-
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import styles from '../styles/stats.module.css';
 import useUser from '../hooks/use-user';
@@ -196,103 +196,106 @@ export default function StatsComparison() {
     );
   };
 
-  const ContestGainChart = () => {
-    const maxLength = Math.max(myContests.length, otherContests.length);
-    const labels = Array.from({ length: maxLength }, (_, i) => `Contest ${i + 1}`);
-    const myData = myContests.map((c: any) => c.gain);
-    const otherData = entered ? otherContests.map((c: any) => c.gain) : [];
+ const ContestGainChart = () => {
+  const maxLength = Math.max(myContests.length, otherContests.length);
+  const labels = Array.from({ length: maxLength }, (_, i) => `Contest ${i + 1}`);
+  const myData = myContests.map((c: any) => c.gain);
+  const otherData = entered ? otherContests.map((c: any) => c.gain) : [];
 
-    return (
-      <div className={styles.chartCard}>
-        <div className={styles.chartHeader}>
-          <h3 className={styles.chartTitle}>🏆 Contest Performance</h3>
-          <p className={styles.chartSubtitle}>
-            {entered 
-              ? "Rating gain/loss comparison across recent contests" 
-              : "Your rating changes in recent contests"
-            }
-          </p>
-        </div>
-        <div className={styles.chartContainer}>
-          <Bar
-            data={{
-              labels,
-              datasets: [
-                {
-  label: user.user?.username || 'You',
-  data: myData,
-  backgroundColor: (ctx: any) => {
-    const value = ctx.parsed?.y;
-    if (typeof value !== "number") return 'rgba(59,130,246,0.8)';
-    return value >= 0 ? 'rgba(59,130,246,0.8)' : 'rgba(239,68,68,0.8)';
-  },
-  borderColor: (ctx: any) => {
-    const value = ctx.parsed?.y;
-    if (typeof value !== "number") return '#3b82f6';
-    return value >= 0 ? '#3b82f6' : '#ef4444';
-  },
-  borderWidth: 1,
-  borderRadius: 4,
-},
-                ...(entered
-                  ? [
-                      {
-                        label: compareName,
-                        data: otherData,
-                        backgroundColor: (ctx: any) => {
-  const value = ctx.parsed?.y;
-  if (typeof value !== "number") return 'rgba(59,130,246,0.8)';
-  return value >= 0 ? 'rgba(59,130,246,0.8)' : 'rgba(239,68,68,0.8)';
-},
-borderColor: (ctx: any) => {
-  const value = ctx.parsed?.y;
-  if (typeof value !== "number") return '#3b82f6';
-  return value >= 0 ? '#3b82f6' : '#ef4444';
-},
-                        borderWidth: 1,
-                        borderRadius: 4,
-                      },
-                    ]
-                  : []),
-              ],
-            }}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  position: 'top',
-                  labels: {
-                    usePointStyle: true,
-                    padding: 20,
-                    font: { size: 12, weight: 500 }
-                  }
-                },
-                tooltip: {
-                  backgroundColor: 'rgba(0,0,0,0.8)',
-                  titleColor: '#ffffff',
-                  bodyColor: '#ffffff',
-                  cornerRadius: 8,
+  return (
+    <div className={styles.chartCard}>
+      <div className={styles.chartHeader}>
+        <h3 className={styles.chartTitle}>🏆 Contest Performance</h3>
+        <p className={styles.chartSubtitle}>
+          {entered 
+            ? "Rating gain/loss comparison across recent contests" 
+            : "Your rating changes in recent contests"
+          }
+        </p>
+      </div>
+      <div className={styles.chartContainer}>
+        <Bar
+          data={{
+            labels,
+            datasets: [
+              {
+                label: user.user?.username || 'You',
+                data: myData,
+                backgroundColor: entered ? '#007bff' : ((ctx: any) => {
+                  const value = ctx.parsed?.y;
+                  if (typeof value !== "number") return '#007bff';
+                  return value >= 0 ? '#28a745' : '#dc3545';
+                }),
+                borderColor: entered ? '#0056b3' : ((ctx: any) => {
+                  const value = ctx.parsed?.y;
+                  if (typeof value !== "number") return '#0056b3';
+                  return value >= 0 ? '#1e7e34' : '#c82333';
+                }),
+                borderWidth: 2,
+                borderRadius: 6,
+              },
+              ...(entered
+                ? [
+                    {
+                      label: compareName,
+                      data: otherData,
+                      backgroundColor: '#6f42c1',
+                      borderColor: '#5a2d91',
+                      borderWidth: 2,
+                      borderRadius: 6,
+                    },
+                  ]
+                : []),
+            ],
+          }}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: {
+                  usePointStyle: true,
+                  padding: 20,
+                  font: { size: 12, weight: 600 },
+                  color: '#000000'
                 }
               },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  grid: { color: 'rgba(0,0,0,0.1)' },
-                  ticks: { font: { size: 11 } }
+              tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.9)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                cornerRadius: 8,
+                titleFont: { weight: 600 },
+                bodyFont: { weight: 500 }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { 
+                  color: 'rgba(0,0,0,0.1)',
+                  lineWidth: 1
                 },
-                x: {
-                  grid: { display: false },
-                  ticks: { font: { size: 11 } }
+                ticks: { 
+                  font: { size: 11, weight: 500 },
+                  color: '#666666'
+                }
+              },
+              x: {
+                grid: { display: false },
+                ticks: { 
+                  font: { size: 11, weight: 500 },
+                  color: '#666666'
                 }
               }
-            }}
-          />
-        </div>
+            }
+          }}
+        />
       </div>
-    );
-  };
-
+    </div>
+  );
+};
   const DifficultyChart = () => {
     const myValues = Object.values(myDifficulty);
     const otherValues = entered ? Object.values(otherDifficulty) : [];
@@ -488,16 +491,25 @@ borderColor: (ctx: any) => {
   return (
     <div className={styles.statsPageWrapper}>
       <div className={styles.leftContent}>
-        <div className={styles.headerSection}>
-          <h1 className={styles.pageTitle}>Performance Analytics</h1>
-          <p className={styles.pageSubtitle}>
-            Analyze and compare your competitive programming journey
-          </p>
-        </div>
-
-        <div className={styles.controlsSection}>
+        {/* PASTE THIS NEW CODE IN ITS PLACE */}
+<div className={styles.headerSection}>
+  <div className={styles.headerContent}>
+    
+    {/* ===== LEFT COLUMN: Text + Search Bar ===== */}
+    <div className={styles.headerMainContent}>
+      <div className={styles.headerText}>
+        <h1 className={styles.pageTitle}>Performance Analytics</h1>
+        <p className={styles.pageSubtitle}>
+          Analyze and compare your competitive programming journey
+        </p>
+      </div>
+      
+      {/* ===== MOVED CONTROLS SECTION ===== */}
+      <div className={styles.controlsSection}>
+        <div className={styles.searchContainer}>
           <div className={styles.floatingInputBar}>
             <div className={styles.inputWrapper}>
+              <div className={styles.searchIcon}>🔍</div>
               <input
                 className={styles.input}
                 type="text"
@@ -509,29 +521,50 @@ borderColor: (ctx: any) => {
             </div>
             <div className={styles.buttonGroup}>
               <button className={styles.compareBtn} onClick={handleCompare}>
+                <span className={styles.btnIcon}>⚔️</span>
                 {entered ? 'Update' : 'Compare'}
               </button>
               {entered && (
                 <button className={styles.clearBtn} onClick={handleClearComparison}>
+                  <span className={styles.btnIcon}>✕</span>
                   Clear
                 </button>
               )}
             </div>
           </div>
-
-          {entered && compareName && (
-            <div className={styles.comparisonHeader}>
-              <div className={styles.comparisonBadge}>
-                <span className={styles.comparisonIcon}>⚔️</span>
-                <span className={styles.comparisonText}>
-                  Comparing <strong>{user.user?.username || 'You'}</strong> vs{' '}
-                  <strong>{compareName}</strong>
-                </span>
-              </div>
-            </div>
-          )}
         </div>
 
+        {entered && compareName && (
+          <div className={styles.comparisonStatus}>
+            <div className={styles.comparisonBadge}>
+              <div className={styles.battleIcon}>⚔️</div>
+              <div className={styles.comparisonDetails}>
+                <div className={styles.comparisonTitle}>Battle Mode Active</div>
+                <div className={styles.comparisonText}>
+                  <span className={styles.username}>{user.user?.username || 'You'}</span>
+                  <span className={styles.vs}>VS</span>
+                  <span className={styles.username}>{compareName}</span>
+                </div>
+              </div>
+              <div className={styles.statusIndicator}></div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+    
+    {/* ===== RIGHT COLUMN: Image ===== */}
+    <div className={styles.headerImage}>
+      <Image 
+        height={250}
+        width={250}
+        src="/images/compare.png" 
+        alt="Comparison Analytics" 
+        className={styles.compareSticker}
+      />
+    </div>
+  </div>
+</div>
         <div className={styles.dashboardGrid}>
           <RatingTrendChart />
           <ContestGainChart />
