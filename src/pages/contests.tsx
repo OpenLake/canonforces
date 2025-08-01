@@ -10,7 +10,7 @@ const Contests = () => {
     <div className={styles["contest-container"]}>
       <div className={styles["header-section"]}>
         <div className={styles["header-text"]}>
-          <h1 className={styles["main-title"]}>Practice Arena</h1>
+          <h1 className={styles["main-title"]}> 📙Practice Arena</h1>
           <p className={styles["subtitle"]}>
             Master algorithmic problem solving with hand-picked challenges
           </p>
