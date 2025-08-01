@@ -621,7 +621,7 @@
 
 .compareSticker {
   width: auto;
-  height: 350px; /* Constrains the image height */
+  height: 300px; /* Constrains the image height */
   object-fit: contain;
 }
 

@@ -76,8 +76,8 @@ export default function MainMenu() {
  <img
   src="/images/teacher.png"
   alt="Teacher"
-  width={1000}
-  height={1000}
+  width={900}
+  height={900}
   className={styles.teacherImg}
  
 />
