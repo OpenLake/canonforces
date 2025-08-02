@@ -9,14 +9,23 @@ const Contests = () => {
   return (
     <div className={styles["contest-container"]}>
       <div className={styles["header-section"]}>
-        <h1 className={styles["main-title"]}>Practice Arena</h1>
-        <p className={styles["subtitle"]}>
-          Master algorithmic problem solving with hand-picked challenges
-        </p>
-        <p className={styles["description"]}>
-          Choose your difficulty level and dive into carefully curated problems designed to enhance your coding skills. 
-          Each rating contains the most interesting and reusable concepts to accelerate your learning journey.
-        </p>
+        <div className={styles["header-text"]}>
+          <h1 className={styles["main-title"]}> 📙Practice Arena</h1>
+          <p className={styles["subtitle"]}>
+            Master algorithmic problem solving with hand-picked challenges
+          </p>
+          <p className={styles["description"]}>
+            Choose your difficulty level and dive into carefully curated problems designed to enhance your coding skills. 
+            Each rating contains the most interesting and reusable concepts to accelerate your learning journey.
+          </p>
+        </div>
+        <div className={styles["header-image"]}>
+          <img 
+            src="/images/study.png" 
+            alt="Practice Arena" 
+            className={styles["practice-image"]}
+          />
+        </div>
       </div>
 
       <div className={styles["content-wrapper"]}>

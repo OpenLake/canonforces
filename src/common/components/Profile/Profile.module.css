@@ -1,97 +1,290 @@
-.profile {
-    background-color: #F7F8FA;
-    display: flex;
-    width: 100%;
-    padding: 20px;
-    padding-top: 30px;
-    border-radius: 30px;
-    height: 100vh;
+/* --- Global Page Styles --- */
+.profilePage {
+  /* background-color: #ffffff; */
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.profile_stats {
-    width: 60%;
-    display: flex;
+.mainContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 4rem;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* --- Profile Card --- */
+.profileCard {
+  flex: 2;
+  max-width: 720px;
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #dbdbdb;
+  border-radius: 12px;
+}
+
+/* --- Illustration --- */
+.illustrationWrapper {
+  flex: 1;
+  padding-top: 2rem;
+  align-self: center;
+}
+
+.illustrationImage {
+  width: 100%;
+  height: auto;
+  max-width: 350px;
+}
+
+/* --- Card Header --- */
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.5rem 2rem;
+}
+
+.avatar img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.headerInfo {
+  flex-grow: 1;
+}
+
+.usernameTitle {
+  font-size: 1.75rem;
+  font-weight: 300;
+  color: #262626;
+  margin: 0 0 0.5rem;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.fullName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #262626;
+  margin: 0;
+}
+
+.editButton {
+  background-color: #efefef;
+  color: #000;
+  border: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.editButton:hover {
+  background-color: #dbdbdb;
+}
+
+
+/* --- Stats Bar (Instagram Style) --- */
+.profileStatsBar {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  padding: 1rem 0;
+  border-top: 1px solid #dbdbdb;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.statNumber {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #262626;
+}
+
+.statLabel {
+  font-size: 0.9rem;
+  color: #8e8e8e;
+}
+
+/* --- Card Body & Info Sections --- */
+.profileBody {
+  padding: 1.5rem 2rem;
+}
+
+.infoSection {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #8e8e8e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 1rem;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  font-size: 0.95rem;
+  color: #262626;
+}
+
+.infoRow strong {
+  font-weight: 600;
+}
+
+/* --- Edit Form --- */
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #262626;
+}
+
+.formGroup input {
+  padding: 0.75rem;
+  border: 1px solid #dbdbdb;
+  border-radius: 6px;
+  background-color: #fafafa;
+  font-size: 0.95rem;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #a8a8a8;
+  box-shadow: 0 0 0 1px #a8a8a8;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.saveButton {
+  background-color: #0095f6;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.saveButton:hover {
+  background-color: #0077c3;
+}
+
+.saveButton:disabled {
+  background-color: #b2dffc;
+  cursor: not-allowed;
+}
+
+/* --- Responsive & Loading --- */
+.loading {
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 4rem;
+  color: #8e8e8e;
+}
+
+@media (max-width: 900px) {
+  .mainContent {
     flex-direction: column;
-    height: 100%;
-    justify-content: space-evenly;
-}
-
-
-.profile_user{
-    display: flex;
-    flex-direction: column;
-}
-
-.profile_user > h1 {
-    font-size: 3.2rem;
-    color: #4d4e50;
-}
-
-.profile_user > span {
-    letter-spacing: 0.8px;
-    margin-top: -5px;    
-    color: #76777a;
-}
-
-.sidebar {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    padding: 20px;
-    margin-left: 50px;
     align-items: center;
+    gap: 1rem;
+  }
+  .illustrationWrapper {
+    display: none; /* Hide illustration on smaller screens for focus */
+  }
+  .profileCard {
+    max-width: 600px;
+  }
 }
 
-.rank {
-    background-color: rgb(97, 159, 209);
-    display: flex;
-    align-items: center;
-    width: 300px;
-    justify-content: space-around;
-    height: 170px;
-    border-radius: 12px;
-    padding: 20px;
-    color: #ffffff;
-}
-
-.rank > div {
-    display: flex;
+@media (max-width: 600px) {
+  .profilePage {
+    padding: 0;
+  }
+  .profileCard {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  .profileHeader {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .avatar img {
+    width: 70px;
+    height: 70px;
+  }
+  .usernameTitle {
+    font-size: 1.5rem;
+  }
+  .headerActions {
     flex-direction: column;
-    margin-left: 15px;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 }
 
-.rank > div {
-    /* color: #525252;  */
-    font-size: 14px;
+/* --- Global Page Styles --- */
+.profilePage {
+  /* background-color: #ffffff; */
+  min-height: 100vh;
+  /* padding: 2rem; */ /* REMOVE THIS LINE */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.user {
-    display: flex;
+.mainContent {
+  display: flex;
+  /* align-items: flex-start; */ /* CHANGE THIS... */
+  align-items: center;      /* ...TO THIS */
+  gap: 4rem;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 2rem; /* Add horizontal padding here instead of the main page */
 }
 
-.followers, .following {
-    display: flex;
-    align-items: center; 
-    padding: 10px 20px;
-    border-radius: 6px;
-}
-
-.followers {
-    background-color: #ffffff;
-    color: #636467;   
-}
-
-.following {
-    background-color: rgb(97, 159, 209);
-    color: #ffffff;
-}
-
-
-.followers > span:first-of-type , .following > span:first-of-type{
-    font-weight: bold;
-    font-size: 30px;
-}
-
-.followers > span:last-of-type , .following > span:last-of-type{
-    margin-left: 0.8rem;   
+/* --- Illustration --- */
+.illustrationWrapper {
+  flex: 1;
+  /* padding-top: 2rem; */ /* REMOVE THIS LINE */
+  align-self: center;
 }

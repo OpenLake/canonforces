@@ -1,11 +1,11 @@
 /* ==========================================================================
-   Stats Comparison Page - Professional Design with Current Theme
+   Stats Comparison Page - Clean White Design with 2x2 Grid Layout
    ========================================================================== */
 
 .statsPageWrapper {
   padding: 2rem;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   max-width: 100vw;
   overflow-x: hidden;
@@ -25,10 +25,33 @@
   margin-bottom: 2rem;
 }
 
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.headerText {
+  flex:2;
+}
+
+.headerImage {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.compareSticker {
+  height: auto;
+  max-height: 400px;
+  width: auto;
+  object-fit: contain;
+}
+
 .pageTitle {
   font-size: 2.5rem;
-  font-weight: 600;
-  color: #1e293b;
+  font-weight: 700;
+  color: #000000;
   margin: 0 0 0.5rem 0;
   text-align: left;
   line-height: 1.2;
@@ -36,7 +59,7 @@
 
 .pageSubtitle {
   font-size: 1.1rem;
-  color: #64748b;
+  color: #666666;
   margin: 0;
   font-weight: 400;
 }
@@ -49,29 +72,40 @@
   margin-bottom: 2rem;
 }
 
+.searchContainer {
+  margin-bottom: 1.5rem;
+}
+
 .floatingInputBar {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: white;
+  background: #f8f9fa;
   padding: 1rem 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-bottom: 1.5rem;
+  border: 2px solid #e9ecef;
   width: 100%;
-  max-width: 500px;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
+  max-width: 600px;
+  transition: all 0.3s ease;
 }
 
 .floatingInputBar:focus-within {
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
+  border-color: #007bff;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .inputWrapper {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.searchIcon {
+  font-size: 1.2rem;
+  color: #6c757d;
 }
 
 .input {
@@ -79,18 +113,14 @@
   border: none;
   outline: none;
   font-size: 1rem;
-  color: #475569;
+  color: #212529;
   background: transparent;
   padding: 0.5rem 0;
 }
 
 .input::placeholder {
-  color: #94a3b8;
+  color: #6c757d;
   font-size: 0.95rem;
-}
-
-.input:focus {
-  color: #1e293b;
 }
 
 .buttonGroup {
@@ -102,83 +132,109 @@
 .compareBtn, .clearBtn {
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   white-space: nowrap;
   border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .compareBtn {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: #007bff;
   color: white;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
 }
 
 .compareBtn:hover {
-  background: linear-gradient(135deg, #2563eb, #1e40af);
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+  background: #0056b3;
   transform: translateY(-1px);
 }
 
 .clearBtn {
-  background: #f1f5f9;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
+  background: #6c757d;
+  color: white;
 }
 
 .clearBtn:hover {
-  background: #e2e8f0;
-  color: #475569;
+  background: #545b62;
   transform: translateY(-1px);
 }
 
-.comparisonHeader {
-  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  border: 1px solid #cbd5e1;
-  position: relative;
-  overflow: hidden;
+.btnIcon {
+  font-size: 1rem;
 }
 
-.comparisonHeader::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+.comparisonStatus {
+  margin-top: 1rem;
 }
 
 .comparisonBadge {
+  background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #e1bee7;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.comparisonIcon {
-  font-size: 1.2rem;
+.battleIcon {
+  font-size: 1.5rem;
+}
+
+.comparisonDetails {
+  flex: 1;
+}
+
+.comparisonTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.25rem;
 }
 
 .comparisonText {
-  font-size: 1rem;
-  color: #475569;
-  font-weight: 500;
-  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.username {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.vs {
+  font-weight: 700;
+  color: #dc3545;
+}
+
+.statusIndicator {
+  width: 12px;
+  height: 12px;
+  background: #28a745;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
 }
 
 /* ==========================================================================
-   Dashboard Grid
+   Dashboard Grid - 2x2 Layout
    ========================================================================== */
 
 .dashboardGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
   gap: 1.5rem;
   margin-top: 1rem;
 }
@@ -188,30 +244,31 @@
    ========================================================================== */
 
 .chartCard {
-  background: white;
+  background: #ffffff;
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 2px solid #e9ecef;
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   min-height: 450px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .chartCard:hover {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #007bff;
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
   transform: translateY(-2px);
 }
 
 .chartHeader {
   padding: 1.5rem 2rem 1rem 2rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-bottom: 1px solid #f1f5f9;
+  background: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
 }
 
 .chartTitle {
   font-size: 1.3rem;
-  font-weight: 600;
-  color: #1e293b;
+  font-weight: 700;
+  color: #000000;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
@@ -220,7 +277,7 @@
 
 .chartSubtitle {
   font-size: 0.9rem;
-  color: #64748b;
+  color: #666666;
   margin: 0;
   line-height: 1.4;
   font-weight: 400;
@@ -230,15 +287,16 @@
   padding: 1.5rem 2rem 2rem 2rem;
   height: 320px;
   position: relative;
+  background: #ffffff;
 }
 
 /* ==========================================================================
-   Difficulty Chart Specific Styles
+   Difficulty Chart Specific Styles (Spans Full Width)
    ========================================================================== */
 
 .splitChart {
   grid-column: 1 / -1;
-  min-height: 550px;
+  min-height: 500px;
 }
 
 .difficultyChartContainer {
@@ -247,13 +305,14 @@
   align-items: center;
   padding: 1.5rem 2rem 2rem 2rem;
   gap: 2rem;
-  min-height: 400px;
+  min-height: 350px;
+  background: #ffffff;
 }
 
 .doughnutWrapper {
   flex: 1;
-  max-width: 350px;
-  height: 300px;
+  max-width: 300px;
+  height: 280px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -262,22 +321,15 @@
 
 .chartLabel {
   font-size: 1.1rem;
-  font-weight: 600;
-  color: #374151;
+  font-weight: 700;
+  color: #000000;
   margin-bottom: 1rem;
   text-align: center;
   padding: 0.5rem 1.25rem;
-  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  background: #f8f9fa;
   border-radius: 25px;
-  border: 1px solid #e2e8f0;
+  border: 2px solid #e9ecef;
 }
-
-/* ==========================================================================
-   Uniform Color Scheme for Charts
-   ========================================================================== */
-
-/* Chart.js Global Colors Override */
-
 
 /* ==========================================================================
    Responsive Design
@@ -296,23 +348,33 @@
   .difficultyChartContainer {
     flex-direction: column;
     gap: 1.5rem;
-    min-height: 650px;
+    min-height: 600px;
     padding: 1.5rem;
   }
   
   .splitChart {
-    min-height: 700px;
+    min-height: 650px;
   }
   
   .doughnutWrapper {
-    max-width: 300px;
-    height: 280px;
+    max-width: 280px;
+    height: 260px;
   }
 }
 
 @media (max-width: 768px) {
   .statsPageWrapper {
     padding: 1.5rem;
+  }
+  
+  .headerContent {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .compareSticker {
+    max-height: 80px;
   }
   
   .pageTitle {
@@ -332,22 +394,16 @@
     padding: 1rem;
   }
   
+  .inputWrapper {
+    justify-content: flex-start;
+  }
+  
   .buttonGroup {
     justify-content: flex-end;
   }
   
   .compareBtn, .clearBtn {
     min-width: 100px;
-  }
-  
-  .comparisonHeader {
-    padding: 1rem;
-  }
-  
-  .comparisonBadge {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
   }
   
   .dashboardGrid {
@@ -379,16 +435,16 @@
   
   .difficultyChartContainer {
     padding: 1rem;
-    min-height: 600px;
+    min-height: 550px;
   }
   
   .doughnutWrapper {
-    height: 250px;
-    max-width: 280px;
+    height: 240px;
+    max-width: 260px;
   }
   
   .splitChart {
-    min-height: 650px;
+    min-height: 600px;
   }
 }
 
@@ -403,10 +459,6 @@
   
   .floatingInputBar {
     padding: 0.75rem;
-  }
-  
-  .comparisonHeader {
-    padding: 0.75rem 1rem;
   }
   
   .chartCard {
@@ -424,9 +476,6 @@
   
   .chartTitle {
     font-size: 1.1rem;
-    flex-direction: column;
-    gap: 0.25rem;
-    text-align: left;
   }
   
   .chartSubtitle {
@@ -435,7 +484,7 @@
   
   .doughnutWrapper {
     height: 220px;
-    max-width: 250px;
+    max-width: 240px;
   }
   
   .chartLabel {
@@ -444,11 +493,11 @@
   }
   
   .difficultyChartContainer {
-    min-height: 550px;
+    min-height: 500px;
   }
   
   .splitChart {
-    min-height: 600px;
+    min-height: 550px;
   }
 }
 
@@ -483,12 +532,12 @@
 .compareBtn:focus,
 .clearBtn:focus,
 .input:focus {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid #007bff;
   outline-offset: 2px;
 }
 
 .chartCard:focus-within {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid #007bff;
   outline-offset: 2px;
 }
 
@@ -514,3 +563,97 @@
     display: none;
   }
 }
+
+.suggestionsBar {
+  margin-left: auto;           /* push to the right */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 320px;
+}
+
+/* ==========================================================================
+   Header Section - UPDATED
+   ========================================================================== */
+
+.headerSection {
+  margin-bottom: 2.5rem; /* Increased spacing to the dashboard */
+}
+
+.headerContent {
+  display: flex;
+  align-items: center; /* Vertically aligns the text block and image */
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.headerMainContent {
+  flex: 1; /* Allows this column to take up available space */
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem; /* Space between header text and controls */
+  min-width: 0;
+}
+
+
+.pageTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.pageSubtitle {
+  font-size: 1.1rem;
+  color: #666666;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* --- Image Styles --- */
+.headerImage {
+  flex-shrink: 0; /* Prevents the image from shrinking */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compareSticker {
+  width: auto;
+  height: 300px; /* Constrains the image height */
+  object-fit: contain;
+}
+
+/* ==========================================================================
+   Controls Section - UPDATED
+   ========================================================================== */
+
+.controlsSection {
+  margin-bottom: 0; /* Remove old margin */
+}
+
+.searchContainer {
+  margin-bottom: 1.5rem;
+}
+
+.floatingInputBar {
+  max-width: 100%; /* Make it fill the new parent container */
+  /* --- The rest of your floatingInputBar styles are fine --- */
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #f8f9fa;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.floatingInputBar:focus-within {
+  border-color: #007bff;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* ... keep the rest of your original CSS for controls and other elements ... */
