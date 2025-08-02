@@ -8,7 +8,7 @@ import { FcGoogle } from "react-icons/fc";
 import { HiMail } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { BsPatchExclamation, BsPatchCheck } from "react-icons/bs";
-import { doesUsernameExists, signupWithGoogle, getUserByUserId } from "../../services/firebase";
+import { doesUsernameExists, /*signupWithGoogle,*/ getUserByUserId } from "../../services/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
 import { addDoc, collection, setDoc } from "firebase/firestore";
@@ -26,33 +26,33 @@ export default function Signup() {
 
     const isInvalid = password === "" || email === "" || username === "";
 
-    // Google signup redirect logic
-    useEffect(() => {
-        const isGoogleSignup = localStorage.getItem("googleSignup");
-        if (isGoogleSignup === "true") {
-            localStorage.removeItem("googleSignup");
+    // Google signup redirect logic (commented out)
+    // useEffect(() => {
+    //     const isGoogleSignup = localStorage.getItem("googleSignup");
+    //     if (isGoogleSignup === "true") {
+    //         localStorage.removeItem("googleSignup");
 
-            const checkAndRedirect = async () => {
-                const currentUser = auth.currentUser;
-                if (currentUser) {
-                    const userId = currentUser.uid;
-                    const dbUserArray = await getUserByUserId(userId);
-                    // Check if the user object has a username property
-                    if (
-                        !dbUserArray.length ||
-                        !("username" in dbUserArray[0]) ||
-                        !dbUserArray[0].username
-                    ) {
-                        router.push("/CompleteProfile");
-                    } else {
-                        router.push(ROUTES.DASHBOARD);
-                    }
-                }
-            };
+    //         const checkAndRedirect = async () => {
+    //             const currentUser = auth.currentUser;
+    //             if (currentUser) {
+    //                 const userId = currentUser.uid;
+    //                 const dbUserArray = await getUserByUserId(userId);
+    //                 // Check if the user object has a username property
+    //                 if (
+    //                     !dbUserArray.length ||
+    //                     !("username" in dbUserArray[0]) ||
+    //                     !dbUserArray[0].username
+    //                 ) {
+    //                     router.push("/CompleteProfile");
+    //                 } else {
+    //                     router.push(ROUTES.DASHBOARD);
+    //                 }
+    //             }
+    //         };
 
-            checkAndRedirect();
-        }
-    }, []);
+    //         checkAndRedirect();
+    //     }
+    // }, []);
 
     // Email/password signup handler
     const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -108,11 +108,11 @@ export default function Signup() {
         }
     };
 
-    // Google signup handler
-    const googleSignup = async () => {
-        localStorage.setItem("googleSignup", "true");
-        await signupWithGoogle();
-    };
+    // Google signup handler (commented out)
+    // const googleSignup = async () => {
+    //     localStorage.setItem("googleSignup", "true");
+    //     await signupWithGoogle();
+    // };
 
     return (
         <div className={styles.signup}>
@@ -203,6 +203,7 @@ export default function Signup() {
                             >
                                 {loading ? "Signing up..." : "Signup"}
                             </button>
+                            {/* 
                             <button
                                 type="button"
                                 className="flex items-center justify-center border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 rounded-lg h-11 font-medium transition-all duration-150 shadow-sm"
@@ -212,6 +213,7 @@ export default function Signup() {
                                 <FcGoogle size={"1.6em"} className="mr-2" />
                                 <span>Sign up with Google</span>
                             </button>
+                            */}
                         </div>
                         <div className="w-full flex justify-center mt-4">
                             <p className="text-sm text-gray-600">
@@ -228,6 +230,7 @@ export default function Signup() {
                     <Image width={480} height={480} alt="signup" src="/images/signup.jpg" className="rounded-2xl object-cover" />
                 </div>
             </div>
-        </div>
+
+             </div>
     );
 }
