@@ -657,3 +657,62 @@
 }
 
 /* ... keep the rest of your original CSS for controls and other elements ... */
+/* ==========================================================================
+   Promo Banner Styles (Theme-Aligned)
+   ========================================================================== */
+
+.promoBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background-color: #eef2ff; /* A light, complementary blue-gray */
+  border: 1px solid #dbeafe; /* A soft blue border */
+  color: #374151; /* Dark gray text for readability */
+  padding: 1rem 1.5rem;
+  border-radius: 12px; /* Matches the rounded corners of your cards */
+  margin-bottom: 2.5rem;
+  animation: fadeInUp 0.3s ease forwards;
+}
+
+.promoText {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.promoText strong {
+  color: #3b82f6; /* Uses your primary blue accent color */
+  font-weight: 600;
+}
+
+.promoButton {
+  background-color: #3b82f6; /* Your primary blue button color */
+  color: #ffffff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px; /* Matches button styles */
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  border: none;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2), 0 2px 4px -2px rgba(59, 130, 246, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.promoButton:hover {
+  background-color: #2563eb; /* A slightly darker blue for hover */
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -4px rgba(59, 130, 246, 0.2);
+}
+
+/* Responsive adjustments for the banner */
+@media (max-width: 768px) {
+  .promoBanner {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+}

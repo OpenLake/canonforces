@@ -406,7 +406,59 @@
   overflow-y: auto;
 }
 
+/* Add these to your CodeEditor.module.css file */
 
+/* Style for the new Back button */
+.backBtn {
+  background: none;
+  border: 1px solid #ccc;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: auto; /* Pushes other items to the right */
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.backBtn:hover {
+  background-color: #444;
+  border-color: #888;
+}
+
+/* Style for the panel header to accommodate the new button */
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* This might need adjustment */
+  gap: 1rem; /* Adds space between header items */
+  padding: 10px 15px;
+  border-bottom: 1px solid #333;
+}
+
+/* Style for the dedicated Expand button */
+.expandBtn {
+  position: absolute;
+  left: 10px;
+  top: 15px;
+  z-index: 100;
+  background-color: #333;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.expandBtn:hover {
+  background-color: #444;
+}
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
