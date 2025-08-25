@@ -18,9 +18,8 @@ const QuestionBar = () => {
     test_case?: string;
     answer?: string;
     constraints?: string;
-   
   };
-  
+
   const [ques, setQues] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
   const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
@@ -53,19 +52,39 @@ const QuestionBar = () => {
 
   return (
     <div className={styles.container}>
+      {/* NEW: Dedicated button to expand the panel when it's collapsed */}
+      {leftPanelCollapsed && (
+        <button
+          className={styles.expandBtn}
+          onClick={toggleLeftPanel}
+          aria-label="Expand problem panel"
+        >
+          →
+        </button>
+      )}
+
       {/* Left Panel - Problem Description */}
       <div className={`${styles.leftPane} ${leftPanelCollapsed ? styles.collapsed : ''}`}>
         <div className={styles.panelHeader}>
+          {/* NEW: Back button to navigate to /contests */}
+          <button
+            className={styles.backBtn}
+            onClick={() => router.push('/contests')}
+            aria-label="Back to contests"
+          >
+            &larr; Back
+          </button>
           <h3 className={styles.panelTitle}>Problem</h3>
-          <button 
+          <button
             className={styles.collapseBtn}
             onClick={toggleLeftPanel}
             aria-label="Toggle problem panel"
           >
-            {leftPanelCollapsed ? '→' : '←'}
+            {/* This button will now only handle collapsing */}
+            ←
           </button>
         </div>
-        
+
         {!leftPanelCollapsed && (
           <div className={styles.problemContent}>
             {loading ? (
@@ -121,7 +140,7 @@ const QuestionBar = () => {
             ) : (
               <div className={styles.errorContainer}>
                 <p className={styles.error}>Problem not found</p>
-                <button 
+                <button
                   className={styles.retryBtn}
                   onClick={() => router.reload()}
                 >
@@ -136,8 +155,8 @@ const QuestionBar = () => {
       {/* Right Panel - Code Editor */}
       <div className={`${styles.rightPane} ${leftPanelCollapsed ? styles.expanded : ''}`}>
         <div className={styles.editorContainer}>
-          <CodeEditor 
-            id={typeof id === 'string' ? id : ''} 
+          <CodeEditor
+            id={typeof id === 'string' ? id : ''}
           />
         </div>
       </div>
