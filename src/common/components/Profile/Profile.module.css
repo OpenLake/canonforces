@@ -288,3 +288,37 @@
   /* padding-top: 2rem; */ /* REMOVE THIS LINE */
   align-self: center;
 }
+
+
+/* Find this existing class */
+.profileCard {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  width: 100%;
+  max-width: 650px; /* Original value might be smaller */
+  
+  /* --- CHANGE THIS --- */
+  max-width: 750px; /* Increase this value to make the card wider */
+  
+  display: flex;
+  flex-direction: column;
+}
+
+.profileCard {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  width: 100%;
+  
+  /* --- CHANGE THIS VALUE --- */
+  /* You can adjust this value as needed */
+  max-width: 750px; 
+
+  display: flex;
+  flex-direction: column;
+}
