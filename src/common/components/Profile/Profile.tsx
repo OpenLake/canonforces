@@ -376,10 +376,10 @@ export default function Profile() {
         
         <div className={styles.illustrationWrapper}>
           <Image
-            src="/images/profile.png"
+            src="/images/profile2.png"
             alt="Profile page illustration"
-            width={600}
-            height={600}
+            width={400}
+            height={400}
             className={styles.illustrationImage}
             priority
           />
