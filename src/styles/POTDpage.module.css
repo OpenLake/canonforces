@@ -36,8 +36,8 @@
 .mascot {
   position: absolute;
   top: 40px;
-  right: 40px;
-  width: 250px;
+  right: 0px;
+  width: 200px;
   height: auto;
   object-fit: contain;
   pointer-events: none; /* Prevents mascot from being clickable */
@@ -126,7 +126,7 @@
 
 .tag {
   background: #eef2ff;
-  color: #4338ca;
+  color:  #007bff;
   font-size: 0.8rem;
   padding: 0.25rem 0.6rem;
   border-radius: 0.4rem;
