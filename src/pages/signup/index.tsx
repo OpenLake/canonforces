@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -8,111 +8,165 @@ import { FcGoogle } from "react-icons/fc";
 import { HiMail } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { BsPatchExclamation, BsPatchCheck } from "react-icons/bs";
-import { doesUsernameExists, /*signupWithGoogle,*/ getUserByUserId } from "../../services/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+    doesUsernameExists,
+    isCanonforcesUsernameTaken,
+    getUserByUserId,
+} from "../../services/firebase";
+import {
+    createUserWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup,
+} from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
-import { addDoc, collection, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
+
+// Define a type for Firebase errors to safely access 'code'
+type FirebaseError = {
+    code: string;
+    message: string;
+};
+
+// Helper to check if an error is a FirebaseError
+function isFirebaseError(err: unknown): err is FirebaseError {
+    return typeof err === 'object' && err !== null && 'code' in err && 'message' in err;
+}
 
 export default function Signup() {
     const router = useRouter();
 
-    // For email/password signup
     const [username, setUsername] = useState("");
-    const [fullname, setFullname] = useState(""); 
+    const [fullname, setFullname] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const isInvalid = password === "" || email === "" || username === "";
+    const isInvalid = password === "" || email === "" || fullname === "" || username === "";
 
-    // Google signup redirect logic (commented out)
-    // useEffect(() => {
-    //     const isGoogleSignup = localStorage.getItem("googleSignup");
-    //     if (isGoogleSignup === "true") {
-    //         localStorage.removeItem("googleSignup");
-
-    //         const checkAndRedirect = async () => {
-    //             const currentUser = auth.currentUser;
-    //             if (currentUser) {
-    //                 const userId = currentUser.uid;
-    //                 const dbUserArray = await getUserByUserId(userId);
-    //                 // Check if the user object has a username property
-    //                 if (
-    //                     !dbUserArray.length ||
-    //                     !("username" in dbUserArray[0]) ||
-    //                     !dbUserArray[0].username
-    //                 ) {
-    //                     router.push("/CompleteProfile");
-    //                 } else {
-    //                     router.push(ROUTES.DASHBOARD);
-    //                 }
-    //             }
-    //         };
-
-    //         checkAndRedirect();
-    //     }
-    // }, []);
-
-    // Email/password signup handler
     const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
-        setLoading(true);
 
         if (password.length < 6) {
             setError("Password must be at least 6 characters.");
-            setLoading(false);
             return;
         }
+        setLoading(true);
 
-        const usernameExists = await doesUsernameExists(username);
-        if (usernameExists !== null && usernameExists) {
-            try {
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then((user) => {
-                        addDoc(collection(db, "users"), {
-                            username: username.toLowerCase(),
-                            userId: user.user.uid,
-                            fullname,
-                            emailAddress: email.toLowerCase(),
-                            following: [],
-                            dateCreated: Date.now()
-                        })
-                        .then(() => {
-                            router.push(ROUTES.DASHBOARD);
-                            setLoading(false);
-                        });
-                    }).catch(err => {
-                        if (err.code === "auth/email-already-in-use") {
-                            setError("This email is already registered. Please login or use another email.");
-                        } else if (err.code === "auth/invalid-email") {
-                            setError("Please enter a valid email address.");
-                        } else if (err.code === "auth/weak-password") {
-                            setError("Password must be at least 6 characters.");
-                        } else {
-                            setError(err.message);
-                        }
-                        setLoading(false);
-                    });
-            } catch (err) {
-                setFullname('');
-                setEmail('');
-                setPassword('');
-                setError(err instanceof Error ? err.message : String(err));
+        try {
+            const cfUserExists = await doesUsernameExists(username);
+            if (!cfUserExists) {
+                setError("This username does not exist on Codeforces.");
                 setLoading(false);
+                return;
             }
-        } else {
-            setError('Username does not exist on Codeforces');
+            
+            const usernameIsTaken = await isCanonforcesUsernameTaken(username);
+            if (usernameIsTaken) {
+                setError("This Codeforces username is already registered.");
+                setLoading(false);
+                return;
+            }
+
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            await setDoc(doc(db, "users", user.uid), {
+                username: username.trim(),
+                fullname,
+                emailAddress: email.toLowerCase(),
+                following: [],
+                dateCreated: Date.now(),
+            });
+
+            router.push(ROUTES.DASHBOARD);
+
+        } catch (err) {
+            if (isFirebaseError(err)) {
+                if (err.code === "auth/email-already-in-use") {
+                    setError("This email is already registered. Please login.");
+                } else if (err.code === "auth/invalid-email") {
+                    setError("Please enter a valid email address.");
+                } else {
+                    setError(err.message);
+                }
+            } else {
+                setError("An unexpected error occurred.");
+            }
+        } finally {
             setLoading(false);
         }
     };
+    
+    const handleGoogleLogin = async () => {
+        setError("");
+        if (!username) {
+            setError("Please enter your Codeforces username first.");
+            return;
+        }
+        setLoading(true);
 
-    // Google signup handler (commented out)
-    // const googleSignup = async () => {
-    //     localStorage.setItem("googleSignup", "true");
-    //     await signupWithGoogle();
-    // };
+        try {
+            const cfUserExists = await doesUsernameExists(username);
+            if (!cfUserExists) {
+                setError("This username does not exist on Codeforces.");
+                setLoading(false);
+                return;
+            }
+
+            const usernameIsTaken = await isCanonforcesUsernameTaken(username);
+            if (usernameIsTaken) {
+                setError("This Codeforces username is already registered.");
+                setLoading(false);
+                return;
+            }
+
+            const googleProvider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+
+            if (!user.email) {
+                setError("Could not retrieve email from Google. Please try another method.");
+                setLoading(false);
+                return;
+            }
+            
+            // It's safer to use auth.currentUser.uid after the popup completes
+            const currentAuthUser = auth.currentUser;
+            if (!currentAuthUser) {
+                setError("Authentication failed. Please try again.");
+                setLoading(false);
+                return;
+            }
+
+            const userExistsInDb = await getUserByUserId(currentAuthUser.uid);
+            if (userExistsInDb && userExistsInDb.length > 0) {
+                router.push(ROUTES.DASHBOARD);
+                return;
+            }
+
+            await setDoc(doc(db, "users", currentAuthUser.uid), {
+                username: username.toLowerCase(),
+                fullname: user.displayName,
+                emailAddress: user.email.toLowerCase(),
+                following: [],
+                dateCreated: Date.now(),
+            });
+
+            router.push(ROUTES.DASHBOARD);
+
+        } catch (err) {
+            console.error("Google Sign-In Failed:", err);
+            if (isFirebaseError(err) && err.code === "auth/popup-closed-by-user") {
+                setError("Google sign-in was cancelled.");
+            } else {
+                setError("An unexpected error occurred during Google sign-in.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className={styles.signup}>
@@ -150,11 +204,12 @@ export default function Signup() {
                                     disabled={loading}
                                 />
                                 {username ? (
-                                    <BsPatchCheck className={styles.check__icon + " absolute right-3 top-2.5 text-green-500"} />
+                                    <BsPatchCheck className="absolute right-3 top-2.5 h-5 w-5 text-green-500" />
                                 ) : (
-                                    <BsPatchExclamation className={styles.exclaimation__icon + " absolute right-3 top-2.5 text-red-500"} />
+                                    <BsPatchExclamation className="absolute right-3 top-2.5 h-5 w-5 text-red-500" />
                                 )}
                             </div>
+                            <label className="text-gray-700 text-sm font-medium mb-1 mt-2">Then, sign up with Email or Google</label>
                             <div className={styles.input + " relative"}>
                                 <input
                                     className="shadow appearance-none text-base rounded-md w-full py-2 pl-3 pr-10 text-gray-700 leading-tight border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
@@ -163,10 +218,9 @@ export default function Signup() {
                                     onChange={({ target }) => setFullname(target.value)}
                                     value={fullname}
                                     name="fullname"
-                                    required
                                     disabled={loading}
                                 />
-                                <HiMail className={styles.mail__icon + " absolute right-3 top-2.5 text-gray-400"} />
+                                <HiMail className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
                             </div>
                             <div className={styles.input + " relative"}>
                                 <input
@@ -176,10 +230,9 @@ export default function Signup() {
                                     onChange={({ target }) => setEmail(target.value)}
                                     value={email}
                                     name="email"
-                                    required
                                     disabled={loading}
                                 />
-                                <HiMail className={styles.mail__icon + " absolute right-3 top-2.5 text-gray-400"} />
+                                <HiMail className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
                             </div>
                             <div className={styles.input + " relative"}>
                                 <input
@@ -189,10 +242,9 @@ export default function Signup() {
                                     placeholder="Password"
                                     value={password}
                                     onChange={({ target }) => setPassword(target.value)}
-                                    required
                                     disabled={loading}
                                 />
-                                <RiLockPasswordFill className={styles.lock__icon + " absolute right-3 top-2.5 text-gray-400"} />
+                                <RiLockPasswordFill className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
                             </div>
                         </div>
                         <div className="w-full mt-6 flex flex-col gap-3">
@@ -201,19 +253,18 @@ export default function Signup() {
                                 disabled={isInvalid || loading}
                                 type="submit"
                             >
-                                {loading ? "Signing up..." : "Signup"}
+                                {loading ? "Signing up..." : "Signup with Email"}
                             </button>
-                            {/* 
+                            
                             <button
                                 type="button"
-                                className="flex items-center justify-center border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 rounded-lg h-11 font-medium transition-all duration-150 shadow-sm"
-                                onClick={googleSignup}
-                                disabled={loading}
+                                className={`flex items-center justify-center border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 rounded-lg h-11 font-medium transition-all duration-150 shadow-sm ${!username || loading ? "opacity-60 cursor-not-allowed" : ""}`}
+                                onClick={handleGoogleLogin}
+                                disabled={!username || loading}
                             >
                                 <FcGoogle size={"1.6em"} className="mr-2" />
                                 <span>Sign up with Google</span>
                             </button>
-                            */}
                         </div>
                         <div className="w-full flex justify-center mt-4">
                             <p className="text-sm text-gray-600">
@@ -230,7 +281,7 @@ export default function Signup() {
                     <Image width={480} height={480} alt="signup" src="/images/signup.jpg" className="rounded-2xl object-cover" />
                 </div>
             </div>
-
-             </div>
+        </div>
     );
 }
+
