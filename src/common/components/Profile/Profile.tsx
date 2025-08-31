@@ -4,8 +4,6 @@ import styles from "./Profile.module.css";
 import useUser from "../../../hooks/use-user";
 import { updateUserProfile } from "../../../services/firebase";
 
-
-// Type definitions
 type User = {
   docId: string;
   username: string;
@@ -39,6 +37,9 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  // ✅ Local state for profile photo
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>("");
+
   useEffect(() => {
     if (user?.username) {
       const fetchCfData = async () => {
@@ -63,6 +64,9 @@ export default function Profile() {
       setPreviewUrl(null);
       setImageFile(null);
       setUploadError(null);
+
+      // ✅ Sync local photo state with user
+      setProfilePhotoUrl(user.photoURL || "");
     }
   }, [user]);
 
@@ -87,13 +91,11 @@ export default function Profile() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         setUploadError('File size must be less than 5MB');
         return;
       }
 
-      // Validate file type
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       if (!validTypes.includes(file.type)) {
         setUploadError('Please select a valid image file (JPEG, PNG, or WebP)');
@@ -102,21 +104,16 @@ export default function Profile() {
 
       setImageFile(file);
       setUploadError(null);
-      
-      // Create preview URL
+
       if (previewUrl) {
-        URL.revokeObjectURL(previewUrl); // Clean up previous URL
+        URL.revokeObjectURL(previewUrl);
       }
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
-  // Upload image to Cloudinary
   const uploadImageToCloudinary = async (file: File): Promise<string> => {
     try {
-      console.log('Starting upload process...');
-      
-      // Get signature from our API
       const signResponse = await fetch('/api/sign-cloudinary-upload', {
         method: 'POST',
         headers: {
@@ -124,27 +121,13 @@ export default function Profile() {
         },
       });
 
-      console.log('Sign response status:', signResponse.status);
-
       if (!signResponse.ok) {
         const errorText = await signResponse.text();
-        console.error('Sign response error:', errorText);
-        throw new Error(`Failed to get upload signature: ${signResponse.status}`);
+        throw new Error(`Failed to get upload signature: ${signResponse.status} - ${errorText}`);
       }
 
       const signData = await signResponse.json();
-      console.log('Sign data received:', { 
-        hasSignature: !!signData.signature,
-        timestamp: signData.timestamp,
-        uploadPreset: signData.upload_preset,
-        cloudName: signData.cloud_name
-      });
 
-      if (!signData.signature || !signData.timestamp || !signData.upload_preset || !signData.cloud_name) {
-        throw new Error('Invalid signature data received from server');
-      }
-
-      // Prepare form data for Cloudinary
       const formData = new FormData();
       formData.append('file', file);
       formData.append('upload_preset', signData.upload_preset);
@@ -152,27 +135,20 @@ export default function Profile() {
       formData.append('signature', signData.signature);
       formData.append('timestamp', signData.timestamp.toString());
 
-      // Upload to Cloudinary
       const uploadUrl = `https://api.cloudinary.com/v1_1/${signData.cloud_name}/image/upload`;
-      console.log('Uploading to:', uploadUrl);
-      
+
       const uploadResponse = await fetch(uploadUrl, {
         method: 'POST',
         body: formData,
       });
 
-      console.log('Upload response status:', uploadResponse.status);
-
       if (!uploadResponse.ok) {
         const errorData = await uploadResponse.text();
-        console.error('Cloudinary upload error:', errorData);
-        throw new Error(`Failed to upload image: ${uploadResponse.status}`);
+        throw new Error(`Failed to upload image: ${uploadResponse.status} - ${errorData}`);
       }
 
       const uploadData = await uploadResponse.json();
-      console.log('Upload successful, URL:', uploadData.secure_url);
       return uploadData.secure_url;
-
     } catch (error) {
       console.error("Error uploading to Cloudinary:", error);
       throw error;
@@ -182,35 +158,31 @@ export default function Profile() {
   const handleSave = async () => {
     setLoading(true);
     setUploadError(null);
-    
-    let photoURL = user.photoURL || '';
+
+    let photoURL = profilePhotoUrl;
 
     try {
-      // Upload image if a new one is selected
       if (imageFile) {
-        console.log('Starting image upload...');
         photoURL = await uploadImageToCloudinary(imageFile);
-        console.log('Image uploaded successfully:', photoURL);
+        // ✅ Instantly update local state
+        setProfilePhotoUrl(photoURL);
       }
 
-      // Update user profile in Firebase
       const updatedProfile = {
         ...editForm,
         photoURL: photoURL,
       };
 
-      console.log('Updating profile with:', updatedProfile);
       await updateUserProfile(user.docId, updatedProfile);
-      
+
       setIsEditing(false);
       setImageFile(null);
+
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
         setPreviewUrl(null);
       }
-
     } catch (error: any) {
-      console.error("Error updating profile:", error);
       setUploadError(error.message || "Failed to update profile. Please try again.");
     } finally {
       setLoading(false);
@@ -219,21 +191,20 @@ export default function Profile() {
 
   const getRankColor = (rank: string | undefined) => {
     const rankColors: Record<string, string> = {
-      'newbie': '#808080', 
-      'pupil': '#008000', 
+      'newbie': '#808080',
+      'pupil': '#008000',
       'specialist': '#03A89E',
-      'expert': '#0000FF', 
-      'candidate master': '#AA00AA', 
+      'expert': '#0000FF',
+      'candidate master': '#AA00AA',
       'master': '#FF8C00',
-      'international master': '#FF8C00', 
+      'international master': '#FF8C00',
       'grandmaster': '#FF0000',
-      'international grandmaster': '#FF0000', 
+      'international grandmaster': '#FF0000',
       'legendary grandmaster': '#FF0000'
     };
     return rank ? rankColors[rank.toLowerCase()] || '#1c1e21' : '#1c1e21';
   };
 
-  // Cleanup preview URL on unmount
   useEffect(() => {
     return () => {
       if (previewUrl) {
@@ -253,7 +224,11 @@ export default function Profile() {
           <header className={styles.profileHeader}>
             <div className={styles.avatar}>
               <img
-                src={previewUrl || user.photoURL || `https://ui-avatars.com/api/?name=${user.fullname || user.username}&background=0D8ABC&color=fff&bold=true`}
+                src={
+                  previewUrl ||
+                  profilePhotoUrl ||
+                  `https://ui-avatars.com/api/?name=${user.fullname || user.username}&background=0D8ABC&color=fff&bold=true`
+                }
                 alt="Profile"
               />
             </div>
@@ -267,6 +242,7 @@ export default function Profile() {
               </div>
             </div>
           </header>
+
 
           <div className={styles.profileStatsBar}>
             <div className={styles.stat}>
