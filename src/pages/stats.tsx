@@ -568,7 +568,7 @@ export default function StatsComparison() {
 
  <div className={styles.promoBanner}>
             <p className={styles.promoText}>
-                🚀 Get more stats, comparisons and a leaderboard at <strong>leaderboard-pro</strong>
+                Get more stats, comparisons and a leaderboard at <strong>leaderboard-pro</strong>
             </p>
             <a
                 href="https://leaderboardpro.vercel.app/"
