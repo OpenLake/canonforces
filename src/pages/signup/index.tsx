@@ -72,13 +72,15 @@ export default function Signup() {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
-            await setDoc(doc(db, "users", user.uid), {
-                username: username.trim(),
-                fullname,
-                emailAddress: email.toLowerCase(),
-                following: [],
-                dateCreated: Date.now(),
-            });
+           await setDoc(doc(db, "users", user.uid), {
+    userId: user.uid,   // ✅ add this
+    username: username.trim(),
+    fullname,
+    emailAddress: email.toLowerCase(),
+    following: [],
+    dateCreated: Date.now(),
+});
+
 
             router.push(ROUTES.DASHBOARD);
 
@@ -146,13 +148,15 @@ export default function Signup() {
                 return;
             }
 
-            await setDoc(doc(db, "users", currentAuthUser.uid), {
-                username: username.toLowerCase(),
-                fullname: user.displayName,
-                emailAddress: user.email.toLowerCase(),
-                following: [],
-                dateCreated: Date.now(),
-            });
+           await setDoc(doc(db, "users", currentAuthUser.uid), {
+    userId: currentAuthUser.uid,   // ✅ important
+    username: username.toLowerCase(),
+    fullname: user.displayName || "",
+    emailAddress: user.email.toLowerCase(),
+    following: [],
+    dateCreated: Date.now(),
+});
+
 
             router.push(ROUTES.DASHBOARD);
 
