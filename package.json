@@ -14,6 +14,7 @@
     "@types/node": "18.11.15",
     "axios": "^1.9.0",
     "chart.js": "^4.4.9",
+    "cloudinary": "^2.7.0",
     "dotenv": "^16.5.0",
     "eslint": "8.29.0",
     "eslint-config-next": "13.0.7",

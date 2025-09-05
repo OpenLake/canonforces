@@ -1,0 +1,244 @@
+/* --- New Wrapper for Layout --- */
+.pageWrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: #f9fafb;
+  padding: 2rem;
+  overflow-x: hidden; /* Prevents horizontal scrollbar if mascot overflows */
+}
+
+/* --- Main Content Column --- */
+.container {
+  max-width: 900px; /* Increased width for the central box */
+  margin: 0 auto;   /* This centers the container */
+}
+
+/* --- Centered Header --- */
+.header {
+  text-align: center; /* Centers the title and date */
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin-top: 0.5rem;
+}
+
+.date {
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+/* --- Mascot (Absolutely Positioned) --- */
+.mascot {
+  position: absolute;
+  top: 30px;
+  right:-15px;
+  width: 200px;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none; /* Prevents mascot from being clickable */
+}
+
+/* --- Card Styling --- */
+.card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 10px S25px -5px rgba(0, 0, 0, 0.07), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.cardContent {
+  padding: 2.5rem; /* Increased padding */
+}
+
+/* --- Other Elements (Minor Adjustments) --- */
+.problemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.problemTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.difficulty {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  flex-shrink: 0; /* Prevents the tag from shrinking */
+}
+
+.easy {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.medium {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.hard {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.unknown {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.description {
+  margin-top: 1.5rem;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.tagsWrapper {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background: #eef2ff;
+  color:  #007bff;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.4rem;
+  font-weight: 500;
+}
+
+.solveButtonWrapper {
+  margin-top: 2.5rem;
+  text-align: center;
+}
+
+.solveButton {
+  background: #4f46e5;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 0.85rem 2.5rem;
+  border-radius: 0.75rem;
+  transition: background 0.2s, transform 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.solveButton:hover {
+  background: #4338ca;
+  transform: translateY(-2px);
+}
+
+.solverSection {
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 1.5rem 2.5rem;
+}
+
+.solverHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.solverList {
+  margin-top: 1rem;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.solverItem {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+/* --- Icons --- */
+.cpuIcon {
+  margin: 0 auto 0.5rem;
+  height: 3rem;
+  width: 3rem;
+  color: #4f46e5;
+}
+
+.codeIcon {
+  height: 1.2rem;
+  width: 1.2rem;
+  color: #9ca3af;
+}
+
+.awardIcon {
+  height: 1.2rem;
+  width: 1.2rem;
+  color: #f59e0b;
+}
+
+/* --- States --- */
+.centerScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading {
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+.error {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 1200px) {
+  .mascot {
+    display: none; /* Hide mascot on smaller screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .pageWrapper {
+    padding: 1rem;
+  }
+  .cardContent {
+    padding: 1.5rem;
+  }
+  .title {
+    font-size: 2.2rem;
+  }
+  .problemTitle {
+    font-size: 1.4rem;
+  }
+}

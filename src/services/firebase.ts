@@ -2,7 +2,21 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, db, provider } from "../lib/firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { User } from "../types/user";
+// services/firebase.js
 
+// ... your other functions like doesUsernameExists, getUserByUserId
+
+/**
+ * Checks if a Codeforces username is already taken in the Canonforces database.
+  * Checks if a Codeforces username is already taken in the Canonforces database.
+ * @param {string} username The Codeforces username to check.
+ * @returns {Promise<boolean>} True if the username is already taken, false otherwise.
+ */
+export async function isCanonforcesUsernameTaken(username: string): Promise<boolean> {
+    const q = query(collection(db, "users"), where("username", "==", username.toLowerCase()));
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+}
 export const signupWithGoogle = async () => {
     try {
         const res = await signInWithPopup(auth, provider);
@@ -33,16 +47,36 @@ export async function updateUserProfile(docId: string, updateData: Record<string
   await updateDoc(userRef, updateData);
 }
 import { doc, updateDoc } from "firebase/firestore";
-export async function getUserByUserId(userId: string) {
+export interface UserProfile {
+    docId: string;
+    userId: string;
+    username: string;
+    fullname: string;
+    emailAddress: string;
+    following: string[];
+    dateCreated: number;
+}
+
+/**
+ * Fetches user profile(s) from Firestore based on the userId field.
+ * NOTE: This function queries a field. A more efficient pattern for unique users
+ * is to fetch a document directly by its ID.
+ * @param {string} userId The user's auth UID.
+ * @returns {Promise<UserProfile[]>} An array of user profiles that match the UID.
+ */
+export async function getUserByUserId(userId: string): Promise<UserProfile[]> {
     const q = query(collection(db, "users"), where("userId", "==", userId));
     const querySnapshot = await getDocs(q);
-    const user = querySnapshot.docs.map((item) => ({
+    
+    const users = querySnapshot.docs.map((item) => ({
         ...item.data(),
         docId: item.id,
     }));
 
-    return user;    
+    // 2. We cast the returned array to our UserProfile type to ensure type safety.
+    return users as UserProfile[];
 }
+
 
 export const getContestCount = async (username: string) => {
     const res = await fetch(`https://codeforces.com/api/user.rating?handle=${username}`);

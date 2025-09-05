@@ -666,9 +666,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  background-color: #eef2ff; /* A light, complementary blue-gray */
+  background-color: #bfcaf1; /* A light, complementary blue-gray */
   border: 1px solid #dbeafe; /* A soft blue border */
-  color: #374151; /* Dark gray text for readability */
+  color: #1a60d0; /* Dark gray text for readability */
   padding: 1rem 1.5rem;
   border-radius: 12px; /* Matches the rounded corners of your cards */
   margin-bottom: 2.5rem;
@@ -688,12 +688,12 @@
 }
 
 .promoButton {
-  background-color: #3b82f6; /* Your primary blue button color */
+  background-color: #1666e6; /* Your primary blue button color */
   color: #ffffff;
   padding: 0.6rem 1.2rem;
   border-radius: 8px; /* Matches button styles */
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 800;
   font-size: 0.9rem;
   white-space: nowrap;
   border: none;
@@ -702,11 +702,102 @@
 }
 
 .promoButton:hover {
-  background-color: #2563eb; /* A slightly darker blue for hover */
+  background-color: #0250f7; /* A slightly darker blue for hover */
   transform: translateY(-2px);
   box-shadow: 0 7px 14px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -4px rgba(59, 130, 246, 0.2);
 }
 
+/* ==========================================================================
+   Upgraded Promo Banner
+   ========================================================================== */
+
+.promoBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  /* A vibrant, modern gradient background */
+  background: linear-gradient(105deg, #296bf0 0%, #7c3aed 100%);
+  color: #ffffff;
+  padding: 1.5rem 2rem;
+  border-radius: 16px; /* A more modern, larger radius */
+  margin-bottom: 2.5rem;
+  /* A deeper shadow to make the banner "pop" */
+  box-shadow: 0 10px 30px -10px rgba(79, 70, 229, 0.4);
+  position: relative; /* Needed for the icon */
+  overflow: hidden;
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+/* Adds a rocket icon for visual flair without changing HTML */
+.promoBanner::before {
+  content: '🚀';
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3rem;
+  opacity: 1;
+}
+
+.promoText {
+  margin: 0;
+  padding-left: 5rem; /* Creates space for the rocket icon */
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.promoText strong {
+  color: #ffffff;
+  font-weight: 700;
+  /* A subtle highlight effect for the keyword */
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.1rem 0.5rem;
+  border-radius: 6px;
+}
+
+/* --- High-Contrast Call-to-Action Button --- */
+.promoButton {
+  background-color: #ffffff;
+  color: #4f46e5; /* Contrasting color that matches the gradient */
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.promoButton:hover {
+  /* A more dynamic hover effect */
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+  .promoBanner {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.25rem;
+    padding: 2rem 1.5rem;
+  }
+
+  .promoBanner::before {
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .promoText {
+    padding-left: 0;
+    padding-top: 3.5rem; /* Make space for the icon above */
+  }
+}
 /* Responsive adjustments for the banner */
 @media (max-width: 768px) {
   .promoBanner {
@@ -716,3 +807,9 @@
     padding: 1.5rem;
   }
 }
+
+
+
+
+
+

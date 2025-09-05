@@ -7,10 +7,9 @@ import * as ROUTES from "../constants/routes";
 import { FcGoogle } from "react-icons/fc";
 import { HiMail } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../lib/firebase";
-// import { signupWithGoogle } from "../services/firebase";
-// import { getUserByUserId } from "../services/firebase";
+import { getUserByUserId } from "../services/firebase";
 
 export default function Login() {
   const router = useRouter();
@@ -41,29 +40,35 @@ export default function Login() {
     setLoading(false);
   };
 
-  // const googleSignup = async () => {
-  //   setError("");
-  //   setLoading(true);
-  //   try {
-  //     const user = await signupWithGoogle();
-  //     if (user !== null) {
-  //       const userId = user.uid;
-  //       const dbUserArray = await getUserByUserId(userId);
-  //       if (
-  //         dbUserArray.length === 0 ||
-  //         !("username" in dbUserArray[0]) ||
-  //         !dbUserArray[0].username
-  //       ) {
-  //         router.push("/CompleteProfile");
-  //       } else {
-  //         router.push(ROUTES.DASHBOARD);
-  //       }
-  //     }
-  //   } catch (err: any) {
-  //     setError("Google sign-in failed. Please try again.");
-  //   }
-  //   setLoading(false);
-  // };
+  const handleGoogleLogin = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      if (!user.uid) {
+        setError("Google authentication failed. Please try again.");
+        return;
+      }
+
+      // 🔍 check if Firestore has a user document
+      const dbUserArray = await getUserByUserId(user.uid);
+
+      if (dbUserArray.length === 0) {
+        // no user doc exists → this person never signed up with CF handle
+        router.push(ROUTES.SIGNUP);
+      } else {
+        // user already exists in Firestore → take them to dashboard
+        router.push(ROUTES.DASHBOARD);
+      }
+    } catch (err: any) {
+      console.error("Google login failed", err);
+      setError("Google sign-in failed. Please try again.");
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
     document.title = "Canonforces Login";
@@ -135,22 +140,22 @@ export default function Login() {
             </div>
             <div className="w-full mt-6 flex flex-col gap-3">
               <button
-  className={`${styles.login__button} bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg h-11 transition-all duration-150 shadow-md ${isInvalid || loading ? "opacity-60 cursor-not-allowed" : ""}`}
-  disabled={isInvalid || loading}
-  type="submit"
->
-  {loading ? "Logging in..." : "Login"}
-</button>
+                className={`${styles.login__button} bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg h-11 transition-all duration-150 shadow-md ${isInvalid || loading ? "opacity-60 cursor-not-allowed" : ""}`}
+                disabled={isInvalid || loading}
+                type="submit"
+              >
+                {loading ? "Logging in..." : "Login"}
+              </button>
 
-              {/* <button
+              <button
                 type="button"
                 className="flex items-center justify-center border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 rounded-lg h-11 font-medium transition-all duration-150 shadow-sm"
-                onClick={googleSignup}
+                onClick={handleGoogleLogin}
                 disabled={loading}
               >
                 <FcGoogle size={"1.6em"} className="mr-2" />
                 <span>Sign in with Google</span>
-              </button> */}
+              </button>
             </div>
             <div className="w-full flex justify-center mt-4">
               <p className="text-sm text-gray-600">

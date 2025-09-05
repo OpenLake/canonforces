@@ -69,7 +69,7 @@ const QuestionBar = () => {
           {/* NEW: Back button to navigate to /contests */}
           <button
             className={styles.backBtn}
-            onClick={() => router.push('/contests')}
+            onClick={() => router.back()}
             aria-label="Back to contests"
           >
             &larr; Back
