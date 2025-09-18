@@ -1,48 +1,40 @@
 # ⚔️ CanonForces
 
-**CanonForces** is a multiplayer Codeforces companion platform built to make competitive programming more **collaborative, analytical, and fun**. Challenge friends, compare your growth, solve problems together, and sharpen your DSA skills — all in one place.
+**CanonForces** is a multiplayer Codeforces companion platform that makes competitive programming more **collaborative, analytical, and fun**.  
+Challenge friends, track progress, solve problems, and sharpen your DSA skills — all in one place.
 
+---
 
 ## 🚀 Features
-
-### ✅ Live Features
-- 🧩 **Practice Problems with Ratings & Tags**
-- 🧠 **Built-in CP IDE** with stdin/stdout support
-- 📊 **Codeforces Stats Comparison** between users (rating, problems solved, ranks, etc.)
-- 📆 **Problem of the Day (POTD)** to keep consistency
-- 🔍 **Explore Problems by Difficulty or Topic**
-- 💬 **Direct Messaging between Users** *(planned)*
-
-### 🧪 In Development / Planned
-- ⚔️ **1v1 Contests** – Real-time battles with friends
-- 🗣️ **In-app Messaging & Group Chat**
-
+- 🧩 Practice Problems with Ratings & Tags  
+- 🧠 Built-in CP IDE (stdin/stdout support)  
+- 📊 Compare Codeforces Stats (ratings, solved count, ranks)  
+- 📆 Problem of the Day (POTD)  
+- 🔍 Explore Problems by Difficulty/Topic  
+- 💬 Messaging & 1v1 Contests *(planned)*  
 
 ---
 
 ## 🛠️ Tech Stack
-
-### 🖥️ Frontend
-- Next.js + React
-- Tailwind CSS
-- ShadCN UI
-- Socket.IO (real-time)
-
-### 🗄️ Backend
-- Node.js + Express
-- Firebase for authentication and database
-- Codeforces Public API
-- Judge0 and Monoco editor
+**Frontend:** Next.js, React, Tailwind CSS, ShadCN UI, Socket.IO  
+**Backend:** Node.js, Express, Firebase Auth & DB, Codeforces API, Judge0, Monaco Editor  
 
 ---
 
-## 🧑‍💻 Local Development Setup
-
+## 🧑‍💻 Local Development
 ```bash
-# 1. Clone the repo
+# Clone repo
 git clone https://github.com/OpenLake/canonforces.git
 cd canonforces
 
-# 2. Install frontend and backend dependencies
+# Install frontend & backend
 cd client && npm install
 cd ../server && npm install
+```
+
+---
+
+## 👨‍💻 Maintainer
+- @aviralsaxena16  
+
+Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md).  
