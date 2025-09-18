@@ -33,8 +33,8 @@ cd ../server && npm install
 ```
 
 ---
-
 ## 👨‍💻 Maintainer
-- @aviralsaxena16  
+- [@aviralsaxena16](https://github.com/aviralsaxena16)
+
 
 Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md).  
