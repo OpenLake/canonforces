@@ -37,6 +37,7 @@ We love contributions! Here’s how you can help:
 
 ## 📬 Communication
 For discussions, open an issue or reach out to the maintainer:  
-- @aviralsaxena16  
+- [@aviralsaxena16](https://github.com/aviralsaxena16)
+- [@Jagath-P](https://github.com/Jagath-P)  
 
-Join our community on **Discord**: [https://discord.gg/4YnYtVeF](https://discord.gg/4YnYtVeF)  
+- Join our community on **Discord**: [https://discord.gg/4YnYtVeF](https://discord.gg/4YnYtVeF)  
