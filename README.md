@@ -5,6 +5,10 @@ Challenge friends, track progress, solve problems, and sharpen your DSA skills �
 
 ---
 
+<img width="80%" alt="Screenshot 2025-09-18 121949" src="https://github.com/user-attachments/assets/313051de-d1f2-40d4-b141-6378412d610d" />
+
+
+
 ## 🚀 Features
 - 🧩 Practice Problems with Ratings & Tags  
 - 🧠 Built-in CP IDE (stdin/stdout support)  
@@ -12,6 +16,10 @@ Challenge friends, track progress, solve problems, and sharpen your DSA skills �
 - 📆 Problem of the Day (POTD)  
 - 🔍 Explore Problems by Difficulty/Topic  
 - 💬 Messaging & 1v1 Contests *(planned)*  
+
+<img width="70%" alt="Screenshot 2025-09-18 121933" src="https://github.com/user-attachments/assets/71bf2afe-1509-4491-9904-dcf38dfdd0ca" />
+
+<img width="70%"  alt="Screenshot 2025-09-18 122028" src="https://github.com/user-attachments/assets/5666a7e7-d6b7-4a0f-9b54-a5ea4a7eaf66" />
 
 ---
 
@@ -35,6 +43,6 @@ cd ../server && npm install
 ---
 ## 👨‍💻 Maintainer
 - [@aviralsaxena16](https://github.com/aviralsaxena16)
-
+- [@Jagath-P](https://github.com/Jagath-P)  
 
 Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md).  
