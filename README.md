@@ -25,7 +25,7 @@ Challenge friends, track progress, solve problems, and sharpen your DSA skills ‚
 
 ## üõ†Ô∏è Tech Stack
 **Frontend:** Next.js, React, Tailwind CSS, ShadCN UI, Socket.IO  
-**Backend:** Node.js, Express, Firebase Auth & DB, Codeforces API, Judge0, Monaco Editor  
+**Backend:** Firebase Auth & DB, Codeforces API, Judge0, Monaco Editor  
 
 ---
 
@@ -35,9 +35,8 @@ Challenge friends, track progress, solve problems, and sharpen your DSA skills ‚
 git clone https://github.com/OpenLake/canonforces.git
 cd canonforces
 
-# Install frontend & backend
-cd client && npm install
-cd ../server && npm install
+# Install the dependencies
+npm install
 ```
 
 ---
