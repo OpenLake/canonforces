@@ -1,0 +1,42 @@
+name: Auto Comment on PR
+
+on:
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const prNumber = context.issue.number;
+
+            const commentBody = `### 🎉 Thanks for creating a PR for CanonForces! ☺️  
+
+We'll review it as soon as possible. In the meantime, please:  
+- ✅ Double-check the **file changes**.  
+- ✅ Ensure that **all commits** are clean and meaningful.  
+- ✅ Link the PR to its related issue (e.g., \`Closes #123\`).  
+- ✅ Resolve any **unaddressed review comments** promptly.  
+
+💬 Need help or want faster feedback?  
+Join our Discord 👉 [CanonForces Discord](https://discord.gg/4YnYtVeF)  
+
+Thanks again for contributing 🙌 – Maintainer: @aviralsaxena16  
+`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: commentBody
+            });
+
+            console.log('✅ Auto comment on PR added successfully!');
