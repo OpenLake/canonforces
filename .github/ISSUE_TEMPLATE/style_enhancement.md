@@ -1,5 +1,5 @@
 ---
-name: "🎨 Style Enhancement"
+name: "Style Enhancement"
 about: Suggest UI/UX or design improvements for CanonForces (Next.js + TailwindCSS + ShadCN UI)
 title: "Style: [Brief Description]"
 labels: "style enhancement"

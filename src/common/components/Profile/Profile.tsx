@@ -223,14 +223,19 @@ export default function Profile() {
         <div className={styles.profileCard}>
           <header className={styles.profileHeader}>
             <div className={styles.avatar}>
-              <img
-                src={
-                  previewUrl ||
-                  profilePhotoUrl ||
-                  `https://ui-avatars.com/api/?name=${user.fullname || user.username}&background=0D8ABC&color=fff&bold=true`
-                }
-                alt="Profile"
-              />
+             <Image
+  src={
+    previewUrl ||
+    profilePhotoUrl ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      user.fullname || user.username
+    )}&background=0D8ABC&color=fff&bold=true`
+  }
+  alt="Profile"
+  width={100} // set according to your design
+  height={100} // set according to your design
+  className="rounded-full object-cover" // optional styling
+/>
             </div>
             <div className={styles.headerInfo}>
               <h1 className={styles.usernameTitle}>{user.username}</h1>

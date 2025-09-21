@@ -73,13 +73,12 @@ export default function MainMenu() {
               </div>  
             </div>
             <div className={styles.languages_stat}>
- <img
+ <Image
   src="/images/teacher.png"
   alt="Teacher"
   width={900}
   height={900}
   className={styles.teacherImg}
- 
 />
 
 </div>
