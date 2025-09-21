@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import QuesList from '../common/components/Ques/QuesList';
 import styles from '../styles/Contests.module.css'; 
-
+import Image from 'next/image';
 const Contests = () => {
   const ratingList = ['800','900', '1000','1100', '1200','1300', '1400','1500', '1600'];
   const [rating, setRating] = useState('800');
@@ -20,11 +20,14 @@ const Contests = () => {
           </p>
         </div>
         <div className={styles["header-image"]}>
-          <img 
-            src="/images/study.png" 
-            alt="Practice Arena" 
-            className={styles["practice-image"]}
-          />
+         <Image 
+  src="/images/study.png" 
+  alt="Practice Arena" 
+  className={styles["practice-image"]} 
+  width={400} // <-- add width
+  height={400} // <-- add height
+  priority   // optional: ensures it loads fast for above-the-fold images
+/>
         </div>
       </div>
 

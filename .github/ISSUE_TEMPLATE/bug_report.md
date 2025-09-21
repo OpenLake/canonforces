@@ -1,5 +1,5 @@
 ---
-name: 🐛 Bug Report
+name: Bug Report
 about: Report unexpected behavior or errors in CanonForces
 title: "Bug: [Short Description]"
 labels: bug

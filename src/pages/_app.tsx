@@ -33,7 +33,7 @@ export default function App({ Component, pageProps }: AppProps) {
         router.push(ROUTES.SIGNUP);
       }
     })
-  }, []);
+  }, [router]);
 
   return (
     <>
