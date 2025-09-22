@@ -5,7 +5,7 @@ import styles from "./NavigationMenu.module.css";
 import Link from "next/link";
 import { AiFillHome } from "react-icons/ai";
 import { SiGooglemessages } from "react-icons/si";
-import { FaUser } from "react-icons/fa";
+import { FaRegAddressBook, FaRegBookmark, FaRegQuestionCircle, FaUser } from "react-icons/fa";
 import { TbSwords } from "react-icons/tb";
 import { IoMdLogOut } from "react-icons/io";
 import { FaChartBar } from 'react-icons/fa';
@@ -71,6 +71,11 @@ export default function NavigationMenu() {
             <li className={isActive(ROUTES.POTD) ? styles.active : ''}>
               <Link href={ROUTES.POTD}>
                 <FaRegLightbulb size="1.5em" /> <span>POTD</span>
+              </Link>
+            </li>
+            <li className={isActive(ROUTES.QUIZ) ? styles.active : ''}>
+              <Link href={ROUTES.QUIZ}>
+                <FaRegQuestionCircle size="1.5em" /> <span>Quiz</span>
               </Link>
             </li>
           </ul>
