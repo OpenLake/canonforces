@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import styles from './QuesList.module.css';
 import { useRouter } from 'next/router';
 import { db } from '../../../lib/firebase';
@@ -41,8 +41,14 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
 
   const currentRatingQuestions = questions.length;
   const currentRatingCompleted = checkedIds.size;
-  const currentRatingPercentage = currentRatingQuestions === 0 ? 0 : Math.round((currentRatingCompleted / currentRatingQuestions) * 100);
-  const overallPercentage = totalQuestions === 0 ? 0 : Math.round((overallCompleted / totalQuestions) * 100);
+  const currentRatingPercentage =
+    currentRatingQuestions === 0
+      ? 0
+      : Math.round((currentRatingCompleted / currentRatingQuestions) * 100);
+  const overallPercentage =
+    totalQuestions === 0
+      ? 0
+      : Math.round((overallCompleted / totalQuestions) * 100);
 
   // Get logged-in user via Firebase Auth
   useEffect(() => {
@@ -59,9 +65,8 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
   }, []);
 
   // Fetch total questions count and overall progress
-  const fetchOverallStats = async () => {
+  const fetchOverallStats = useCallback(async () => {
     try {
-      // Get total questions across all ratings
       const allQuestionsQuery = query(collection(db, 'problems'));
       const allQuestionsSnapshot = await getDocs(allQuestionsQuery);
       const total = allQuestionsSnapshot.size;
@@ -74,8 +79,7 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
         if (userSnap.exists()) {
           const userData = userSnap.data();
           const allSolvedQuestions = userData?.solvedQuestions || {};
-          
-          // Count total solved questions across all ratings
+
           let overallSolved = 0;
           Object.values(allSolvedQuestions).forEach((solvedArray: any) => {
             if (Array.isArray(solvedArray)) {
@@ -88,10 +92,10 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
     } catch (error) {
       console.error('Error fetching overall stats:', error);
     }
-  };
+  }, [userId]);
 
   // Fetch Questions and User's Solved Questions
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     try {
       const q = query(
         collection(db, 'problems'),
@@ -120,14 +124,14 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [rating, userId]);
 
   useEffect(() => {
     if (userId) {
       fetchQuestions();
       fetchOverallStats();
     }
-  }, [rating, userId]);
+  }, [rating, userId, fetchQuestions, fetchOverallStats]);
 
   // Update User's Solved Questions in Firestore
   const updateUserSolvedQuestions = async (newCheckedIds: Set<string>) => {
@@ -170,7 +174,14 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
   };
 
   // Circular Progress Component
-  const CircularProgress = ({ percentage, size = 80, strokeWidth = 8, label, count, total }: {
+  const CircularProgress = ({
+    percentage,
+    size = 80,
+    strokeWidth = 8,
+    label,
+    count,
+    total,
+  }: {
     percentage: number;
     size?: number;
     strokeWidth?: number;
@@ -209,7 +220,9 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
             />
           </svg>
           <div className={styles.circularProgressText}>
-            <span className={styles.circularProgressPercentage}>{percentage}%</span>
+            <span className={styles.circularProgressPercentage}>
+              {percentage}%
+            </span>
           </div>
         </div>
         <div className={styles.circularProgressInfo}>
@@ -272,16 +285,15 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
               Rating {rating} Problems
             </h2>
             <span className={styles.questionsCount}>
-              {questions.length} {questions.length === 1 ? 'problem' : 'problems'}
+              {questions.length}{' '}
+              {questions.length === 1 ? 'problem' : 'problems'}
             </span>
           </div>
           <ul className={styles.questionsList}>
             {questions.map((q, index) => (
               <li key={q.id} className={styles.questionItem}>
                 <div className={styles.questionItemContent}>
-                  <div className={styles.questionNumber}>
-                    {index + 1}
-                  </div>
+                  <div className={styles.questionNumber}>{index + 1}</div>
                   <div className={styles.checkboxContainer}>
                     <input
                       type="checkbox"
@@ -293,21 +305,23 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
                       }}
                       id={`checkbox-${q.id}`}
                     />
-                    <label htmlFor={`checkbox-${q.id}`} className={styles.checkboxLabel}></label>
+                    <label
+                      htmlFor={`checkbox-${q.id}`}
+                      className={styles.checkboxLabel}
+                    ></label>
                   </div>
                   <button
                     onClick={() => router.push(`/questions/${q.id}`)}
-                    className={`${styles.questionButton} ${checkedIds.has(q.id) ? styles.questionButtonSolved : ''}`}
+                    className={`${styles.questionButton} ${
+                      checkedIds.has(q.id)
+                        ? styles.questionButtonSolved
+                        : ''
+                    }`}
                   >
                     <span className={styles.questionTitle}>{q.title}</span>
                     <div className={styles.questionMeta}>
-                      {/* <span className={styles.ratingBadge}>
-                        Rating: {q.rating}
-                      </span> */}
                       {checkedIds.has(q.id) && (
-                        <span className={styles.solvedBadge}>
-                          ✓ Solved
-                        </span>
+                        <span className={styles.solvedBadge}>✓ Solved</span>
                       )}
                     </div>
                   </button>

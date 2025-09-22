@@ -3,6 +3,7 @@ import { getPOTD } from "../services/potd_fetch";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import styles from "../styles/POTDpage.module.css";
+import Image from "next/image";
 
 // --- Types (assuming they are defined elsewhere or here) ---
 interface UserProfile {
@@ -146,9 +147,11 @@ const POTDPage: React.FC = () => {
 
   return (
     <div className={styles.pageWrapper}>
-      <img
+      <Image
         src="/images/think.png"
         alt="Mascot thinking"
+        width={400}
+        height={400}
         className={styles.mascot}
       />
       <div className={styles.container}>
@@ -191,7 +194,7 @@ const POTDPage: React.FC = () => {
                 href={`/questions/${problem.id}`}
                 className={styles.solveButton}
               >
-                Solve Today's Problem
+                Solve Today&apos;s Problem
               </a>
             </div>
           </div>
