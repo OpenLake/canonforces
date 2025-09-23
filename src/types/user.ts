@@ -4,8 +4,7 @@ export interface User {
     dateCreated: Date | null;
     userId: string;
     email: string;
-    avatar: string;
+    photoURL: string;
     followers: Array<string>;
     following: Array<string>;
 }
-

@@ -28,7 +28,7 @@ export default function UserSuggestionCard({ user }: UserSuggestionCardProps) {
         width={37}
         height={37}
         alt={user.fullname || user.username}
-        src={user.avatar || "/images/user2.jpg"}
+        src={user.photoURL || "/images/user2.jpg"}
       />
       <div className={styles.user_details}>
         <h4>{user.fullname || user.username}</h4>
