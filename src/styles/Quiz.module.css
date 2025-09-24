@@ -224,7 +224,7 @@
   animation: fadeInUp 0.6s ease forwards;
 }
 
-.quiz-form {
+.quiz-form, .quiz-button.start, .slider-container {
   animation: fadeInUp 0.6s ease 0.2s both;
 }
 
@@ -296,6 +296,79 @@
    Quiz Form Section
    ========================================================================== */
 
+/* Container and label */
+.slider-container {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.slider-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #000000;
+  font-size: 1rem;
+}
+
+/* Slider base */
+.slider {
+  -webkit-appearance: none;
+  width: 80%;
+  max-width: 400px;
+  height: 6px;
+  background: #e9ecef;
+  border-radius: 5px;
+  outline: none;
+  transition: background 0.3s ease;
+}
+
+/* Hover effect */
+.slider:hover {
+  background: #d6d9dd;
+}
+
+/* Track styles for WebKit (Chrome, Edge, Safari) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #007bff;
+  border: 2px solid white;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #0056b3;
+}
+
+/* Track styles for Firefox */
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #007bff;
+  border: 2px solid white;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background: #0056b3;
+}
+
+/* Progress fill for Firefox */
+.slider::-moz-range-track {
+  background: #e9ecef;
+  border-radius: 5px;
+  height: 6px;
+}
+
 .quiz-form {
   background: #ffffff;
   border-radius: 16px;
@@ -307,6 +380,16 @@
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.start-quiz {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; 
 }
 
 .quiz-form:hover {
@@ -399,6 +482,78 @@
 }
 
 /* ==========================================================================
+   Quiz Statistics
+   ========================================================================== */
+
+.stats-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.stat-card {
+  flex: 1;
+  text-align: center;
+  border-radius: 16px;
+  padding: 2rem;
+  border: 2px solid #e9ecef;
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: #666666;
+  margin: 0;
+}
+
+.correct {
+  border-color: #28a745;
+}
+
+.correct .stat-value {
+  color: #28a745;
+}
+
+.wrong {
+  border-color: #dc3545;
+}
+
+.wrong .stat-value {
+  color: #dc3545;
+}
+
+.review-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.review-item {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.correct-option {
+  font-weight: 600;
+  color: #28a745;
+}
+
+/* ==========================================================================
    Responsive Quiz Form
    ========================================================================== */
 
@@ -432,5 +587,12 @@
 
   .quiz-options label {
     font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-container {
+    flex-direction: column;
+    gap: 1rem;
   }
 }
