@@ -15,7 +15,7 @@ export default function UserSuggestionCard({ user }: UserSuggestionCardProps) {
   const router = useRouter();
 
   if (!user?.username || !user?.userId) {
-    return <div>Loading user info...</div>;
+    return null;
   }
 
   const handleClick = () => {

@@ -47,12 +47,18 @@ export default function Suggestions({ rating }: SuggestionsProps) {
           <span>See All</span>
         </div>
         <div className={`${styles.user_suggestions} ${showAll ? styles.expanded : ''}`}>
-          {displayedUsers.map(user => (
-            <div key={user.userId} className={styles.user}>
-              <UserSuggestionCard user={user} />
-              <button className={styles.follow_button}>Follow</button>
-            </div>
-          ))}
+          {displayedUsers.map(user => {
+            // Skip users without username or userId
+            if (!user?.username || !user?.userId) {
+              return null;
+            }
+            return (
+              <div key={user.userId} className={styles.user}>
+                <UserSuggestionCard user={user} />
+                <button className={styles.follow_button}>Follow</button>
+              </div>
+            );
+          })}
         </div>
         {hasMore && (
           <button className={styles.read_more} onClick={handleReadMore}>
