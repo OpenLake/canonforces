@@ -1,0 +1,51 @@
+# CanonForces CODEOWNERS
+# This file defines who gets automatically assigned as reviewers for different parts of the codebase
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owners - these users will be requested for review on every PR
+* @aviralsaxena16 @Jagath-P
+
+# Frontend components and pages
+/src/pages/ @aviralsaxena16 @Jagath-P
+/src/common/ @aviralsaxena16 @Jagath-P
+/src/components/ @aviralsaxena16 @Jagath-P
+
+# Styling and UI
+/src/styles/ @aviralsaxena16 @Jagath-P
+/src/common/*.css @aviralsaxena16 @Jagath-P
+tailwind.config.js @aviralsaxena16 @Jagath-P
+postcss.config.js @aviralsaxena16 @Jagath-P
+
+# Configuration files
+package.json @aviralsaxena16 @Jagath-P
+package-lock.json @aviralsaxena16 @Jagath-P
+next.config.js @aviralsaxena16 @Jagath-P
+tsconfig.json @aviralsaxena16 @Jagath-P
+.eslintrc.json @aviralsaxena16 @Jagath-P
+
+# Documentation
+README.md @aviralsaxena16 @Jagath-P
+CONTRIBUTING.md @aviralsaxena16 @Jagath-P
+*.md @aviralsaxena16 @Jagath-P
+
+# GitHub templates and workflows
+/.github/ @aviralsaxena16 @Jagath-P
+
+# Firebase configuration
+/.firebaserc @aviralsaxena16 @Jagath-P
+firebase.json @aviralsaxena16 @Jagath-P
+
+# Public assets
+/public/ @aviralsaxena16 @Jagath-P
+
+# Services and API
+/src/services/ @aviralsaxena16 @Jagath-P
+/src/lib/ @aviralsaxena16 @Jagath-P
+
+# Types and constants
+/src/types/ @aviralsaxena16 @Jagath-P
+/src/constants/ @aviralsaxena16 @Jagath-P
+
+# Hooks and context
+/src/hooks/ @aviralsaxena16 @Jagath-P
+/src/context/ @aviralsaxena16 @Jagath-P
