@@ -1,0 +1,598 @@
+/* ==========================================================================
+   Quiz Page - Clean White Design Matching Stats Theme
+   ========================================================================== */
+
+.quiz-container {
+  padding: 2rem;
+  min-height: 100vh;
+  background-color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Header Section
+   ========================================================================== */
+
+.header-section {
+  max-width: 1400px;
+  margin: 0 auto 3rem auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.header-text {
+  flex: 1;
+}
+
+.header-image {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.practice-image {
+  height: auto;
+  max-height: 230px;
+  width: auto;
+  object-fit: contain;
+}
+
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #666666;
+  margin: 0 0 1rem 0;
+  font-weight: 500;
+}
+
+.description {
+  font-size: 1rem;
+  color: #666666;
+  margin: 0;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* ==========================================================================
+   Content Wrapper
+   ========================================================================== */
+
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+/* ==========================================================================
+   Questions Container
+   ========================================================================== */
+
+.questions-container {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 2px solid #e9ecef;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.questions-container:hover {
+  border-color: #007bff;
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  .quiz-container {
+    padding: 1.5rem;
+  }
+  
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    text-align: left;
+  }
+  
+  .practice-image {
+    max-height: 300px;
+    align-self: center;
+  }
+  
+  .rating-tabs {
+    padding: 1.25rem;
+  }
+  
+  .rating-button {
+    min-width: 70px;
+    padding: 0.65rem 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .quiz-container {
+    padding: 1rem;
+  }
+  
+  .header-section {
+    margin-bottom: 2rem;
+    gap: 1rem;
+  }
+  
+  .practice-image {
+    max-height: 120px;
+  }
+  
+  .main-title {
+    font-size: 2rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  .description {
+    font-size: 0.9rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .rating-tabs {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+  
+  .rating-button {
+    min-width: 60px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .questions-container {
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quiz-container {
+    padding: 0.75rem;
+  }
+  
+  .main-title {
+    font-size: 1.75rem;
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
+  }
+  
+  .rating-tabs {
+    padding: 0.75rem;
+    gap: 0.4rem;
+  }
+  
+  .rating-button {
+    min-width: 55px;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .practice-image {
+    max-height: 100px;
+  }
+}
+
+/* ==========================================================================
+   Animation Enhancements
+   ========================================================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-section {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.quiz-form, .quiz-button.start, .slider-container {
+  animation: fadeInUp 0.6s ease 0.2s both;
+}
+
+.content-wrapper {
+  animation: fadeInUp 0.6s ease 0.2s both;
+}
+
+.rating-button {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+.rating-button:nth-child(1) { animation-delay: 0.1s; }
+.rating-button:nth-child(2) { animation-delay: 0.15s; }
+.rating-button:nth-child(3) { animation-delay: 0.2s; }
+.rating-button:nth-child(4) { animation-delay: 0.25s; }
+.rating-button:nth-child(5) { animation-delay: 0.3s; }
+.rating-button:nth-child(6) { animation-delay: 0.35s; }
+.rating-button:nth-child(7) { animation-delay: 0.4s; }
+.rating-button:nth-child(8) { animation-delay: 0.45s; }
+.rating-button:nth-child(9) { animation-delay: 0.5s; }
+
+/* ==========================================================================
+   Focus and Accessibility
+   ========================================================================== */
+
+.rating-button:focus {
+  outline: 2px solid var(--primary-color, #007bff);
+  outline-offset: 2px;
+}
+
+.questions-container:focus-within {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.centerScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .quiz-container {
+    background: white;
+    padding: 1rem;
+  }
+  
+  .rating-tabs {
+    display: none;
+  }
+  
+  .questions-container {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
+
+/* ==========================================================================
+   Quiz Form Section
+   ========================================================================== */
+
+/* Container and label */
+.slider-container {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.slider-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #000000;
+  font-size: 1rem;
+}
+
+/* Slider base */
+.slider {
+  -webkit-appearance: none;
+  width: 80%;
+  max-width: 400px;
+  height: 6px;
+  background: #e9ecef;
+  border-radius: 5px;
+  outline: none;
+  transition: background 0.3s ease;
+}
+
+/* Hover effect */
+.slider:hover {
+  background: #d6d9dd;
+}
+
+/* Track styles for WebKit (Chrome, Edge, Safari) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #007bff;
+  border: 2px solid white;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #0056b3;
+}
+
+/* Track styles for Firefox */
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #007bff;
+  border: 2px solid white;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background: #0056b3;
+}
+
+/* Progress fill for Firefox */
+.slider::-moz-range-track {
+  background: #e9ecef;
+  border-radius: 5px;
+  height: 6px;
+}
+
+.quiz-form {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 2px solid #e9ecef;
+  padding: 2rem;
+  margin-top: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.start-quiz {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; 
+}
+
+.quiz-form:hover {
+  border-color: #007bff;
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.15);
+}
+
+.quiz-question {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+}
+
+.quiz-options {
+  list-style: none;
+  margin: 0 0 2rem 0;
+  padding: 0;
+}
+
+.quiz-options li {
+  margin-bottom: 1rem;
+}
+
+.quiz-options label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333333;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.quiz-options input[type="radio"] {
+  accent-color: #007bff;
+  width: 18px;
+  height: 18px;
+}
+
+.quiz-options label:hover {
+  color: #007bff;
+}
+
+.quiz-navigation {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.quiz-button {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e9ecef;
+  background: #ffffff;
+  color: #333333;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  text-align: center;
+}
+
+.quiz-button:hover {
+  border-color: #007bff;
+  color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.quiz-button:active {
+  background: #007bff;
+  color: #ffffff;
+  border-color: #0056b3;
+  transform: translateY(0);
+}
+
+.quiz-button.submit {
+  background-color: #28a745; /* Bootstrap-style green */
+  border-color: #28a745;
+  color: #fff;
+}
+
+.quiz-button.submit:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+/* ==========================================================================
+   Quiz Statistics
+   ========================================================================== */
+
+.stats-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.stat-card {
+  flex: 1;
+  text-align: center;
+  border-radius: 16px;
+  padding: 2rem;
+  border: 2px solid #e9ecef;
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: #666666;
+  margin: 0;
+}
+
+.correct {
+  border-color: #28a745;
+}
+
+.correct .stat-value {
+  color: #28a745;
+}
+
+.wrong {
+  border-color: #dc3545;
+}
+
+.wrong .stat-value {
+  color: #dc3545;
+}
+
+.review-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.review-item {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.correct-option {
+  font-weight: 600;
+  color: #28a745;
+}
+
+/* ==========================================================================
+   Responsive Quiz Form
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .quiz-form {
+    padding: 1.5rem;
+  }
+
+  .quiz-question {
+    font-size: 1.1rem;
+  }
+
+  .quiz-options label {
+    font-size: 0.95rem;
+  }
+
+  .quiz-button {
+    min-width: auto;
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .quiz-form {
+    padding: 1rem;
+  }
+
+  .quiz-question {
+    font-size: 1rem;
+  }
+
+  .quiz-options label {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
