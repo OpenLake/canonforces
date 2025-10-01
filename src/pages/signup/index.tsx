@@ -19,7 +19,7 @@ import {
     signInWithPopup,
 } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore"; // Added getDoc import
 
 // Define a type for Firebase errors to safely access 'code'
 type FirebaseError = {
@@ -73,14 +73,14 @@ export default function Signup() {
             const user = userCredential.user;
             
            await setDoc(doc(db, "users", user.uid), {
-    userId: user.uid,   // ✅ add this
-    username: username.trim(),
-    fullname,
-    emailAddress: email.toLowerCase(),
-    following: [],
-    dateCreated: Date.now(),
-});
-
+                userId: user.uid,
+                username: username.toLowerCase().trim(),
+                fullname,
+                emailAddress: email.toLowerCase(),
+                following: [],
+                followers: [],
+                dateCreated: Date.now(),
+            });
 
             router.push(ROUTES.DASHBOARD);
 
@@ -101,6 +101,7 @@ export default function Signup() {
         }
     };
     
+    // ## UPDATED GOOGLE LOGIN FUNCTION ##
     const handleGoogleLogin = async () => {
         setError("");
         if (!username) {
@@ -110,6 +111,28 @@ export default function Signup() {
         setLoading(true);
 
         try {
+            // STEP 1: Authenticate with Google FIRST.
+            const googleProvider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+
+            if (!user || !user.email) {
+                setError("Could not retrieve details from Google. Please try again.");
+                setLoading(false);
+                return;
+            }
+
+            // STEP 2: Check if a user document for this UID already exists.
+            const userDocRef = doc(db, "users", user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (userDocSnap.exists()) {
+                // User already exists, treat as a login and redirect.
+                router.push(ROUTES.DASHBOARD);
+                return;
+            }
+
+            // STEP 3: Now that the user is new, perform your username checks.
             const cfUserExists = await doesUsernameExists(username);
             if (!cfUserExists) {
                 setError("This username does not exist on Codeforces.");
@@ -119,53 +142,36 @@ export default function Signup() {
 
             const usernameIsTaken = await isCanonforcesUsernameTaken(username);
             if (usernameIsTaken) {
-                setError("This Codeforces username is already registered.");
+                setError("This Codeforces username is already registered with another account.");
                 setLoading(false);
                 return;
             }
 
-            const googleProvider = new GoogleAuthProvider();
-            const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
-
-            if (!user.email) {
-                setError("Could not retrieve email from Google. Please try another method.");
-                setLoading(false);
-                return;
-            }
-            
-            // It's safer to use auth.currentUser.uid after the popup completes
-            const currentAuthUser = auth.currentUser;
-            if (!currentAuthUser) {
-                setError("Authentication failed. Please try again.");
-                setLoading(false);
-                return;
-            }
-
-            const userExistsInDb = await getUserByUserId(currentAuthUser.uid);
-            if (userExistsInDb && userExistsInDb.length > 0) {
-                router.push(ROUTES.DASHBOARD);
-                return;
-            }
-
-           await setDoc(doc(db, "users", currentAuthUser.uid), {
-    userId: currentAuthUser.uid,   // ✅ important
-    username: username.toLowerCase(),
-    fullname: user.displayName || "",
-    emailAddress: user.email.toLowerCase(),
-    following: [],
-    dateCreated: Date.now(),
-});
-
+            // STEP 4: If all checks pass, create the new user document.
+            await setDoc(userDocRef, {
+                userId: user.uid,
+                username: username.toLowerCase().trim(),
+                fullname: user.displayName || "",
+                emailAddress: user.email.toLowerCase(),
+                following: [],
+                followers: [],
+                dateCreated: Date.now(),
+            });
 
             router.push(ROUTES.DASHBOARD);
 
         } catch (err) {
             console.error("Google Sign-In Failed:", err);
-            if (isFirebaseError(err) && err.code === "auth/popup-closed-by-user") {
-                setError("Google sign-in was cancelled.");
+            if (isFirebaseError(err)) {
+                if (err.code === "auth/popup-closed-by-user") {
+                    setError("Google sign-in was cancelled.");
+                } else if (err.code === "permission-denied") {
+                    setError("You do not have permission to perform this action.");
+                } else {
+                     setError("An unexpected error occurred during Google sign-in.");
+                }
             } else {
-                setError("An unexpected error occurred during Google sign-in.");
+                setError("An unexpected error occurred.");
             }
         } finally {
             setLoading(false);
@@ -288,4 +294,3 @@ export default function Signup() {
         </div>
     );
 }
-
