@@ -7,6 +7,7 @@ import { doesUsernameExists } from "../../../services/firebase";
 import useUser from "../../../hooks/use-user";
 import { getContestCount } from "../../../services/firebase";
 import { getSolvedCount } from "../../../services/firebase";
+import { UpcomingContests } from "../../components/UpcomingContests/UpcomingContests"
 
 import Image from "next/image";
 
@@ -83,6 +84,9 @@ export default function MainMenu() {
 
 </div>
          </div>
+        </div>
+        <div className={styles.upcoming_contests}>
+          <UpcomingContests />
         </div>
       </div>
       <div className={styles.suggestions}>
