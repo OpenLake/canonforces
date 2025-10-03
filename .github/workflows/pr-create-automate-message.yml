@@ -20,8 +20,7 @@ jobs:
               const prNumber = context.issue.number;
               const prAuthor = context.payload.pull_request.user.login;
 
-              const commentBody = `### 🎉 Thanks for creating a PR for CanonForces! ☺️  
-
+              const commentBody = `### 🎉 Thanks for Your Contribution to **CanonForces**! ☺️  
             We'll review it as soon as possible. In the meantime, please:  
             - ✅ Double-check the **file changes**.  
             - ✅ Ensure that **all commits** are clean and meaningful.  
@@ -31,7 +30,8 @@ jobs:
             💬 Need help or want faster feedback?  
             Join our Discord 👉 [CanonForces Discord](https://discord.gg/4YnYtVeF)  
 
-            Thanks again for contributing 🙌 – @${aviralsaxena16}!`;
+            Thanks again for contributing 🙌 – @${prAuthor}!
+            cc: @aviralsaxena16`;
 
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
