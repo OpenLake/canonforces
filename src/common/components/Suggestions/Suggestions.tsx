@@ -4,8 +4,9 @@ import styles from "./Suggestions.module.css";
 import UserSuggestionCard from "./UserSuggestions/UserSuggestions";
 import { SlGraph } from "react-icons/sl";
 import { useEffect, useState } from "react";
-import { getAllUsers } from "../../../services/firebase"; // Adjust path as needed
+import { getAllUsers } from "../../../services/firebase"; 
 import { User } from "../../../types/user"; 
+import Link from "next/link";
 
 interface SuggestionsProps {
   rating?: number;
@@ -15,7 +16,6 @@ const MAX_INITIAL_USERS = 4; // Show only 4 users initially
 
 export default function Suggestions({ rating }: SuggestionsProps) {
   const [users, setUsers] = useState<User[]>([]);
-  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -32,23 +32,23 @@ export default function Suggestions({ rating }: SuggestionsProps) {
     fetchUsers();
   }, []);
 
-  const displayedUsers = showAll ? users : users.slice(0, MAX_INITIAL_USERS);
+  const displayedUsers = users.slice(0, MAX_INITIAL_USERS);
   const hasMore = users.length > MAX_INITIAL_USERS;
-
-  const handleReadMore = () => {
-    setShowAll(!showAll);
-  };
 
   return (
     <div className={styles.suggestions}>
       <div className={styles.user}>
         <div className={styles.header}>
           <h1>Suggestion for you</h1>
-          <span>See All</span>
+          {hasMore && (
+            <Link href="/suggestions">
+              <span>See All</span>
+            </Link>
+          )}
         </div>
-        <div className={`${styles.user_suggestions} ${showAll ? styles.expanded : ''}`}>
+
+        <div className={styles.user_suggestions}>
           {displayedUsers.map(user => {
-            // Skip users without username or userId
             if (!user?.username || !user?.userId) {
               return null;
             }
@@ -60,11 +60,6 @@ export default function Suggestions({ rating }: SuggestionsProps) {
             );
           })}
         </div>
-        {hasMore && (
-          <button className={styles.read_more} onClick={handleReadMore}>
-            {showAll ? 'Show less' : `Read more (${users.length - MAX_INITIAL_USERS} more)`}
-          </button>
-        )}
       </div>
       
       <div className={styles.rating}>
