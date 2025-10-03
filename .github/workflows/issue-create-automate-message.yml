@@ -19,18 +19,18 @@ jobs:
               const issueNumber = context.issue.number;
               const issueAuthor = context.payload.issue.user.login;
               
-              const commentBody = `### 👋 Thank you for raising this issue!  
+              const commentBody = ` #### 🚀 Thanks for Helping Improve CanonForces! 
             We'll review it as soon as possible. We truly appreciate your contributions to **CanonForces**! ⚔️✨  
 
             > ✅ Before working on a PR, please:  
-            > - Read our [README.md](./README.md), [CONTRIBUTING.md](./CONTRIBUTING.md), and [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md).  
+            > - Read our [README.md](https://github.com/OpenLake/canonforces/blob/main/README.md), [CONTRIBUTING.md](https://github.com/OpenLake/canonforces/blob/main/CONTRIBUTING.md).  
             > - Wait until the issue is **assigned** to you before starting a PR.  
             > - Discuss your approach if you're unsure, we're happy to help!  
 
-            💬 Need quick support or want to discuss ideas?  
+            💬 Need quick support or want to discuss ideas?
             Join our Discord 👉 [CanonForces Discord](https://discord.gg/4YnYtVeF)  
 
-            Thanks again, @${aviralsaxena16}! 🎉`;
+            Thanks again, @${issueAuthor}! 🎉`;
 
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
