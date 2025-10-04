@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import styles from './UpcomingContests.module.css';
-import type { Contest, ContestsResponse } from '../../../pages/api/contests';
+import { useState, useEffect } from "react";
+import styles from "./UpcomingContests.module.css";
+import type { Contest, ContestsResponse } from "../../../pages/api/contests";
 
 export function UpcomingContests() {
   const [contests, setContests] = useState<Contest[]>([]);
@@ -10,16 +10,18 @@ export function UpcomingContests() {
   useEffect(() => {
     const fetchContests = async () => {
       try {
-        const response = await fetch('/api/contests');
-        
+        const response = await fetch("/api/contests");
+
         if (!response.ok) {
-          throw new Error('Failed to fetch contests');
+          throw new Error("Failed to fetch contests");
         }
-        
+
         const data: ContestsResponse = await response.json();
         setContests(data.contests || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
       } finally {
         setLoading(false);
       }
@@ -30,12 +32,16 @@ export function UpcomingContests() {
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+
+    const formattedDate = new Date(date.getTime() + 5.5 * 60 * 60 * 1000); // add 5.5 hours
+
+    return formattedDate.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
@@ -74,10 +80,14 @@ export function UpcomingContests() {
             >
               <div className={styles.contestHeader}>
                 <span className={styles.platform}>{contest.platform}</span>
-                <span className={styles.duration}>{contest.contestDuration}</span>
+                <span className={styles.duration}>
+                  {contest.contestDuration}
+                </span>
               </div>
               <h4 className={styles.contestName}>{contest.contestName}</h4>
-              <p className={styles.startTime}>{formatDate(contest.startTime)}</p>
+              <p className={styles.startTime}>
+                {formatDate(contest.startTime)}
+              </p>
             </a>
           ))
         )}
