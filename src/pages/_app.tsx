@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
-import { Poppins } from "next/font/google"; // Corrected import path
+import { Poppins } from "@next/font/google"; // Corrected import path
 import * as ROUTES from "../constants/routes";
 import UserContext from '../context/user';
 import { onAuthStateChanged } from 'firebase/auth';
