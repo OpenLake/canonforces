@@ -56,6 +56,8 @@ export default function Signup() {
 
         try {
             const cfUserExists = await doesUsernameExists(username);
+            console.log("cfUser",cfUserExists);
+            
             if (!cfUserExists) {
                 setError("This username does not exist on Codeforces.");
                 setLoading(false);
@@ -115,7 +117,8 @@ export default function Signup() {
             const googleProvider = new GoogleAuthProvider();
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
-
+            console.log(result);
+            
             if (!user || !user.email) {
                 setError("Could not retrieve details from Google. Please try again.");
                 setLoading(false);
@@ -134,6 +137,7 @@ export default function Signup() {
 
             // STEP 3: Now that the user is new, perform your username checks.
             const cfUserExists = await doesUsernameExists(username);
+            console.log("cfUser",cfUserExists);
             if (!cfUserExists) {
                 setError("This username does not exist on Codeforces.");
                 setLoading(false);
