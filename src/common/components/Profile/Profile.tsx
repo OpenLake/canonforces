@@ -3,6 +3,13 @@ import Image from 'next/image';
 import styles from "./Profile.module.css";
 import useUser from "../../../hooks/use-user";
 import { updateUserProfile } from "../../../services/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../../lib/firebase";
+
+
+type ProfileProps = {
+  userId?: string; 
+};
 
 type User = {
   docId: string;
@@ -22,8 +29,9 @@ type CfData = {
   maxRating?: number;
 };
 
-export default function Profile() {
-  const { user } = useUser() as { user: User };
+export default function Profile({ userId }: ProfileProps) {
+  const { user: loggedInUser } = useUser() as { user: User };
+  const [user, setUser] = useState<User | null>(null); 
   const [cfData, setCfData] = useState<CfData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -39,6 +47,30 @@ export default function Profile() {
 
   // ✅ Local state for profile photo
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>("");
+
+  const isOwnProfile = !userId || userId === loggedInUser?.docId;
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        if (userId) {
+          const userDocRef = doc(db, "users", userId);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            setUser(userDocSnap.data() as User);
+          } else {
+            console.warn("User not found");
+          }
+        } else {
+          // fallback to logged-in user
+          setUser(loggedInUser || null);
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      }
+    };
+    fetchUser();
+  }, [userId, loggedInUser]);
 
   useEffect(() => {
     if (user?.username) {
@@ -224,26 +256,28 @@ export default function Profile() {
           <header className={styles.profileHeader}>
             <div className={styles.avatar}>
              <Image
-  src={
-    previewUrl ||
-    profilePhotoUrl ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      user.fullname || user.username
-    )}&background=0D8ABC&color=fff&bold=true`
-  }
-  alt="Profile"
-  width={100} // set according to your design
-  height={100} // set according to your design
-  className="rounded-full object-cover" // optional styling
-/>
+        src={
+          previewUrl ||
+          profilePhotoUrl ||
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            user.fullname || user.username
+          )}&background=0D8ABC&color=fff&bold=true`
+        }
+        alt="Profile"
+        width={100} // set according to your design
+        height={100} // set according to your design
+        className="rounded-full object-cover" // optional styling
+    />
             </div>
             <div className={styles.headerInfo}>
               <h1 className={styles.usernameTitle}>{user.username}</h1>
               <div className={styles.headerActions}>
                 <p className={styles.fullName}>{user.fullname || 'No name provided'}</p>
-                <button className={styles.editButton} onClick={handleEditToggle} disabled={loading}>
-                  {isEditing ? 'Cancel' : 'Edit Profile'}
-                </button>
+                  {isOwnProfile && (
+                    <button className={styles.editButton} onClick={handleEditToggle} disabled={loading}>
+                      {isEditing ? 'Cancel' : 'Edit Profile'}
+                    </button>
+                  )}
               </div>
             </div>
           </header>
