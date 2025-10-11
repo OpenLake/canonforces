@@ -5,21 +5,10 @@ import useUser from "../../../hooks/use-user";
 import { updateUserProfile } from "../../../services/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
-
+import { User } from "../../../types/user";
 
 type ProfileProps = {
-  userId?: string; 
-};
-
-type User = {
-  docId: string;
-  username: string;
-  fullname?: string;
-  emailAddress?: string;
-  photoURL?: string;
-  followers?: string[];
-  following?: string[];
-  solvedQuestions?: string[];
+  userId?: string;
 };
 
 type CfData = {
@@ -30,13 +19,16 @@ type CfData = {
 };
 
 export default function Profile({ userId }: ProfileProps) {
-  const { user: loggedInUser } = useUser() as { user: User };
-  const [user, setUser] = useState<User | null>(null); 
+  // ✅ FIX: Explicitly type the value returned from the hook.
+  // This tells TypeScript to treat loggedInUser as the same 'User' type we imported.
+  const { user: loggedInUser } = useUser() as { user: User | undefined };
+  
+  const [user, setUser] = useState<User | null>(null);
   const [cfData, setCfData] = useState<CfData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     fullname: '',
-    emailAddress: '',
+    email: '',
   });
 
   // Image handling state
@@ -45,7 +37,7 @@ export default function Profile({ userId }: ProfileProps) {
   const [loading, setLoading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // ✅ Local state for profile photo
+  // Local state for profile photo
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>("");
 
   const isOwnProfile = !userId || userId === loggedInUser?.docId;
@@ -53,18 +45,21 @@ export default function Profile({ userId }: ProfileProps) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        let userToSet: User | null = null;
         if (userId) {
           const userDocRef = doc(db, "users", userId);
           const userDocSnap = await getDoc(userDocRef);
           if (userDocSnap.exists()) {
-            setUser(userDocSnap.data() as User);
+            userToSet = userDocSnap.data() as User;
           } else {
             console.warn("User not found");
           }
         } else {
-          // fallback to logged-in user
-          setUser(loggedInUser || null);
+          // This line is now valid because the types match
+          userToSet = loggedInUser || null;
         }
+        setUser(userToSet);
+
       } catch (err) {
         console.error("Error fetching user data:", err);
       }
@@ -91,13 +86,11 @@ export default function Profile({ userId }: ProfileProps) {
     if (user) {
       setEditForm({
         fullname: user.fullname || '',
-        emailAddress: user.emailAddress || '',
+        email: user.email || '',
       });
       setPreviewUrl(null);
       setImageFile(null);
       setUploadError(null);
-
-      // ✅ Sync local photo state with user
       setProfilePhotoUrl(user.photoURL || "");
     }
   }, [user]);
@@ -107,7 +100,7 @@ export default function Profile({ userId }: ProfileProps) {
     if (!isEditing && user) {
       setEditForm({
         fullname: user.fullname || '',
-        emailAddress: user.emailAddress || '',
+        email: user.email || '',
       });
       setImageFile(null);
       setPreviewUrl(null);
@@ -123,7 +116,7 @@ export default function Profile({ userId }: ProfileProps) {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
         setUploadError('File size must be less than 5MB');
         return;
       }
@@ -148,18 +141,14 @@ export default function Profile({ userId }: ProfileProps) {
     try {
       const signResponse = await fetch('/api/sign-cloudinary-upload', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
 
       if (!signResponse.ok) {
-        const errorText = await signResponse.text();
-        throw new Error(`Failed to get upload signature: ${signResponse.status} - ${errorText}`);
+        throw new Error('Failed to get upload signature');
       }
 
       const signData = await signResponse.json();
-
       const formData = new FormData();
       formData.append('file', file);
       formData.append('upload_preset', signData.upload_preset);
@@ -168,17 +157,14 @@ export default function Profile({ userId }: ProfileProps) {
       formData.append('timestamp', signData.timestamp.toString());
 
       const uploadUrl = `https://api.cloudinary.com/v1_1/${signData.cloud_name}/image/upload`;
-
       const uploadResponse = await fetch(uploadUrl, {
         method: 'POST',
         body: formData,
       });
 
       if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.text();
-        throw new Error(`Failed to upload image: ${uploadResponse.status} - ${errorData}`);
+        throw new Error('Failed to upload image');
       }
-
       const uploadData = await uploadResponse.json();
       return uploadData.secure_url;
     } catch (error) {
@@ -188,6 +174,11 @@ export default function Profile({ userId }: ProfileProps) {
   };
 
   const handleSave = async () => {
+    if (!user) {
+      setUploadError("Cannot update profile. User data is not available.");
+      return;
+    }
+
     setLoading(true);
     setUploadError(null);
 
@@ -196,7 +187,6 @@ export default function Profile({ userId }: ProfileProps) {
     try {
       if (imageFile) {
         photoURL = await uploadImageToCloudinary(imageFile);
-        // ✅ Instantly update local state
         setProfilePhotoUrl(photoURL);
       }
 
@@ -223,16 +213,10 @@ export default function Profile({ userId }: ProfileProps) {
 
   const getRankColor = (rank: string | undefined) => {
     const rankColors: Record<string, string> = {
-      'newbie': '#808080',
-      'pupil': '#008000',
-      'specialist': '#03A89E',
-      'expert': '#0000FF',
-      'candidate master': '#AA00AA',
-      'master': '#FF8C00',
-      'international master': '#FF8C00',
-      'grandmaster': '#FF0000',
-      'international grandmaster': '#FF0000',
-      'legendary grandmaster': '#FF0000'
+      'newbie': '#808080', 'pupil': '#008000', 'specialist': '#03A89E',
+      'expert': '#0000FF', 'candidate master': '#AA00AA', 'master': '#FF8C00',
+      'international master': '#FF8C00', 'grandmaster': '#FF0000',
+      'international grandmaster': '#FF0000', 'legendary grandmaster': '#FF0000'
     };
     return rank ? rankColors[rank.toLowerCase()] || '#1c1e21' : '#1c1e21';
   };
@@ -256,32 +240,31 @@ export default function Profile({ userId }: ProfileProps) {
           <header className={styles.profileHeader}>
             <div className={styles.avatar}>
              <Image
-        src={
-          previewUrl ||
-          profilePhotoUrl ||
-          `https://ui-avatars.com/api/?name=${encodeURIComponent(
-            user.fullname || user.username
-          )}&background=0D8ABC&color=fff&bold=true`
-        }
-        alt="Profile"
-        width={100} // set according to your design
-        height={100} // set according to your design
-        className="rounded-full object-cover" // optional styling
-    />
+                src={
+                  previewUrl ||
+                  profilePhotoUrl ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    user.fullname || user.username
+                  )}&background=0D8ABC&color=fff&bold=true`
+                }
+                alt="Profile"
+                width={100}
+                height={100}
+                className="rounded-full object-cover"
+              />
             </div>
             <div className={styles.headerInfo}>
               <h1 className={styles.usernameTitle}>{user.username}</h1>
               <div className={styles.headerActions}>
                 <p className={styles.fullName}>{user.fullname || 'No name provided'}</p>
-                  {isOwnProfile && (
-                    <button className={styles.editButton} onClick={handleEditToggle} disabled={loading}>
-                      {isEditing ? 'Cancel' : 'Edit Profile'}
-                    </button>
-                  )}
+                {isOwnProfile && (
+                  <button className={styles.editButton} onClick={handleEditToggle} disabled={loading}>
+                    {isEditing ? 'Cancel' : 'Edit Profile'}
+                  </button>
+                )}
               </div>
             </div>
           </header>
-
 
           <div className={styles.profileStatsBar}>
             <div className={styles.stat}>
@@ -302,57 +285,27 @@ export default function Profile({ userId }: ProfileProps) {
             {isEditing ? (
               <div className={styles.editForm}>
                 {uploadError && (
-                  <div className={styles.errorMessage}>
-                    {uploadError}
-                  </div>
+                  <div className={styles.errorMessage}>{uploadError}</div>
                 )}
                 
                 <div className={styles.formGroup}>
                   <label htmlFor="fullname">Full Name</label>
-                  <input 
-                    id="fullname" 
-                    type="text" 
-                    name="fullname" 
-                    value={editForm.fullname} 
-                    onChange={handleInputChange} 
-                    placeholder="Your Full Name" 
-                    disabled={loading}
-                  />
+                  <input id="fullname" type="text" name="fullname" value={editForm.fullname} onChange={handleInputChange} placeholder="Your Full Name" disabled={loading} />
                 </div>
                 
                 <div className={styles.formGroup}>
-                  <label htmlFor="emailAddress">Email Address</label>
-                  <input 
-                    id="emailAddress" 
-                    type="email" 
-                    name="emailAddress" 
-                    value={editForm.emailAddress} 
-                    onChange={handleInputChange} 
-                    placeholder="your.email@example.com" 
-                    disabled={loading}
-                  />
+                  <label htmlFor="email">Email Address</label>
+                  <input id="email" type="email" name="email" value={editForm.email} onChange={handleInputChange} placeholder="your.email@example.com" disabled={loading} />
                 </div>
                 
                 <div className={styles.formGroup}>
                   <label htmlFor="photoFile">Change Profile Picture</label>
-                  <input 
-                    id="photoFile" 
-                    type="file" 
-                    name="photoFile" 
-                    accept="image/png,image/jpeg,image/jpg,image/webp"
-                    onChange={handleImageChange} 
-                    className={styles.fileInput}
-                    disabled={loading}
-                  />
+                  <input id="photoFile" type="file" name="photoFile" accept="image/png,image/jpeg,image/jpg,image/webp" onChange={handleImageChange} className={styles.fileInput} disabled={loading} />
                   <small>Max file size: 5MB. Supported formats: JPEG, PNG, WebP</small>
                 </div>
 
                 <div className={styles.formActions}>
-                  <button 
-                    className={styles.saveButton} 
-                    onClick={handleSave} 
-                    disabled={loading}
-                  >
+                  <button className={styles.saveButton} onClick={handleSave} disabled={loading}>
                     {loading ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
@@ -381,7 +334,7 @@ export default function Profile({ userId }: ProfileProps) {
                   <h4 className={styles.sectionTitle}>Contact Info</h4>
                   <div className={styles.infoRow}>
                     <span>Email Address</span>
-                    <strong>{user.emailAddress || 'Not Provided'}</strong>
+                    <strong>{user.email || 'Not Provided'}</strong>
                   </div>
                 </div>
               </>
