@@ -55,7 +55,7 @@ export default function Suggestions({ rating }: SuggestionsProps) {
             return (
               <div key={user.userId} className={styles.user}>
                 <UserSuggestionCard user={user} />
-                <button className={styles.follow_button}>Follow</button>
+                {/* <button className={styles.follow_button}>Follow</button> */}
               </div>
             );
           })}
