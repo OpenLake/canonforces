@@ -14,7 +14,7 @@ interface SuggestionsProps {
   rating?: number;
 }
 
-const MAX_INITIAL_USERS = 6; // Show only 6 (updated) users initially
+const maxUsersToShow = Math.floor(Math.random() * 2) + 5; // 5 or 6
 
 export default function Suggestions({ rating }: SuggestionsProps) {
   const [users, setUsers] = useState<User[]>([]);
@@ -51,8 +51,9 @@ export default function Suggestions({ rating }: SuggestionsProps) {
     return () => unsubscribe();
   }, []);
 
-  const displayedUsers = users.slice(0, MAX_INITIAL_USERS);
-  const hasMore = users.length > MAX_INITIAL_USERS;
+  const displayedUsers = users.slice(0, maxUsersToShow);
+  const hasMore = users.length > maxUsersToShow;
+
 
   return (
     <div className={styles.suggestions}>
