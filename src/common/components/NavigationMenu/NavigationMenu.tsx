@@ -35,15 +35,15 @@ export default function NavigationMenu() {
 
   return (
     <div className={styles.navigation}>
-      <div className={styles.logo}>
+      <Link href={ROUTES.DASHBOARD} className={styles.logo}>
         <Image 
           width={55}
           height={55}
           alt="Canonforces"
           src={"/images/logo.png"}
         />
-        <h3> Canonforces </h3>
-      </div>
+        <h3>Canonforces</h3>
+      </Link>
       <div className={styles.navbar}>
         <h4> Menu </h4> 
         <nav>
