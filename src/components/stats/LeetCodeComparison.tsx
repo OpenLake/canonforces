@@ -102,7 +102,7 @@ export default function LeetcodeComparison() {
           </div>
         </div>
         <div className={styles.headerImage}>
-          <Image height={200} width={200} src="/images/compare-lc.png" alt="LeetCode Comparison" />
+          <Image height={200} width={200} src="/images/compare.png" alt="LeetCode Comparison" />
         </div>
       </div>
 
