@@ -49,19 +49,28 @@ export default function UserSuggestionCard({ user }: UserSuggestionCardProps) {
   };
 
   const handleFollowBtn = async () => {
-    try {
-      if (isFollow) {
-        await handleSetUnfollow(activeUser.docId, user.userId);
-      } else {
-        await handleSetFollow(activeUser.docId, user.userId);
-      }
+  // ✅ Add this check
+  if (!activeUser) {
+    console.error("Cannot follow/unfollow: User is not logged in.");
+    // Optionally, you could redirect to a login page or show a message.
+    return;
+  }
 
-      setIsFollow(!isFollow);
-    } catch (error) {
-      alert(error);
-      console.error("Error following user:", error);
+  try {
+    if (isFollow) {
+      // Now this is safe
+      await handleSetUnfollow(activeUser.docId, user.userId);
+    } else {
+      // And this is safe
+      await handleSetFollow(activeUser.docId, user.userId);
     }
-  };
+
+    setIsFollow(!isFollow);
+  } catch (error) {
+    alert(error);
+    console.error("Error following user:", error);
+  }
+};
 
   if (!user?.username || !user?.userId ) {
     return null;
@@ -86,9 +95,13 @@ export default function UserSuggestionCard({ user }: UserSuggestionCardProps) {
           <span>@{user.username}</span>
         </div>
       </div>
-        <button onClick={handleFollowBtn} className={btnStyle.follow_button}>
-          {followText}
-        </button>
+        <button
+  onClick={handleFollowBtn}
+  className={btnStyle.follow_button}
+  disabled={!activeUser} // ✅ Disable the button if there's no active user
+>
+  {followText}
+</button>
     </div>
   );
 }
