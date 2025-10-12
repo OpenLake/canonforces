@@ -58,9 +58,6 @@ export default function SuggestionsPage() {
               return (
                 <div key={user.userId} className="flex justify-between items-center border p-3 rounded-lg shadow-sm">
                   <UserSuggestionCard user={user} />
-                  <button className="bg-blue-500 text-white px-4 py-1 rounded-lg hover:bg-blue-600">
-                    Follow
-                  </button>
                 </div>
               );
             })}
