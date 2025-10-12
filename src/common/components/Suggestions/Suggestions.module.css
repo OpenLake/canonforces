@@ -139,3 +139,49 @@
   font-size: 35px;
   font-weight: bold;
 }
+
+/* src/common/components/Suggestions.module.css */
+
+/* Base style for the button */
+.follow_button {
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+  min-width: 90px; /* Ensures button width is consistent */
+}
+
+/* Style for the "Follow" state */
+.follow {
+  background-color: #0095f6; /* Bright blue */
+  color: white;
+  border: 1px solid transparent;
+}
+
+/* Darker blue on hover for the "Follow" button */
+.follow:hover {
+  background-color: #007ac1;
+}
+
+/* Style for the "Following" state */
+.following {
+  background-color: transparent;
+  color: #262626; /* Dark grey text */
+  border: 1px solid #dbdbdb; /* Light grey border */
+}
+
+/* Style for the "Unfollow" (hover) state */
+.following:hover {
+  background-color: rgba(237, 73, 86, 0.1); /* Faint red background */
+  color: #ed4956; /* Red text */
+  border: 1px solid rgba(237, 73, 86, 0.4); /* Faint red border */
+}
+
+/* Style for when the button is disabled (no user logged in) */
+.follow_button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
