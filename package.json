@@ -20,11 +20,17 @@
     "faker": "^5.5.3",
     "firebase": "^12.3.0",
     "firebase-admin": "^13.4.0",
+    "framer-motion": "^12.23.24",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
+    "lucide-react": "^0.545.0",
     "next": "^15.5.4",
     "react": "^19.2.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.2.0",
     "react-icons": "^4.7.1",
+    "react-intersection-observer": "^9.16.0",
+    "sonner": "^2.0.7",
     "typescript": "4.9.4"
   },
   "devDependencies": {
