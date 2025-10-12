@@ -30,28 +30,44 @@ export interface LeetCodeUserStats {
 
 export const getLeetcodeStats = async (username: string): Promise<LeetCodeUserStats | null> => {
   try {
-    const response = await fetch('/api/leetcode', { // Assuming your API route is at /api/leetcode
+    const response = await fetch('/api/leetcode', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username }),
     });
 
+    // If the response is NOT okay (e.g., status 404, 500), handle it as an error.
     if (!response.ok) {
-        // LeetCode API might return errors in a valid response, check data first
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch LeetCode data');
+      // Read the body ONCE to get the error details.
+      // We check the content-type to decide how to parse it.
+      const contentType = response.headers.get('content-type');
+      let errorPayload;
+      
+      if (contentType && contentType.includes('application/json')) {
+        // Our API route sends a JSON error object: { error: "..." }
+        errorPayload = await response.json();
+      } else {
+        // If something else goes wrong, we might get an HTML/text error from the server
+        errorPayload = await response.text();
+      }
+      
+      // Construct a clear error message and throw it.
+      const errorMessage = typeof errorPayload === 'object' && errorPayload.error
+        ? errorPayload.error 
+        : errorPayload || `API request failed with status ${response.status}`;
+        
+      throw new Error(errorMessage);
     }
 
-    const { data } = await response.json();
+    // If we reach here, the response is OK, and we can safely parse the JSON body once.
+    const result = await response.json();
+    
+    // The actual stats are nested inside the 'data' key returned by our API route
+    return result.data;
 
-    if (!data.matchedUser) {
-        throw new Error(`User '${username}' not found on LeetCode.`);
-    }
-
-    return data;
   } catch (error) {
-    console.error('Error fetching LeetCode stats:', error);
-    // Return null or throw to be handled by the calling component
-    return null;
+    console.error("Error in getLeetcodeStats:", error);
+    // Re-throw the error so the component's `catch` block can handle it and show an alert.
+    throw error;
   }
 };

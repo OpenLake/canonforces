@@ -33,26 +33,28 @@ export default function LeetcodeComparison() {
     setShowResults(true);
     const isComparing = compareName.trim() !== '';
 
-    const myPromise = getLeetcodeStats(myUsername.trim());
-    const otherPromise = isComparing ? getLeetcodeStats(compareName.trim()) : Promise.resolve(null);
-    
-    const [myResult, otherResult] = await Promise.all([myPromise, otherPromise]);
+    try {
+      const myPromise = getLeetcodeStats(myUsername.trim());
+      const otherPromise = isComparing ? getLeetcodeStats(compareName.trim()) : Promise.resolve(null);
+      
+      const [myResult, otherResult] = await Promise.all([myPromise, otherPromise]);
 
-    setMyData(myResult);
-    if (isComparing) {
-      setOtherData(otherResult);
-      if (!otherResult) {
-        alert(`Could not find LeetCode user: "${compareName.trim()}"`);
+      setMyData(myResult);
+      if (isComparing) {
+        setOtherData(otherResult);
+      } else {
+        setOtherData(null);
       }
-    } else {
-        setOtherData(null); // Clear previous comparison data
+    } catch (error) {
+      // Now, this will catch the specific error from the backend and display it.
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      alert(errorMessage); 
+      // Optionally reset state if a user isn't found
+      if (errorMessage.includes(myUsername.trim())) setMyData(null);
+      if (isComparing && errorMessage.includes(compareName.trim())) setOtherData(null);
+    } finally {
+      setLoading(false);
     }
-
-    if (!myResult) {
-        alert(`Could not find LeetCode user: "${myUsername.trim()}"`);
-    }
-
-    setLoading(false);
   };
 
   const handleClear = () => {
