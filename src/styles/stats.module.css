@@ -384,4 +384,48 @@
   .splitChart {
     min-height: 650px;
   }
+  .difficultyChartContainer {
+    flex-direction: column;
+    align-items: center; /* Center items when stacked vertically */
+  }
+  .splitChart {
+    min-height: 750px; /* Adjust height for vertical stacking */
+  }
+}
+
+
+.splitChart {
+  grid-column: 1 / -1; /* Makes the card span both columns */
+  min-height: 480px; /* Adjusted height */
+}
+
+.difficultyChartContainer {
+  display: flex;
+  justify-content: space-around;
+  /* Use align-items: stretch to make children fill the height */
+  align-items: stretch; 
+  padding: 1.5rem;
+  gap: 2rem;
+  flex-grow: 1;
+}
+
+.doughnutWrapper {
+  flex: 1; /* Allow wrapper to grow */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  /* Remove fixed height from here */
+}
+
+
+/* ==========================================================================
+   ADD this NEW rule to your CSS file
+   ========================================================================== */
+
+.doughnutCanvasContainer {
+  position: relative;
+  /* Define a stable width and height for the chart's direct parent */
+  width: 100%;
+  height: 280px; 
 }

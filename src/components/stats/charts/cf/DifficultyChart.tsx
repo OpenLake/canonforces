@@ -15,23 +15,31 @@ interface ChartProps {
 const DifficultyChart: React.FC<ChartProps> = ({ myData, otherData, myName, otherName }) => {
   const isComparing = otherData && Object.keys(otherData).length > 0;
   const labels = Object.keys(myData);
-  const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+  const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#a855f7'];
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { position: isComparing ? 'bottom' as const : 'right' as const } },
+    maintainAspectRatio: false, // This is crucial for the chart to fill the container
+    plugins: { 
+      legend: { 
+        position: isComparing ? 'bottom' as const : 'right' as const,
+        labels: {
+            boxWidth: 12,
+            padding: 15,
+        }
+      } 
+    },
     cutout: '60%',
   };
 
   const myChartData = {
     labels,
-    datasets: [{ data: Object.values(myData), backgroundColor: colors, borderWidth: 2 }],
+    datasets: [{ data: Object.values(myData), backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }],
   };
 
   const otherChartData = {
     labels: Object.keys(otherData),
-    datasets: [{ data: Object.values(otherData), backgroundColor: colors, borderWidth: 2 }],
+    datasets: [{ data: Object.values(otherData), backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }],
   };
 
   return (
@@ -42,12 +50,18 @@ const DifficultyChart: React.FC<ChartProps> = ({ myData, otherData, myName, othe
       <div className={styles.difficultyChartContainer}>
         <div className={styles.doughnutWrapper}>
           <h4 className={styles.chartLabel}>{myName || 'You'}</h4>
-          <Doughnut data={myChartData} options={chartOptions} />
+          {/* This new container provides a stable height for the chart */}
+          <div className={styles.doughnutCanvasContainer}>
+            <Doughnut data={myChartData} options={chartOptions} />
+          </div>
         </div>
         {isComparing && (
           <div className={styles.doughnutWrapper}>
             <h4 className={styles.chartLabel}>{otherName}</h4>
-            <Doughnut data={otherChartData} options={chartOptions} />
+            {/* This new container provides a stable height for the chart */}
+            <div className={styles.doughnutCanvasContainer}>
+              <Doughnut data={otherChartData} options={chartOptions} />
+            </div>
           </div>
         )}
       </div>
