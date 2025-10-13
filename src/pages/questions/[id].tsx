@@ -4,6 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import styles from '../../styles/CodeEditor.module.css';
 import CodeEditor from '../../common/components/CodeEditor/CodeEditor';
 import { db } from '../../lib/firebase';
+import { formatDescription } from '../../utils/formatDescription';
 
 const QuestionBar = () => {
   const router = useRouter();
@@ -24,27 +25,30 @@ const QuestionBar = () => {
   const [loading, setLoading] = useState(true);
   const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
 
-  useEffect(() => {
-    const fetchQuestion = async () => {
-      if (typeof id === 'string') {
-        try {
-          const docRef = doc(db, 'problems', id);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setQues(docSnap.data() as Problem);
-          } else {
-            console.warn('No such question found!');
-          }
-        } catch (error) {
-          console.error('Error fetching question:', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
+ useEffect(() => {
+  const fetchQuestion = async () => {
+    // Wait until router query is available
+    if (!id || typeof id !== "string") return;
 
-    fetchQuestion();
-  }, [id]);
+    try {
+      const docRef = doc(db, "problems", id);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setQues(docSnap.data() as Problem);
+      } else {
+        console.warn("No such question found!");
+      }
+    } catch (error) {
+      console.error("Error fetching question:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchQuestion();
+}, [id]);
+
 
   const toggleLeftPanel = () => {
     setLeftPanelCollapsed(!leftPanelCollapsed);
@@ -106,18 +110,18 @@ const QuestionBar = () => {
                 <div className={styles.section}>
                   <h3 className={styles.sectionTitle}>Description</h3>
                   <div className={styles.description}>
-                    {ques.description}
+                    {formatDescription(ques.description)}
                   </div>
                 </div>
 
                 <div className={styles.section}>
                   <h3 className={styles.sectionTitle}>Input Format</h3>
-                  <pre className={styles.codeBlock}>{ques.input_format}</pre>
+                  <pre className={styles.codeBlock}>{formatDescription(ques.input_format || "")}</pre>
                 </div>
 
                 <div className={styles.section}>
                   <h3 className={styles.sectionTitle}>Output Format</h3>
-                  <pre className={styles.codeBlock}>{ques.output_format}</pre>
+                  <pre className={styles.codeBlock}>{formatDescription(ques.output_format || "")}</pre>
                 </div>
 
                 <div className={styles.section}>

@@ -4,6 +4,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import styles from "../styles/POTDpage.module.css";
 import Image from "next/image";
+import { formatDescription } from "../utils/formatDescription";
 
 // --- Types (assuming they are defined elsewhere or here) ---
 interface UserProfile {
@@ -87,25 +88,40 @@ const POTDPage: React.FC = () => {
     { docId: "user3", fullname: "Alan Turing" },
   ];
 
-  useEffect(() => {
-    async function fetchPOTD() {
-      try {
-        const id = await getPOTD();
-        const ref = doc(db, "problems", id);
-        const snapshot = await getDoc(ref);
+  // Inside your POTDPage component
+// Inside your POTDPage component
 
-        if (!snapshot.exists()) throw new Error("POTD not found");
+useEffect(() => {
+  async function fetchPOTD() {
+    try {
+      console.log("Component is mounting, about to call getPOTD...");
+      const id = await getPOTD();
 
-        setProblem({ id, ...(snapshot.data() as Omit<Problem, "id">) });
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch POTD");
-      } finally {
-        setLoading(false);
+      // This log is the most important one for the component
+      console.log("Component received this ID from getPOTD:", id); 
+
+      if (!id || typeof id !== 'string') {
+        throw new Error("ID received from getPOTD was invalid.");
       }
-    }
-    fetchPOTD();
-  }, []);
+      
+      const ref = doc(db, "problems", id);
+      
+      const snapshot = await getDoc(ref);
 
+      if (!snapshot.exists()) {
+        throw new Error("POTD document not found in the database.");
+      }
+
+      setProblem({ id, ...(snapshot.data() as Omit<Problem, "id">) });
+    } catch (err: any) {
+      console.error("Full error fetching POTD:", err);
+      setError(err.message || "An unknown error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  }
+  fetchPOTD();
+}, []);
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
@@ -173,7 +189,7 @@ const POTDPage: React.FC = () => {
             </div>
 
             {problem.description && (
-              <p className={styles.description}>{problem.description}</p>
+              <p className={styles.description}>{formatDescription(problem.description)}</p>
             )}
 
             {problem.tags && problem.tags.length > 0 && (
