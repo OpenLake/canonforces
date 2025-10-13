@@ -20,28 +20,35 @@ const Output: React.FC<OutputProps> = ({ id, language, value, problemData }) => 
   const [isError, setIsError] = useState(false);
   const [activeTab, setActiveTab] = useState<'output' | 'testcases'>('output');
 
-  useEffect(() => {
-    if (problemData) {
-      setQuestion(problemData);
-    } else {
-      const fetchQuestion = async () => {
-        try {
-          const docRef = doc(db, 'problems', id);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setQuestion(docSnap.data());
-          } else {
-            console.warn('No question found with that ID');
-          }
-        } catch (err) {
-          console.error('Error fetching question:', err);
+  // Inside src/common/components/CodeEditor/Output.tsx
+
+useEffect(() => {
+  if (problemData) {
+    setQuestion(problemData);
+  } else {
+    const fetchQuestion = async () => {
+      // --- FIX: Add this guard clause! ---
+      // This prevents the function from running if the ID is invalid.
+      if (!id || typeof id !== 'string') {
+        return;
+      }
+
+      try {
+        const docRef = doc(db, 'problems', id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setQuestion(docSnap.data());
+        } else {
+          console.warn('No question found with that ID');
         }
-      };
+      } catch (err) {
+        console.error('Error fetching question:', err);
+      }
+    };
 
-      fetchQuestion();
-    }
-  }, [id, problemData]);
-
+    fetchQuestion();
+  }
+}, [id, problemData]);
   const runCode = async () => {
     if (!value || !question) return;
 
