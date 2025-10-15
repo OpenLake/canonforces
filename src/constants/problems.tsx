@@ -29,6 +29,16 @@ export const problem: ProblemsMap = {
 }
 ,
     {
+  "id": "p800-2",
+  "title": "Be Positive",
+  "description": "Given an array a of n elements where each element is equal to -1, 0 or 1. In one operation, you can choose an index i and increase a_i by 1. Operations can be performed any number of times, choosingany indices. The goal is to make the product of all elements in the array strictly positive with the minimum number of operations. Find the minimum number of operations",
+  "input_format": "The first line contains a single integer t (1 ≤ t ≤ 10000) — the number of test cases.\nEach test case consists of two lines:\nFirst line: two integers n (1 ≤ n ≤ 8) \nSecond line: n integers a₁, a₂, ..., aₙ (-1 ≤ aᵢ ≤ 1)",
+  "output_format": "For each test case, output one integer - the minimum number of operations required to make the product of the elements in the array strictly positive",
+  "test_case": "3\n3\n-1 0 1\n4\n-1 -1 0 1\n5\n-1 -1 -1 0 0",
+  "answer": "3\n1\n4",
+  "solved": false 
+},
+    {
   "id": "p1200-2",
   "title": "A. Line Trip",
   "description": "You are located at point 0 on a number line and want to travel to point x and return to 0. Your car consumes 1 liter of fuel per unit of distance. There are n gas stations at specific points, and you can only refuel at these gas stations. Compute the minimum tank capacity required to make the round trip.",
