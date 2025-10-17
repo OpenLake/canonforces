@@ -313,7 +313,7 @@
 
 /* Slider base */
 .slider {
-  -webkit-appearance: none;
+  
   width: 80%;
   max-width: 400px;
   height: 6px;
@@ -595,4 +595,376 @@
     flex-direction: column;
     gap: 1rem;
   }
+}
+
+/* 📁 /styles/Quiz.module.css (Add these new styles) */
+
+/* ... (keep all your existing styles) ... */
+
+/* For StartScreen Component */
+.config-item {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.config-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #000000;
+  font-size: 1rem;
+}
+
+.config-select {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  font-size: 1rem;
+  width: 80%;
+  max-width: 400px;
+}
+
+.difficulty-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.difficulty-button {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e9ecef;
+  background: #ffffff;
+  color: #333333;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.difficulty-button.active,
+.difficulty-button:hover {
+  border-color: #007bff;
+  color: #007bff;
+  background: #f0f8ff;
+}
+
+/* For ResultsScreen Component */
+.results-container {
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.review-section {
+  margin-top: 3rem;
+}
+
+.wrong-option {
+  font-weight: 600;
+  color: #dc3545;
+  text-decoration: line-through;
+}
+
+/* For ProgressBar Component */
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #007bff;
+  border-radius: 4px;
+  transition: width 0.3s ease-in-out;
+}
+
+/* General Loading state */
+.loading {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 500;
+  padding: 2rem;
+}
+
+/* ==========================================================================
+   NEW Start Screen Styling
+   ========================================================================== */
+
+.start-quiz-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.config-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e9ecef;
+  padding: 2.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.config-card:hover {
+  border-color: #ced4da;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+.config-section {
+  margin-bottom: 2.5rem;
+}
+
+.config-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #343a40;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+/* Topic Selection Cards */
+.card-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.option-card {
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  background-color: #f8f9fa;
+  color: #495057;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.option-card:hover {
+  transform: translateY(-3px);
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.option-card.active {
+  background-color: #007bff;
+  color: #ffffff;
+  border-color: #007bff;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.25);
+  transform: translateY(-3px);
+}
+
+/* Difficulty Selection Buttons */
+.difficulty-options {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.difficulty-button {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: 2px solid transparent;
+  background-color: #f1f3f5;
+  color: #495057;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.difficulty-button.easy.active {
+  background-color: #d1e7dd;
+  border-color: #a3cfbb;
+  color: #0a3622;
+}
+.difficulty-button.medium.active {
+  background-color: #fff3cd;
+  border-color: #ffe69c;
+  color: #664d03;
+}
+.difficulty-button.hard.active {
+  background-color: #f8d7da;
+  border-color: #f1aeb5;
+  color: #58151c;
+}
+
+/* Slider */
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.slider-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #007bff;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Final Start Button */
+.start-button-large {
+  width: 100%;
+  padding: 1rem;
+  background-image: linear-gradient(to right, #007bff, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.start-button-large:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+
+/* ==========================================================================
+   NEW Rewards Summary Styling
+   ========================================================================== */
+
+.rewards-summary-card {
+  display: flex;
+  justify-content: space-around;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  padding: 1.5rem;
+  margin: 0 auto 2rem auto;
+  max-width: 500px;
+  text-align: center;
+}
+
+.reward-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.reward-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.reward-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #007bff;
+}
+
+.reward-value-coins {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffc107; /* Gold color for coins */
+}
+
+
+/* ==========================================================================
+   NEW AI Feedback Card Styling
+   ========================================================================== */
+
+.ai-feedback-card {
+  background-color: #f0f8ff; /* A light, friendly blue */
+  border: 1px solid #cce5ff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 2.5rem auto;
+  max-width: 600px;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
+}
+
+.ai-feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ai-feedback-avatar {
+  font-size: 1.5rem;
+  background-color: #ffffff;
+  border-radius: 50%;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.ai-feedback-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #004085; /* Darker blue for text */
+  margin: 0;
+}
+
+.ai-feedback-text {
+  font-size: 1rem;
+  color: #335d8b;
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+}
+
+/* ==========================================================================
+   NEW Timer and Keyboard Shortcut UI
+   ========================================================================== */
+
+.quiz-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.timer {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #495057;
+  text-align: right;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.timer.warning {
+  color: #dc3545;
+  transform: scale(1.05);
+  font-weight: 700;
+}
+
+.option-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #495057;
+  margin-right: 0.5rem;
+  background-color: #f8f9fa;
+}
+
+/* Add a hover effect for labels to indicate they are clickable */
+.quiz-options li label:hover .option-number {
+  border-color: #007bff;
+  color: #007bff;
 }

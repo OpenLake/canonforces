@@ -1,26 +1,21 @@
+// 📁 src/lib/firebaseAdmin.ts
+
 import admin from 'firebase-admin';
+import { getApps } from 'firebase-admin/app';
 
-const projectId = process.env.FIREBASE_PROJECT_ID;
-const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+const serviceAccount = {
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  // This safely handles the private key, preventing crashes if it's missing
+  privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+};
 
-if (!projectId || !clientEmail || !privateKey) {
-  console.error(
-    'Firebase Admin SDK requires FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY environment variables.'
-  );
-}
-
-try {
+// This check prevents re-initializing the app on every hot-reload in development
+if (!getApps().length) {
   admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId,
-      clientEmail,
-      privateKey,
-    }),
-    databaseURL: `https://${projectId}.firebaseio.com`,
+    credential: admin.credential.cert(serviceAccount),
   });
-} catch (error) {
-  console.error('Firebase Admin initialization error', error);
 }
 
-export const adminDb = admin.firestore();
+const adminDb = admin.firestore();
+export { adminDb };
