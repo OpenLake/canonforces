@@ -922,3 +922,49 @@
   margin: 0;
   font-style: italic;
 }
+
+/* ==========================================================================
+   NEW Timer and Keyboard Shortcut UI
+   ========================================================================== */
+
+.quiz-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.timer {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #495057;
+  text-align: right;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.timer.warning {
+  color: #dc3545;
+  transform: scale(1.05);
+  font-weight: 700;
+}
+
+.option-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #495057;
+  margin-right: 0.5rem;
+  background-color: #f8f9fa;
+}
+
+/* Add a hover effect for labels to indicate they are clickable */
+.quiz-options li label:hover .option-number {
+  border-color: #007bff;
+  color: #007bff;
+}
