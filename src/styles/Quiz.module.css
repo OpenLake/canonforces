@@ -874,3 +874,51 @@
   font-weight: 700;
   color: #ffc107; /* Gold color for coins */
 }
+
+
+/* ==========================================================================
+   NEW AI Feedback Card Styling
+   ========================================================================== */
+
+.ai-feedback-card {
+  background-color: #f0f8ff; /* A light, friendly blue */
+  border: 1px solid #cce5ff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 2.5rem auto;
+  max-width: 600px;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
+}
+
+.ai-feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ai-feedback-avatar {
+  font-size: 1.5rem;
+  background-color: #ffffff;
+  border-radius: 50%;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.ai-feedback-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #004085; /* Darker blue for text */
+  margin: 0;
+}
+
+.ai-feedback-text {
+  font-size: 1rem;
+  color: #335d8b;
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+}

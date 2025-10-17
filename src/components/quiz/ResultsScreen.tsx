@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Confetti from 'react-confetti';
 import styles from '../../styles/Quiz.module.css';
 import { Question, QuizAction } from '../../types/quiz';
@@ -13,7 +13,41 @@ interface Props {
 }
 
 const ResultsScreen: React.FC<Props> = ({ score, totalQuestions, questions, userAnswers, dispatch, coinsEarned }) => {
-  // Return null or a placeholder if totalQuestions is 0 to avoid division by zero
+  const [feedback, setFeedback] = useState('');
+  const [isLoadingFeedback, setIsLoadingFeedback] = useState(true);
+
+  // This effect runs once when the results screen is shown
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      // Don't fetch if there are no questions to analyze
+      if (questions.length === 0) {
+          setIsLoadingFeedback(false);
+          setFeedback("No results to analyze for feedback.");
+          return;
+      }
+      
+      setIsLoadingFeedback(true);
+      try {
+        const response = await fetch('/api/quiz/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ questions, userAnswers }),
+        });
+        if (!response.ok) throw new Error('Feedback request failed');
+        const data = await response.json();
+        setFeedback(data.feedback);
+      } catch (error) {
+        console.error(error);
+        setFeedback("Couldn't load AI feedback at this time.");
+      } finally {
+        setIsLoadingFeedback(false);
+      }
+    };
+
+    fetchFeedback();
+  }, [questions, userAnswers]); // Dependencies ensure it only runs when results are available
+
+
   if (totalQuestions === 0) {
     return (
         <div className={styles['results-container']}>
@@ -26,16 +60,14 @@ const ResultsScreen: React.FC<Props> = ({ score, totalQuestions, questions, user
   }
 
   const accuracy = Math.round((score / totalQuestions) * 100);
-  const showConfetti = accuracy >= 80; // Only show confetti for good scores!
+  const showConfetti = accuracy >= 80;
 
   return (
     <div className={styles['results-container']}>
-      {/* 1. Confetti effect for high scores */}
       {showConfetti && <Confetti recycle={false} numberOfPieces={400} />}
       
       <h2 className={styles['section-title']}>Quiz Complete! 🥳</h2>
 
-      {/* 2. New Rewards Summary Card */}
       <div className={styles['rewards-summary-card']}>
         <div className={styles['reward-item']}>
           <span className={styles['reward-label']}>Accuracy</span>
@@ -47,7 +79,6 @@ const ResultsScreen: React.FC<Props> = ({ score, totalQuestions, questions, user
         </div>
       </div>
 
-      {/* 3. Original Correct/Wrong Stats */}
       <div className={`${styles['stats-container']}`}>
         <div className={`${styles['stat-card']} ${styles.correct}`}>
           <h3 className={styles['stat-value']}>{score}</h3>
@@ -59,13 +90,22 @@ const ResultsScreen: React.FC<Props> = ({ score, totalQuestions, questions, user
         </div>
       </div>
       
-      {/* 4. Original Review Answers Section */}
+      {/* NEW AI Feedback Card is now integrated */}
+      <div className={styles['ai-feedback-card']}>
+        <div className={styles['ai-feedback-header']}>
+          <span className={styles['ai-feedback-avatar']}>🤖</span>
+          <h3 className={styles['ai-feedback-title']}>Feedback Results</h3>
+        </div>
+        <p className={styles['ai-feedback-text']}>
+          {isLoadingFeedback ? 'Analyzing your results...' : feedback}
+        </p>
+      </div>
+
       <div className={styles['review-section']}>
         <h2 className={styles['section-title']}>Review Answers</h2>
         <ul className={styles['review-list']}>
           {questions.map((q, index) => {
             const userAnswer = userAnswers[index];
-            const isCorrect = userAnswer === q.answer;
             return (
               <li key={index} className={styles['review-item']}>
                 <h3 className={styles['quiz-question']}>{`Q${index + 1}: ${q.question}`}</h3>
@@ -94,7 +134,6 @@ const ResultsScreen: React.FC<Props> = ({ score, totalQuestions, questions, user
         </ul>
       </div>
 
-      {/* 5. Final "Try Again" Button */}
       <div className={styles['quiz-navigation']}>
         <button className={styles['quiz-button']} onClick={() => dispatch({ type: 'RESTART' })}>
           Try Again
