@@ -8,6 +8,7 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-export const getGeminiModel = (model: string = "gemini-1.5-flash") => {
+// Use the latest working model name "gemini-2.5-flash"
+export const getGeminiModel = (model: string = "gemini-2.5-flash") => {
   return genAI.getGenerativeModel({ model });
 };
