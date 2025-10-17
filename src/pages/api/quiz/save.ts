@@ -26,21 +26,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const userRef = adminDb.collection('users').doc(userId);
-    const quizHistoryRef = userRef.collection('past_quizzes').doc(); // Create new doc with auto-ID
+    const quizHistoryRef = userRef.collection('past_quizzes').doc();
+    
+    // Calculate coins here to return in the response
+    const coinsEarned = score * 5; // +5 coins per correct answer
 
-    // Use a transaction to ensure both writes succeed or neither do
     await adminDb.runTransaction(async (transaction) => {
       // 1. Save the detailed quiz result
       transaction.set(quizHistoryRef, {
         score,
         totalQuestions,
-        questions, // Storing the questions for review
+        questions,
         userAnswers,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
       // 2. Update the user's aggregate stats
-      const coinsEarned = score * 5; // +5 coins per correct answer
       transaction.update(userRef, {
         quizzesPlayed: admin.firestore.FieldValue.increment(1),
         correctAnswers: admin.firestore.FieldValue.increment(score),
@@ -49,7 +50,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     });
 
-    res.status(200).json({ message: 'Quiz result saved successfully!' });
+    // ✅ **Return the number of coins earned in the response**
+    res.status(200).json({ 
+      message: 'Quiz result saved successfully!',
+      coinsEarned: coinsEarned 
+    });
+
   } catch (error) {
     console.error('Error saving quiz result:', error);
     res.status(500).json({ message: 'Internal Server Error' });

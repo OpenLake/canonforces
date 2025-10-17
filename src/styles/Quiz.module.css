@@ -831,3 +831,46 @@
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
 }
+
+
+/* ==========================================================================
+   NEW Rewards Summary Styling
+   ========================================================================== */
+
+.rewards-summary-card {
+  display: flex;
+  justify-content: space-around;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  padding: 1.5rem;
+  margin: 0 auto 2rem auto;
+  max-width: 500px;
+  text-align: center;
+}
+
+.reward-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.reward-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.reward-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #007bff;
+}
+
+.reward-value-coins {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffc107; /* Gold color for coins */
+}

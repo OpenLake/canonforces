@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'; // Adjusted path
 import StartScreen from '../components/quiz/StartScreen'; // Adjusted path
 import QuestionDisplay from '../components/quiz/QuestionDisplay'; // Adjusted path
 import ResultsScreen from '../components/quiz/ResultsScreen'; // Adjusted path
+import { useState } from 'react';
 
 const initialState: QuizState = {
   status: 'ready',
@@ -65,7 +66,7 @@ function reducer(state: QuizState, action: QuizAction): QuizState {
 async function saveQuizResult(
   userId: string,
   result: { score: number; totalQuestions: number; questions: Question[]; userAnswers: (string | null)[] }
-) {
+): Promise<number> { // 👈 Change return type to Promise<number>
   try {
     const response = await fetch('/api/quiz/save', {
       method: 'POST',
@@ -75,16 +76,19 @@ async function saveQuizResult(
     if (!response.ok) throw new Error('Failed to save quiz result');
     const data = await response.json();
     console.log('API Response:', data.message);
+    return data.coinsEarned || 0; // 👈 Return the coins
   } catch (error) {
     console.error("Couldn't save quiz result:", error);
+    return 0; // Return 0 if there was an error
   }
 }
+
 
 const QuizPage: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { status, questions, index, userAnswers, score, totalQuestions } = state;
   const { user } = useAuth(); // 👈 GET THE LOGGED-IN USER FROM OUR CONTEXT
-
+  const [coinsEarned, setCoinsEarned] = useState(0);
   const handleStartQuiz = async (topic: string, difficulty: 'easy' | 'medium' | 'hard', count: number) => {
     dispatch({ type: 'START_QUIZ', payload: { topic, difficulty, totalQuestions: count } });
     try {
@@ -96,14 +100,18 @@ const QuizPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+ useEffect(() => {
     if (status === 'finished' && user && questions.length > 0) {
-      saveQuizResult(user.uid, { // 👈 USE REAL USER.UID
-        score,
-        totalQuestions,
-        questions,
-        userAnswers,
-      });
+      const saveAndSetCoins = async () => {
+        const coins = await saveQuizResult(user.uid, {
+          score,
+          totalQuestions,
+          questions,
+          userAnswers,
+        });
+        setCoinsEarned(coins); // 👈 **Set the state with the result**
+      };
+      saveAndSetCoins();
     }
   }, [status, user, questions, userAnswers, score, totalQuestions]);
 
@@ -117,7 +125,16 @@ const QuizPage: React.FC = () => {
       {status === 'loading' && <p className={styles.loading}>Generating your quiz...</p>}
       {status === 'ready' && <StartScreen onStart={handleStartQuiz} />}
       {status === 'active' && questions.length > 0 && ( <QuestionDisplay question={questions[index]} userAnswer={userAnswers[index]} questionNumber={index + 1} totalQuestions={questions.length} dispatch={dispatch} /> )}
-      {status === 'finished' && ( <ResultsScreen score={score} totalQuestions={questions.length} questions={questions} userAnswers={userAnswers} dispatch={dispatch} /> )}
+      {status === 'finished' && (
+        <ResultsScreen
+          score={score}
+          totalQuestions={questions.length}
+          questions={questions}
+          userAnswers={userAnswers}
+          dispatch={dispatch}
+          coinsEarned={coinsEarned} 
+        />
+      )}
     </div>
   );
 };

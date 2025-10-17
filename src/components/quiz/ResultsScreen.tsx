@@ -1,6 +1,5 @@
-// 📁 /components/quiz/ResultsScreen.tsx
-
 import React from 'react';
+import Confetti from 'react-confetti';
 import styles from '../../styles/Quiz.module.css';
 import { Question, QuizAction } from '../../types/quiz';
 
@@ -10,13 +9,45 @@ interface Props {
   questions: Question[];
   userAnswers: (string | null)[];
   dispatch: React.Dispatch<QuizAction>;
+  coinsEarned: number;
 }
 
-const ResultsScreen: React.FC<Props> = ({ score, totalQuestions, questions, userAnswers, dispatch }) => {
+const ResultsScreen: React.FC<Props> = ({ score, totalQuestions, questions, userAnswers, dispatch, coinsEarned }) => {
+  // Return null or a placeholder if totalQuestions is 0 to avoid division by zero
+  if (totalQuestions === 0) {
+    return (
+        <div className={styles['results-container']}>
+            <p>No questions were loaded for this quiz.</p>
+            <button className={styles['quiz-button']} onClick={() => dispatch({ type: 'RESTART' })}>
+              Try Again
+            </button>
+        </div>
+    );
+  }
+
+  const accuracy = Math.round((score / totalQuestions) * 100);
+  const showConfetti = accuracy >= 80; // Only show confetti for good scores!
+
   return (
     <div className={styles['results-container']}>
-      <h2 className={styles['section-title']}>Your Quiz Results</h2>
+      {/* 1. Confetti effect for high scores */}
+      {showConfetti && <Confetti recycle={false} numberOfPieces={400} />}
+      
+      <h2 className={styles['section-title']}>Quiz Complete! 🥳</h2>
 
+      {/* 2. New Rewards Summary Card */}
+      <div className={styles['rewards-summary-card']}>
+        <div className={styles['reward-item']}>
+          <span className={styles['reward-label']}>Accuracy</span>
+          <span className={styles['reward-value']}>{accuracy}%</span>
+        </div>
+        <div className={styles['reward-item']}>
+          <span className={styles['reward-label']}>Coins Earned</span>
+          <span className={styles['reward-value-coins']}>+ {coinsEarned} 🪙</span>
+        </div>
+      </div>
+
+      {/* 3. Original Correct/Wrong Stats */}
       <div className={`${styles['stats-container']}`}>
         <div className={`${styles['stat-card']} ${styles.correct}`}>
           <h3 className={styles['stat-value']}>{score}</h3>
@@ -28,6 +59,7 @@ const ResultsScreen: React.FC<Props> = ({ score, totalQuestions, questions, user
         </div>
       </div>
       
+      {/* 4. Original Review Answers Section */}
       <div className={styles['review-section']}>
         <h2 className={styles['section-title']}>Review Answers</h2>
         <ul className={styles['review-list']}>
@@ -62,6 +94,7 @@ const ResultsScreen: React.FC<Props> = ({ score, totalQuestions, questions, user
         </ul>
       </div>
 
+      {/* 5. Final "Try Again" Button */}
       <div className={styles['quiz-navigation']}>
         <button className={styles['quiz-button']} onClick={() => dispatch({ type: 'RESTART' })}>
           Try Again
