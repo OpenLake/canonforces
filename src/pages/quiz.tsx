@@ -1,16 +1,14 @@
-// 📁 /pages/quiz/index.tsx
-
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import styles from '../styles/Quiz.module.css';
-import { QuizAction, QuizState } from '../types/quiz';
-import { fetchQuizQuestions } from '../services/quizService';
-
-import StartScreen from '../components/quiz/StartScreen';
-import QuestionDisplay from '../components/quiz/QuestionDisplay';
-import ResultsScreen from '../components/quiz/ResultsScreen';
+import { QuizAction, QuizState, Question } from '../types/quiz'; // Adjusted path
+import { fetchQuizQuestions } from '../services/quizService'; // Adjusted path
+import { useAuth } from '../context/AuthContext'; // Adjusted path
+import StartScreen from '../components/quiz/StartScreen'; // Adjusted path
+import QuestionDisplay from '../components/quiz/QuestionDisplay'; // Adjusted path
+import ResultsScreen from '../components/quiz/ResultsScreen'; // Adjusted path
 
 const initialState: QuizState = {
-  status: 'ready', // 'ready', 'active', 'finished', 'loading'
+  status: 'ready',
   questions: [],
   index: 0,
   userAnswers: [],
@@ -64,11 +62,30 @@ function reducer(state: QuizState, action: QuizAction): QuizState {
   }
 }
 
+async function saveQuizResult(
+  userId: string,
+  result: { score: number; totalQuestions: number; questions: Question[]; userAnswers: (string | null)[] }
+) {
+  try {
+    const response = await fetch('/api/quiz/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, ...result }),
+    });
+    if (!response.ok) throw new Error('Failed to save quiz result');
+    const data = await response.json();
+    console.log('API Response:', data.message);
+  } catch (error) {
+    console.error("Couldn't save quiz result:", error);
+  }
+}
+
 const QuizPage: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { status, questions, index, userAnswers, score, totalQuestions, topic, difficulty } = state;
+  const { status, questions, index, userAnswers, score, totalQuestions } = state;
+  const { user } = useAuth(); // 👈 GET THE LOGGED-IN USER FROM OUR CONTEXT
 
-  const handleStartQuiz = async (topic: string, difficulty: 'easy'|'medium'|'hard', count: number) => {
+  const handleStartQuiz = async (topic: string, difficulty: 'easy' | 'medium' | 'hard', count: number) => {
     dispatch({ type: 'START_QUIZ', payload: { topic, difficulty, totalQuestions: count } });
     try {
       const fetchedQuestions = await fetchQuizQuestions(topic, difficulty, count);
@@ -76,45 +93,31 @@ const QuizPage: React.FC = () => {
     } catch (error) {
       console.error(error);
       dispatch({ type: 'FETCH_ERROR' });
-      // You could also show an error message to the user here
     }
   };
+
+  useEffect(() => {
+    if (status === 'finished' && user && questions.length > 0) {
+      saveQuizResult(user.uid, { // 👈 USE REAL USER.UID
+        score,
+        totalQuestions,
+        questions,
+        userAnswers,
+      });
+    }
+  }, [status, user, questions, userAnswers, score, totalQuestions]);
 
   return (
     <div className={styles['quiz-container']}>
       <div className={styles["header-section"]}>
-        <div className={styles["header-text"]}>
-          <h1 className={styles["main-title"]}> 🧠 Quiz Yourself</h1>
-          <p className={styles["subtitle"]}>Test your knowledge with an AI-generated quiz</p>
-        </div>
-        <div className={styles["header-image"]}>
-          <img src="/images/study.png" alt="Study illustration" className={styles["practice-image"]} />
-        </div>
+        <div className={styles["header-text"]}> <h1 className={styles["main-title"]}> 🧠 Quiz Yourself</h1> <p className={styles["subtitle"]}>Test your knowledge with an AI-generated quiz</p> </div>
+        <div className={styles["header-image"]}> <img src="/images/study.png" alt="Study illustration" className={styles["practice-image"]} /> </div>
       </div>
       
       {status === 'loading' && <p className={styles.loading}>Generating your quiz...</p>}
-      
-      {(status === 'ready' ) && <StartScreen onStart={handleStartQuiz} />}
-
-      {status === 'active' && questions.length > 0 && (
-        <QuestionDisplay
-          question={questions[index]}
-          userAnswer={userAnswers[index]}
-          questionNumber={index + 1}
-          totalQuestions={questions.length}
-          dispatch={dispatch}
-        />
-      )}
-
-      {status === 'finished' && (
-        <ResultsScreen
-          score={score}
-          totalQuestions={questions.length}
-          questions={questions}
-          userAnswers={userAnswers}
-          dispatch={dispatch}
-        />
-      )}
+      {status === 'ready' && <StartScreen onStart={handleStartQuiz} />}
+      {status === 'active' && questions.length > 0 && ( <QuestionDisplay question={questions[index]} userAnswer={userAnswers[index]} questionNumber={index + 1} totalQuestions={questions.length} dispatch={dispatch} /> )}
+      {status === 'finished' && ( <ResultsScreen score={score} totalQuestions={questions.length} questions={questions} userAnswers={userAnswers} dispatch={dispatch} /> )}
     </div>
   );
 };
