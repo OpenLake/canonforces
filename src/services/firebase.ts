@@ -1,6 +1,6 @@
 import { signInWithPopup } from "firebase/auth";
 import { auth, db, provider } from "../lib/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, limit } from "firebase/firestore";
 import { User } from "../types/user";
 // services/firebase.js
 
@@ -203,3 +203,46 @@ export async function getContestHistory(username: string) {
 
   return contests;
 }
+
+export async function getUsersByQuery(search: string, currentUserId: string) {
+  if (!search.trim()) return [];
+
+  const usersRef = collection(db, "users");
+
+  // Query 1: username starts exactly with the typed search (case-sensitive)
+  const q1 = query(
+    usersRef,
+    where("username", ">=", search),
+    where("username", "<=", search + "\uf8ff"),
+    limit(10)
+  );
+
+  // Query 2: fullname starts exactly with the typed search (case-sensitive)
+  const q2 = query(
+    usersRef,
+    where("fullname", ">=", search),
+    where("fullname", "<=", search + "\uf8ff"),
+    limit(10)
+  );
+
+  const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
+  // Combine and remove duplicates
+  const combined = [...snap1.docs, ...snap2.docs];
+  const unique = Array.from(new Map(combined.map((doc) => [doc.id, doc])).values());
+
+  // Filter out the logged-in user
+  const filtered = unique.filter(doc => doc.id !== currentUserId);
+
+  return filtered.map((doc) => ({
+      docId: doc.id,
+      userId: doc.data().userId,
+      username: doc.data().username,
+      fullname: doc.data().fullname,
+      email: doc.data().emailAddress,
+      dateCreated: doc.data().dateCreated,
+      photoURL: doc.data().photoURL,
+    }));
+}
+
+

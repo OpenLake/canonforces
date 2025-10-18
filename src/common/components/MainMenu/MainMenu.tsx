@@ -7,14 +7,15 @@ import { doesUsernameExists } from "../../../services/firebase";
 import useUser from "../../../hooks/use-user";
 import { getContestCount } from "../../../services/firebase";
 import { getSolvedCount } from "../../../services/firebase";
-import { UpcomingContests } from "../../components/UpcomingContests/UpcomingContests"
+import { UpcomingContests } from "../../components/UpcomingContests/UpcomingContests";
+import { useRouter } from "next/router";
 
 import Image from "next/image";
 
 
 
 export default function MainMenu() {
-
+  const router = useRouter();
   const [userData, setUserData] = useState<any>(null);
 
   const user = useUser();
@@ -41,10 +42,15 @@ export default function MainMenu() {
     <div className={styles.main}>
       <div className={styles.main_menu}>
         <div className={styles.main_menu_header}>
-          <div className={styles.search}>
-            <RiSearch2Line className={styles.search_icon} size={"1.3em"}/>
-            <input type="text" name="search" className={styles.search} placeholder="Search"/>
-          </div>
+            <div className={styles.search} onClick={() => router.push("/search")}>
+              <RiSearch2Line className={styles.search_icon} size={"1.3em"} />
+              <input
+                type="text"
+                className={styles.search}
+                placeholder="Search users..."
+                readOnly
+              />
+            </div>
           <div className={styles.notification_icon}>
             <IoNotifications size={"1.2em"}/>
           </div>
