@@ -8,6 +8,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { useRouter }from 'next/router';
 import Layout from '../common/components/Layout/Layout';
+import { SocketProvider } from '../context/SocketContext';
 // import { AuthProvider,useAuth } from '../context/AuthContext';
 // -------------------------------------
 // FIX APPLIED HERE:
@@ -67,6 +68,7 @@ export default function App({ Component, pageProps }: AppProps) {
           font-family: ${poppins.style.fontFamily};
           }
           `}</style>
+        <SocketProvider>
         {showLayout ? (
           <UserContext.Provider value={user}>
             <Layout>
@@ -78,6 +80,7 @@ export default function App({ Component, pageProps }: AppProps) {
             <Component {...pageProps} />
           </UserContext.Provider>
         )}
+      </SocketProvider>
     </>
   )
 }
