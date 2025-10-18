@@ -11,6 +11,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@monaco-editor/react": "^4.7.0",
+    "@upstash/redis": "^1.35.6",
     "axios": "^1.9.0",
     "chart.js": "^4.4.9",
     "cloudinary": "^2.7.0",
