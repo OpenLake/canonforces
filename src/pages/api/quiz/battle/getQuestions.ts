@@ -15,17 +15,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const questionsJson = await redis.get(`${BATTLE_ROOM_PREFIX}${battleId}`);
+    // 👇 UPDATED: Renamed 'questionsJson' to 'questions'
+    // redis.get() auto-parses the JSON string and returns an object
+    const questions = await redis.get(`${BATTLE_ROOM_PREFIX}${battleId}`);
     
-    if (!questionsJson) {
+    if (!questions) {
       return res.status(404).json({ message: 'Battle not found or has expired.' });
     }
 
-    // Questions are stored as a JSON string
-    const questions = JSON.parse(questionsJson as string);
-    
-    // Optional: Delete the key after fetching so it can't be fetched again
-    // await redis.del(`${BATTLE_ROOM_PREFIX}${battleId}`);
+    // 👇 REMOVED: The line `JSON.parse(questionsJson as string)` is gone.
+    // 'questions' is already the object we want.
     
     res.status(200).json({ questions });
   } catch (error) {

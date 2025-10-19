@@ -45,64 +45,80 @@ export default function Signup() {
     const isInvalid = password === "" || email === "" || fullname === "" || username === "";
 
     const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setError("");
+    e.preventDefault();
+    setError("");
+    if (password.length < 6) {
+        setError("Password must be at least 6 characters.");
+        return;
+    }
+    setLoading(true);
 
-        if (password.length < 6) {
-            setError("Password must be at least 6 characters.");
+    try {
+        // 1. Check Codeforces username
+        const cfUserExists = await doesUsernameExists(username);
+        if (!cfUserExists) {
+            setError("This username does not exist on Codeforces.");
+            setLoading(false);
             return;
         }
-        setLoading(true);
 
-        try {
-            const cfUserExists = await doesUsernameExists(username);
-            console.log("cfUser",cfUserExists);
-            
-            if (!cfUserExists) {
-                setError("This username does not exist on Codeforces.");
-                setLoading(false);
-                return;
-            }
-            
-            const usernameIsTaken = await isCanonforcesUsernameTaken(username);
-            if (usernameIsTaken) {
-                setError("This Codeforces username is already registered.");
-                setLoading(false);
-                return;
-            }
-
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            
-           await setDoc(doc(db, "users", user.uid), {
-                userId: user.uid,
-                username: username.toLowerCase().trim(),
-                fullname,
-                emailAddress: email.toLowerCase(),
-                following: [],
-                followers: [],
-                dateCreated: Date.now(),
-            });
-
-            router.push(ROUTES.DASHBOARD);
-
-        } catch (err) {
-            if (isFirebaseError(err)) {
-                if (err.code === "auth/email-already-in-use") {
-                    setError("This email is already registered. Please login.");
-                } else if (err.code === "auth/invalid-email") {
-                    setError("Please enter a valid email address.");
-                } else {
-                    setError(err.message);
-                }
-            } else {
-                setError("An unexpected error occurred.");
-            }
-        } finally {
+        const usernameIsTaken = await isCanonforcesUsernameTaken(username);
+        if (usernameIsTaken) {
+            setError("This Codeforces username is already registered.");
             setLoading(false);
+            return;
         }
-    };
-    
+
+        // 2. Create Firebase Auth user
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // 3. Wait until user is fully authenticated before writing to Firestore
+        await new Promise<void>((resolve, reject) => {
+            const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+                if (currentUser && currentUser.uid === user.uid) {
+                    try {
+                        await setDoc(doc(db, "users", currentUser.uid), {
+                            userId: currentUser.uid,
+                            username: username.toLowerCase().trim(),
+                            fullname,
+                            emailAddress: email.toLowerCase(),
+                            following: [],
+                            followers: [],
+                            dateCreated: Date.now(),
+                        });
+                        resolve();
+                    } catch (err) {
+                        reject(err);
+                    } finally {
+                        unsubscribe();
+                    }
+                }
+            });
+        });
+
+        router.push(ROUTES.DASHBOARD);
+
+    } catch (err) {
+        console.error("Signup error:", err);
+        if (isFirebaseError(err)) {
+            if (err.code === "auth/email-already-in-use") {
+                setError("This email is already registered. Please login.");
+            } else if (err.code === "auth/invalid-email") {
+                setError("Please enter a valid email address.");
+            } else if (err.code === "permission-denied") {
+                setError("Permission denied while creating user document.");
+            } else {
+                setError(err.message);
+            }
+        } else {
+            setError("An unexpected error occurred.");
+        }
+    } finally {
+        setLoading(false);
+    }
+};
+
     // ## UPDATED GOOGLE LOGIN FUNCTION ##
     const handleGoogleLogin = async () => {
         setError("");

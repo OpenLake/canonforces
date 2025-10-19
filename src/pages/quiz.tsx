@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect, useState, useContext } from 'react';
 import styles from '../styles/Quiz.module.css';
 import { QuizAction, QuizState, Question } from '../types/quiz';
-import { fetchQuizQuestions } from '../services/quizService';
+import { fetchQuizQuestions } from '../services/quizClient';
 import UserContext from '../context/user'; // Using your preferred context
 import StartScreen from '../components/quiz/StartScreen';
 import QuestionDisplay from '../components/quiz/QuestionDisplay';

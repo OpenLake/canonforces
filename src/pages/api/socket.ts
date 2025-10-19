@@ -3,8 +3,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { Server as SocketIOServer } from 'socket.io';
 import { redis } from '../../lib/redis';
 import { nanoid } from 'nanoid';
-// We need to be able to call the Gemini service from the server
-import { fetchQuizQuestions } from '../../services/quizService'; 
+// 👇 CHANGED: Import our new bank function
+import { getBankedQuestions } from '../../services/quizServer'; 
 
 type NextApiResponseWithSocket = NextApiResponse & {
   socket: NetServer & {
@@ -15,16 +15,16 @@ type NextApiResponseWithSocket = NextApiResponse & {
 const MATCHMAKING_QUEUE_KEY = 'quiz:battle:queue';
 const BATTLE_ROOM_PREFIX = 'quiz:battle:room:';
 
-// Helper function to create and store a new battle
+// 👇 UPDATED: Helper function now uses getBankedQuestions
 const createBattle = async (io: SocketIOServer, playerOneId: string, playerTwoId?: string) => {
   const battleRoomId = nanoid(10);
   console.log(`Creating battle: ${battleRoomId}`);
   
   try {
-    // 1. Server fetches the quiz questions
-    const questions = await fetchQuizQuestions('Data Structures and Algorithms', 'medium', 5);
+    // 1. Server fetches the quiz questions from our Firestore Bank
+   const questions = await getBankedQuestions('Data Structures and Algorithms', 'medium', 5);
     
-    // 2. Store questions in Redis for players to fetch
+    // 2. Store questions in Redis for players to fetch (still stringified)
     await redis.set(`${BATTLE_ROOM_PREFIX}${battleRoomId}`, JSON.stringify(questions), { ex: 3600 }); // Expires in 1 hour
 
     // 3. Tell players the battle is ready
@@ -61,8 +61,8 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
       socket.on('join_random_queue', async (userId: string) => {
         const opponentId = (await redis.spop(MATCHMAKING_QUEUE_KEY)) as string | null;
 
-        if (opponentId && opponentId !== userId) {
-          console.log(`🎯 Match found: ${userId} vs ${opponentId}`);
+        if (opponentId && opponentId !== socket.id) { // Check against socket.id
+          console.log(`🎯 Match found for ${socket.id} vs ${opponentId}`);
           // Create the battle (server fetches questions)
           await createBattle(io, socket.id, opponentId);
         } else {
@@ -85,8 +85,6 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
 
       // --- 3. START PRIVATE BATTLE ---
       socket.on('start_private_battle', (lobbyRoomId: string) => {
-        // Create the battle (server fetches questions)
-        // The "lobbyRoomId" becomes the playerOneId to notify
         createBattle(io, lobbyRoomId);
       });
 
@@ -94,13 +92,11 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
       socket.on('join_battle_room', (battleRoomId: string) => {
         socket.join(battleRoomId);
         console.log(`⚔️ User ${socket.id} joined battle: ${battleRoomId}`);
-        // Announce to the other player that you are ready
         socket.to(battleRoomId).emit('opponent_ready');
       });
 
       // A player submitted an answer
       socket.on('submit_answer', (battleRoomId: string, isCorrect: boolean) => {
-        // Tell the opponent if they were right or wrong
         socket.to(battleRoomId).emit('opponent_answered', isCorrect);
       });
 
