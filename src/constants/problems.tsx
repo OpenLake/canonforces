@@ -66,6 +66,88 @@ export const problem: ProblemsMap = {
       "test_case": "4\n4\n1 3 4 2\n5\n1 5 2 4 3\n5\n2 4 5 3 1\n3\n3 1 2",
       "answer": "YES\nNO\nYES\nNO",
       "solved": false
+    },
+    {
+      "id": "p800-6",
+      "title": "Sum of Digits",
+      "description": "Given a two-digit number, you need to find the sum of its digits. For example, if the number is 23, the sum of digits is 2 + 3 = 5.",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 100) — the number of test cases.\nEach of the next t lines contains a single two-digit integer n (10 ≤ n ≤ 99).",
+      "output_format": "For each test case, output a single integer — the sum of the digits of n.",
+      "test_case": "4\n23\n45\n10\n99",
+      "answer": "5\n9\n1\n18",
+      "solved": false
+    },
+    {
+      "id": "p800-7",
+      "title": "Even or Odd Count",
+      "description": "You are given an array of n integers. Your task is to count how many of these integers are even and how many are odd.",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 100) — the number of test cases.\nEach test case consists of two lines:\nFirst line: a single integer n (1 ≤ n ≤ 100)\nSecond line: n space-separated integers aᵢ (1 ≤ aᵢ ≤ 1000)",
+      "output_format": "For each test case, output two integers: the count of even numbers and the count of odd numbers, separated by a space.",
+      "test_case": "3\n5\n1 2 3 4 5\n4\n2 4 6 8\n3\n1 3 5",
+      "answer": "2 3\n4 0\n0 3",
+      "solved": false
+    },
+    {
+      "id": "p800-8",
+      "title": "Maximum Element",
+      "description": "Given an array of integers, find the maximum element in the array.",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 100) — the number of test cases.\nEach test case consists of two lines:\nFirst line: a single integer n (1 ≤ n ≤ 100)\nSecond line: n space-separated integers aᵢ (-1000 ≤ aᵢ ≤ 1000)",
+      "output_format": "For each test case, output a single integer — the maximum element in the array.",
+      "test_case": "3\n5\n3 7 2 9 1\n4\n-5 -2 -8 -1\n3\n10 10 10",
+      "answer": "9\n-1\n10",
+      "solved": false
+    },
+    {
+      "id": "p800-9",
+      "title": "Character Count",
+      "description": "You are given a string s consisting of lowercase English letters. Find the number of times the character 'a' appears in the string.",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 100) — the number of test cases.\nEach test case consists of a single line containing a string s (1 ≤ |s| ≤ 100) consisting of lowercase English letters.",
+      "output_format": "For each test case, output a single integer — the number of times 'a' appears in the string.",
+      "test_case": "4\nabcabc\nhello\naaaaaa\nxyz",
+      "answer": "2\n0\n6\n0",
+      "solved": false
+    }
+  ],
+    '1000': [
+    {
+      "id": "p1000-1",
+      "title": "Array Equality",
+      "description": "You are given two arrays a and b, each of length n. In one operation, you can choose an index i and increase aᵢ by 1. Determine if it's possible to make both arrays equal by performing any number of operations (possibly zero).",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 100) — the number of test cases.\nEach test case consists of three lines:\nFirst line: a single integer n (1 ≤ n ≤ 100)\nSecond line: n space-separated integers a₁, a₂, ..., aₙ (1 ≤ aᵢ ≤ 100)\nThird line: n space-separated integers b₁, b₂, ..., bₙ (1 ≤ bᵢ ≤ 100)",
+      "output_format": "For each test case, print YES if it's possible to make both arrays equal, or NO otherwise.",
+      "test_case": "3\n3\n1 2 3\n2 3 4\n3\n1 2 3\n3 2 1\n2\n5 5\n3 3",
+      "answer": "YES\nNO\nNO",
+      "solved": false
+    },
+    {
+      "id": "p1000-2",
+      "title": "Divisibility Check",
+      "description": "You are given two integers x and y. Find the smallest positive integer k such that x·k is divisible by y.",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 1000) — the number of test cases.\nEach test case consists of a single line containing two integers x and y (1 ≤ x, y ≤ 10⁹).",
+      "output_format": "For each test case, output a single integer — the smallest positive integer k such that x·k is divisible by y.",
+      "test_case": "4\n3 6\n10 5\n7 3\n1 1",
+      "answer": "2\n1\n3\n1",
+      "solved": false
+    },
+    {
+      "id": "p1000-3",
+      "title": "String Palindrome",
+      "description": "You are given a string s consisting of lowercase English letters. Determine if the string is a palindrome. A palindrome is a string that reads the same forwards and backwards.",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 100) — the number of test cases.\nEach test case consists of a single line containing a string s (1 ≤ |s| ≤ 100) consisting of lowercase English letters.",
+      "output_format": "For each test case, print YES if the string is a palindrome, or NO otherwise.",
+      "test_case": "4\naba\nracecar\nhello\na",
+      "answer": "YES\nYES\nNO\nYES",
+      "solved": false
+    },
+    {
+      "id": "p1000-4",
+      "title": "Binary Representation",
+      "description": "Given a positive integer n, count the number of 1s in its binary representation.",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 1000) — the number of test cases.\nEach test case consists of a single line containing a positive integer n (1 ≤ n ≤ 10⁹).",
+      "output_format": "For each test case, output a single integer — the number of 1s in the binary representation of n.",
+      "test_case": "4\n7\n8\n15\n1",
+      "answer": "3\n1\n4\n1",
+      "solved": false
     }
   ],
   '1200': [
@@ -87,6 +169,46 @@ export const problem: ProblemsMap = {
       "output_format": "For each test case, print one integer — the minimum possible fuel tank capacity (in liters) needed to complete the trip.",
       "test_case": "1\n3\n1 2 5\n6 3 4\n2 7 1",
       "answer": "13",
+      "solved": false
+    },
+      {
+      "id": "p1200-4",
+      "title": "Subarray Sum",
+      "description": "You are given an array of n positive integers. Your task is to find if there exists a contiguous subarray with sum equal to a given integer k.",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 100) — the number of test cases.\nEach test case consists of two lines:\nFirst line: two integers n and k (1 ≤ n ≤ 100, 1 ≤ k ≤ 10⁵)\nSecond line: n space-separated integers aᵢ (1 ≤ aᵢ ≤ 1000)",
+      "output_format": "For each test case, print YES if there exists a subarray with sum equal to k, or NO otherwise.",
+      "test_case": "3\n5 7\n1 2 3 4 5\n4 10\n2 3 4 1\n3 15\n5 5 5",
+      "answer": "YES\nYES\nYES",
+      "solved": false
+    },
+    {
+      "id": "p1200-5",
+      "title": "GCD Operations",
+      "description": "You are given two positive integers a and b. In one operation, you can replace a with gcd(a, b) or replace b with gcd(a, b), where gcd(x, y) denotes the greatest common divisor of x and y. Find the minimum number of operations needed to make both numbers equal.",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 1000) — the number of test cases.\nEach test case consists of a single line containing two integers a and b (1 ≤ a, b ≤ 10⁹).",
+      "output_format": "For each test case, output a single integer — the minimum number of operations needed to make both numbers equal.",
+      "test_case": "4\n12 18\n10 10\n7 3\n100 50",
+      "answer": "2\n0\n3\n2",
+      "solved": false
+    },
+    {
+      "id": "p1200-6",
+      "title": "Longest Consecutive Sequence",
+      "description": "You are given an array of integers. Find the length of the longest consecutive sequence of identical elements in the array.",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 100) — the number of test cases.\nEach test case consists of two lines:\nFirst line: a single integer n (1 ≤ n ≤ 100)\nSecond line: n space-separated integers aᵢ (1 ≤ aᵢ ≤ 100)",
+      "output_format": "For each test case, output a single integer — the length of the longest consecutive sequence.",
+      "test_case": "3\n7\n1 1 2 2 2 3 3\n5\n5 5 5 5 5\n6\n1 2 3 4 5 6",
+      "answer": "3\n5\n1",
+      "solved": false
+    },
+    {
+      "id": "p1200-7",
+      "title": "Prime Factorization Count",
+      "description": "Given a positive integer n, find the total number of prime factors of n (counting multiplicities). For example, 12 = 2² × 3, so the answer is 3 (two 2's and one 3).",
+      "input_format": "The first line contains a single integer t (1 ≤ t ≤ 1000) — the number of test cases.\nEach test case consists of a single line containing a positive integer n (2 ≤ n ≤ 10⁶).",
+      "output_format": "For each test case, output a single integer — the total number of prime factors of n counting multiplicities.",
+      "test_case": "5\n12\n7\n16\n100\n2",
+      "answer": "3\n1\n4\n4\n1",
       "solved": false
     }
   ]
