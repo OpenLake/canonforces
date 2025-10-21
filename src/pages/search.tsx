@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { getUsersByQuery } from "../services/firebase";
 import { useDebounce } from "use-debounce";
 import styles from "../styles/Search.module.css";
 import useUser from "../hooks/use-user";
 import { User } from "../types/user";
+import Image from "next/image";
 
 export default function SearchPage() {
   const router = useRouter();
@@ -55,7 +57,7 @@ export default function SearchPage() {
         {loading && <p className={styles.loading}>Loading...</p>}
 
         {!loading && results.length === 0 && query && (
-          <p className={styles.noResults}>No users found for "{query}"</p>
+          <p className={styles.noResults}>No users found for &quot;{query}&quot;</p>
         )}
 
         {results.map((result) => (
@@ -64,9 +66,11 @@ export default function SearchPage() {
             className={styles.userCard}
             onClick={() => router.push(`/user/${result.docId}`)}
           >
-            <img
+            <Image
               src={result.photoURL || "/images/user2.jpg"}
               alt={result.username || "user"}
+              width={48}
+              height={48}
               className={styles.avatar}
             />
             <div>
