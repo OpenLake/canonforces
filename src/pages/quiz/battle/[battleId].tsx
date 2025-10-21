@@ -4,7 +4,6 @@ import { useSocket } from '../../../context/SocketContext';
 import { Question } from '../../../types/quiz';
 import styles from '../../../styles/Battle.module.css';
 
-// A component for the opponent's progress bar
 const OpponentProgress = ({ index, total }: { index: number, total: number }) => {
   return (
     <div className={styles['opponent-progress']}>
@@ -19,7 +18,6 @@ const OpponentProgress = ({ index, total }: { index: number, total: number }) =>
   );
 };
 
-// A component for the score display
 const BattleScore = ({ myScore, opScore }: { myScore: number, opScore: number }) => (
   <div className={styles['battle-score']}>
     <div className={styles['score-panel']}>
@@ -45,21 +43,19 @@ const BattlePage = () => {
   const [opIndex, setOpIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
-  const [status, setStatus] = useState('loading'); // loading, active, finished
+  const [status, setStatus] = useState('loading');
   const [opReady, setOpReady] = useState(false);
 
-  // --- 1. Fetch Questions and Join Room ---
   useEffect(() => {
     if (!battleId || !socket || !isConnected) return;
 
-    // A. Fetch the questions from our new API
     const fetchBattleQuestions = async () => {
       try {
         const res = await fetch(`/api/quiz/battle/getQuestions?battleId=${battleId}`);
         if (!res.ok) throw new Error('Battle not found');
         const data = await res.json();
         setQuestions(data.questions);
-        setStatus('waiting'); // Waiting for opponent
+        setStatus('waiting');
       } catch (err) {
         console.error(err);
         setStatus('error');
@@ -67,15 +63,12 @@ const BattlePage = () => {
     };
 
     fetchBattleQuestions();
-
-    // B. Join the battle room
     socket.emit('join_battle_room', battleId);
 
-    // C. Set up listeners
     socket.on('opponent_ready', () => {
       setOpReady(true);
       if (status === 'waiting') {
-        setStatus('active'); // Both are ready
+        setStatus('active');
       }
     });
 
@@ -94,46 +87,36 @@ const BattlePage = () => {
     };
   }, [battleId, socket, isConnected, status, router]);
 
-  // --- 2. Handle Answer Selection ---
   const handleSelect = (optionKey: string) => {
-    if (isAnswered) return; // Don't allow changing answer
+    if (isAnswered) return;
     setSelected(optionKey);
   };
 
-  // --- 3. Handle Answer Submission ---
   const handleSubmit = () => {
     if (!selected || !socket) return;
-
     setIsAnswered(true);
     const currentQuestion = questions[index];
     const isCorrect = currentQuestion.answer === selected;
-
     if (isCorrect) {
       setMyScore(s => s + 1);
     }
-    
-    // Tell opponent if we were right or wrong
     socket.emit('submit_answer', battleId, isCorrect);
   };
 
-  // --- 4. Handle Next Question ---
   const handleNext = () => {
     if (!socket) return;
-    
     const nextIndex = index + 1;
     if (nextIndex < questions.length) {
       setIndex(nextIndex);
-      setOpIndex(nextIndex); // Assume opponent moves with us (simplified)
+      setOpIndex(nextIndex);
       setSelected(null);
       setIsAnswered(false);
       socket.emit('next_question', battleId, nextIndex);
     } else {
-      // Game Over
       setStatus('finished');
     }
   };
   
-  // --- RENDER STATES ---
   if (status === 'loading') {
     return <div className={styles['battle-container']}><p>Loading Battle...</p></div>;
   }
@@ -150,7 +133,7 @@ const BattlePage = () => {
           <h2>Battle Over!</h2>
           {myScore > opScore && <h3>You Won! 🎉</h3>}
           {myScore < opScore && <h3>You Lost... 😥</h3>}
-          {myScore === opScore && <h3>It's a Draw! 🤝</h3>}
+          {myScore === opScore && <h3>It&apos;s a Draw! 🤝</h3>}
           <BattleScore myScore={myScore} opScore={opScore} />
           <button onClick={() => router.push('/quiz')} className={styles['battle-button']}>
             Back to Quiz Home
@@ -165,7 +148,6 @@ const BattlePage = () => {
      return <div className={styles['battle-container']}><p>Waiting for questions...</p></div>;
   }
 
-  // --- Main Active Battle UI ---
   return (
     <div className={styles['battle-container']}>
       <BattleScore myScore={myScore} opScore={opScore} />
