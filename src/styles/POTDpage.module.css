@@ -35,8 +35,8 @@
 /* --- Mascot (Absolutely Positioned) --- */
 .mascot {
   position: absolute;
-  top: 30px;
-  right:-15px;
+  top: 25px;
+  right:140px;
   width: 200px;
   height: auto;
   object-fit: contain;

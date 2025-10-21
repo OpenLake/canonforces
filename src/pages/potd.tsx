@@ -164,10 +164,10 @@ useEffect(() => {
   return (
     <div className={styles.pageWrapper}>
       <Image
-        src="/images/think.png"
+        src="/images/thinking.svg"
         alt="Mascot thinking"
-        width={400}
-        height={400}
+        width={600}
+        height={600}
         className={styles.mascot}
       />
       <div className={styles.container}>
