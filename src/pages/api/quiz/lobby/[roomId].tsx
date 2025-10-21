@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState, useContext } from 'react';
 import { useSocket } from '../../../../context/SocketContext';
 import UserContext from '../../../../context/user';
-import styles from '../../../../styles/Lobby.module.css';
+import styles from '../../../../styles/lobby.module.css';
 
 const LobbyPage = () => {
   const router = useRouter();
