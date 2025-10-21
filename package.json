@@ -11,6 +11,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@monaco-editor/react": "^4.7.0",
+    "@upstash/redis": "^1.35.6",
     "axios": "^1.9.0",
     "chart.js": "^4.4.9",
     "cloudinary": "^2.7.0",
@@ -24,6 +25,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.3",
     "lucide-react": "^0.545.0",
+    "nanoid": "^5.1.6",
     "next": "^15.5.4",
     "react": "^19.2.0",
     "react-chartjs-2": "^5.3.0",
@@ -31,6 +33,9 @@
     "react-dom": "^19.2.0",
     "react-icons": "^4.7.1",
     "react-intersection-observer": "^9.16.0",
+    "redis": "^5.8.3",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "sonner": "^2.0.7",
     "use-debounce": "^10.0.6"
   },
