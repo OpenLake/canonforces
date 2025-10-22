@@ -195,7 +195,7 @@ const POTDPage: React.FC = () => {
             </div>
 
             {/* Checkbox for testing */}
-            {/* {auth.currentUser && (
+            {auth.currentUser && (
               <div className="mt-4">
                 <label className="flex items-center gap-2">
                   <input
@@ -206,7 +206,7 @@ const POTDPage: React.FC = () => {
                   I have solved this problem
                 </label>
               </div>
-            )} */}
+            )}
           </div>
 
           {dailySolvers.length > 0 && (
