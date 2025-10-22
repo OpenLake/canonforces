@@ -5,8 +5,7 @@ Challenge friends, track progress, solve problems, and sharpen your DSA skills â
 
 ---
 
-<img width="80%" alt="Screenshot 2025-09-18 121949" src="https://github.com/user-attachments/assets/313051de-d1f2-40d4-b141-6378412d610d" />
-
+<img width="80%" alt="image" src="https://github.com/user-attachments/assets/9ec16061-77a0-4119-bc03-d470aaaecdd9" />
 
 
 ## ðŸš€ Features
