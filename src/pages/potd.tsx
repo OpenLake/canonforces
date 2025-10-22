@@ -91,7 +91,7 @@ const POTDPage: React.FC = () => {
     const unsubscribe = onSnapshot(submissionRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        if (data?.problemId !== problem?.id) return; // Only show solvers for the current POTD
+        if (data?.problemId !== problem?.id) return; // Only show solvers for current POTD
 
         const solversData = data?.solvers || {};
         const solversArray: Solver[] = Object.entries(solversData).map(([uid, value]: [string, any]) => ({
@@ -103,9 +103,7 @@ const POTDPage: React.FC = () => {
         solversArray.sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
         setDailySolvers(solversArray);
 
-        const solved = auth.currentUser
-          ? solversArray.some((s) => s.uid === auth.currentUser?.uid)
-          : false;
+        const solved = auth.currentUser ? solversArray.some((s) => s.uid === auth.currentUser?.uid) : false;
         setUserSolved(solved);
       } else {
         setDoc(submissionRef, { problemId: problem?.id || "", solvers: {} }, { merge: true });
@@ -164,7 +162,14 @@ const POTDPage: React.FC = () => {
         <div className={styles.header}>
           <FiCpu />
           <h1 className={styles.title}>Problem of the Day</h1>
-          <p className={styles.date}>{new Date().toLocaleDateString()}</p>
+          <p className={styles.date}>
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
         </div>
 
         <div className={styles.card}>
