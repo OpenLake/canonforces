@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { getPOTD } from "../services/potd_fetch";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { db, auth } from "../lib/firebase";
 import styles from "../styles/POTDpage.module.css";
 import Image from "next/image";
 import { formatDescription } from "../utils/formatDescription";
 
-// --- Types (assuming they are defined elsewhere or here) ---
-interface UserProfile {
-  docId: string;
-  fullname: string;
+// --- Types ---
+interface Solver {
+  uid: string;
+  username: string;
+  solvedAt: string | Date;
 }
 
 interface Problem {
@@ -21,20 +22,11 @@ interface Problem {
   answer?: string;
   test_case?: string;
   rating?: number;
-  solved?: boolean;
   tags?: string[];
 }
 
-// --- SVG Icons (no changes needed here) ---
 const FiCpu = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className={styles.cpuIcon}
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" className={styles.cpuIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
     <rect x="9" y="9" width="6" height="6"></rect>
     <line x1="9" y1="1" x2="9" y2="4"></line>
@@ -49,28 +41,14 @@ const FiCpu = () => (
 );
 
 const FiCode = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className={styles.codeIcon}
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" className={styles.codeIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <polyline points="16 18 22 12 16 6"></polyline>
     <polyline points="8 6 2 12 8 18"></polyline>
   </svg>
 );
 
 const FiAward = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className={styles.awardIcon}
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" className={styles.awardIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <circle cx="12" cy="8" r="7"></circle>
     <polyline points="8.21 13.89 7 23 12 17 17 23 15.79 13.88"></polyline>
   </svg>
@@ -80,54 +58,85 @@ const POTDPage: React.FC = () => {
   const [problem, setProblem] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dailySolvers, setDailySolvers] = useState<Solver[]>([]);
+  const [userSolved, setUserSolved] = useState(false);
 
-  // Mock solvers (later connect to Firestore submissions)
-  const solvers: UserProfile[] = [
-    { docId: "user1", fullname: "Ada Lovelace" },
-    { docId: "user2", fullname: "Grace Hopper" },
-    { docId: "user3", fullname: "Alan Turing" },
-  ];
+  const todayDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
-  // Inside your POTDPage component
-// Inside your POTDPage component
+  // Fetch POTD
+  useEffect(() => {
+    async function fetchPOTD() {
+      try {
+        const id = await getPOTD();
+        if (!id || typeof id !== "string") throw new Error("Invalid POTD ID");
 
-useEffect(() => {
-  async function fetchPOTD() {
-    try {
-      console.log("Component is mounting, about to call getPOTD...");
-      const id = await getPOTD();
+        const ref = doc(db, "problems", id);
+        const snapshot = await getDoc(ref);
+        if (!snapshot.exists()) throw new Error("Problem not found");
 
-      // This log is the most important one for the component
-      console.log("Component received this ID from getPOTD:", id); 
-
-      if (!id || typeof id !== 'string') {
-        throw new Error("ID received from getPOTD was invalid.");
+        setProblem({ id, ...(snapshot.data() as Omit<Problem, "id">) });
+      } catch (err: any) {
+        setError(err.message || "Error fetching POTD");
+      } finally {
+        setLoading(false);
       }
-      
-      const ref = doc(db, "problems", id);
-      
-      const snapshot = await getDoc(ref);
-
-      if (!snapshot.exists()) {
-        throw new Error("POTD document not found in the database.");
-      }
-
-      setProblem({ id, ...(snapshot.data() as Omit<Problem, "id">) });
-    } catch (err: any) {
-      console.error("Full error fetching POTD:", err);
-      setError(err.message || "An unknown error occurred.");
-    } finally {
-      setLoading(false);
     }
-  }
-  fetchPOTD();
-}, []);
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+    fetchPOTD();
+  }, []);
+
+  // Fetch solvers for today (real-time)
+  useEffect(() => {
+    const submissionRef = doc(db, "potd_submissions", todayDate);
+
+    const unsubscribe = onSnapshot(submissionRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data?.problemId !== problem?.id) return; // Only show solvers for the current POTD
+
+        const solversData = data?.solvers || {};
+        const solversArray: Solver[] = Object.entries(solversData).map(([uid, value]: [string, any]) => ({
+          uid,
+          username: value.username,
+          solvedAt: value.solvedAt,
+        }));
+
+        solversArray.sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
+        setDailySolvers(solversArray);
+
+        const solved = auth.currentUser
+          ? solversArray.some((s) => s.uid === auth.currentUser?.uid)
+          : false;
+        setUserSolved(solved);
+      } else {
+        setDoc(submissionRef, { problemId: problem?.id || "", solvers: {} }, { merge: true });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [todayDate, problem?.id]);
+
+  const handleMarkSolved = async () => {
+    if (!auth.currentUser || !problem) return;
+
+    const submissionRef = doc(db, "potd_submissions", todayDate);
+
+    await setDoc(
+      submissionRef,
+      {
+        problemId: problem.id,
+        solvers: {
+          [auth.currentUser.uid]: {
+            uid: auth.currentUser.uid,
+            username: auth.currentUser.displayName || auth.currentUser.email?.split("@")[0],
+            solvedAt: new Date(),
+          },
+        },
+      },
+      { merge: true }
+    );
+
+    setUserSolved(true);
+  };
 
   const getDifficulty = (rating?: number) => {
     if (!rating) return "Unknown";
@@ -143,87 +152,65 @@ useEffect(() => {
     Unknown: styles.unknown,
   };
 
-  if (loading) {
-    return (
-      <div className={styles.centerScreen}>
-        <p className={styles.loading}>Loading Problem of the Day...</p>
-      </div>
-    );
-  }
-
-  if (error || !problem) {
-    return (
-      <div className={styles.centerScreen}>
-        <p className={styles.error}>{error || "Problem not found"}</p>
-      </div>
-    );
-  }
+  if (loading) return <div className={styles.centerScreen}><p>Loading Problem of the Day...</p></div>;
+  if (error || !problem) return <div className={styles.centerScreen}><p>{error || "Problem not found"}</p></div>;
 
   const difficulty = getDifficulty(problem.rating);
 
   return (
     <div className={styles.pageWrapper}>
-      <Image
-        src="/images/think.png"
-        alt="Mascot thinking"
-        width={400}
-        height={400}
-        className={styles.mascot}
-      />
+      <Image src="/images/think.png" alt="Mascot thinking" width={400} height={400} className={styles.mascot} />
       <div className={styles.container}>
         <div className={styles.header}>
           <FiCpu />
           <h1 className={styles.title}>Problem of the Day</h1>
-          <p className={styles.date}>{today}</p>
+          <p className={styles.date}>{new Date().toLocaleDateString()}</p>
         </div>
 
         <div className={styles.card}>
           <div className={styles.cardContent}>
             <div className={styles.problemHeader}>
               <h2 className={styles.problemTitle}>{problem.title}</h2>
-              <span
-                className={`${styles.difficulty} ${difficultyColors[difficulty]}`}
-              >
-                {difficulty}
-              </span>
+              <span className={`${styles.difficulty} ${difficultyColors[difficulty]}`}>{difficulty}</span>
             </div>
 
-            {problem.description && (
-              <p className={styles.description}>{formatDescription(problem.description)}</p>
-            )}
+            {problem.description && <p className={styles.description}>{formatDescription(problem.description)}</p>}
 
             {problem.tags && problem.tags.length > 0 && (
               <div className={styles.tagsWrapper}>
                 <FiCode />
                 <div className={styles.tags}>
-                  {problem.tags.map((tag) => (
-                    <span key={tag} className={styles.tag}>
-                      {tag}
-                    </span>
-                  ))}
+                  {problem.tags.map((tag) => <span key={tag} className={styles.tag}>{tag}</span>)}
                 </div>
               </div>
             )}
 
             <div className={styles.solveButtonWrapper}>
-              <a
-                href={`/questions/${problem.id}`}
-                className={styles.solveButton}
-              >
-                Solve Today&apos;s Problem
-              </a>
+              <a href={`/questions/${problem.id}`} className={styles.solveButton}>Solve Today&apos;s Problem</a>
             </div>
+
+            {/* Checkbox for testing */}
+            {/* {auth.currentUser && (
+              <div className="mt-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={userSolved}
+                    onChange={handleMarkSolved}
+                  />
+                  I have solved this problem
+                </label>
+              </div>
+            )} */}
           </div>
 
-          {solvers.length > 0 && (
+          {dailySolvers.length > 0 && (
             <div className={styles.solverSection}>
-              <h3 className={styles.solverHeading}>
-                <FiAward /> First Solvers Today
-              </h3>
+              <h3 className={styles.solverHeading}><FiAward /> First Solvers Today</h3>
               <ul className={styles.solverList}>
-                {solvers.map((solver) => (
-                  <li key={solver.docId} className={styles.solverItem}>
-                    {solver.fullname}
+                {dailySolvers.map((solver, i) => (
+                  <li key={solver.uid} className={styles.solverItem}>
+                    🏅 {i + 1}. {solver.username}
                   </li>
                 ))}
               </ul>
