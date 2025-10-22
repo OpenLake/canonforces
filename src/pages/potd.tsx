@@ -150,8 +150,8 @@ const POTDPage: React.FC = () => {
     Unknown: styles.unknown,
   };
 
-  if (loading) return <div className={styles.centerScreen}><p>Loading Problem of the Day...</p></div>;
-  if (error || !problem) return <div className={styles.centerScreen}><p>{error || "Problem not found"}</p></div>;
+  if (loading) return <div className={styles.centerScreen}><p className={styles.loading}>Loading Problem of the Day...</p></div>;
+  if (error || !problem) return <div className={styles.centerScreen}><p className={styles.error}>{error || "Problem not found"}</p></div>;
 
   const difficulty = getDifficulty(problem.rating);
 
