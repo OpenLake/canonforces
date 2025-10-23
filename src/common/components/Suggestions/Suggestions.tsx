@@ -59,9 +59,7 @@ export default function Suggestions({ rating }: SuggestionsProps) {
   return (
     <div className={styles.suggestions}>
       {/* Contests Sidebar */}
-      <div className={styles.contestsSection}>
-        <ContestsSidebar />
-      </div>
+      
 
       <div className={styles.user}>
         <div className={styles.header}>
@@ -91,6 +89,10 @@ export default function Suggestions({ rating }: SuggestionsProps) {
         <h2>Rating</h2>
         <SlGraph size={"2.7em"} />
         <span>{rating ? rating : 0}</span>
+      </div>
+
+      <div className={styles.contestsSection}>
+        <ContestsSidebar />
       </div>
     </div>
   );
