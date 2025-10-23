@@ -4,11 +4,11 @@ import styles from "../styles/Home.module.css";
 import Footer from "../common/components/Footer/Footer";
 import {
   BsArrowRightCircle,
+  BsTrophy,
   BsGraphUp,
   BsCalendar3,
   BsAward,
-  BsController,
-  BsTrophy
+  BsController
 } from "react-icons/bs";
 import dynamic from "next/dynamic";
 import Loading from "../common/components/Loading/Loading";
@@ -21,21 +21,12 @@ const DynamicFooter = dynamic(() => import("../common/components/Footer/Footer")
   loading: () => <Loading />
 });
 
-const ContestsSidebar = dynamic<{}>(
-  () => import("../common/components/ContestsSidebar/ContestsSidebar").then(mod => mod.ContestsSidebar),
-  { 
-    loading: () => <div className="w-80"><Loading /></div>,
-    ssr: false
-  }
-);
-
 export default function Home() {
   return (
     <div className="flex flex-col w-full items-center">
       <DynamicHeader />
       <hr className="flex w-9/12 h-px fc-hr border-0" />
-      <div className="flex w-full max-w-7xl px-4">
-        <main className="flex-1 max-w-4xl mx-auto">
+      <main className="flex flex-col w-full items-center p-0">
         <h1 className={`f-100 font-bold fc-black ${styles.fs_big} tracking-tight`}>
           LEARN & CODE
         </h1>
@@ -74,24 +65,11 @@ export default function Home() {
             />
           </div>
         </div>
-        </main>
-        
-        {/* Right Sidebar */}
-        <aside className="hidden lg:block w-80 ml-8 space-y-6">
-          <ContestsSidebar />
-        </aside>
-      </div>
+      </main>
 
-      {/* Mobile Contests Section */}
-      <div className="lg:hidden w-full px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <ContestsSidebar />
-        </div>
-      </div>
-
-      {/* Features Section */}
+      {/* Features Section - moved up closer */}
       <div className="w-full mt-10 lg:mt-14 bg-gray-50 py-10 lg:py-12">
-        <div className="w-full max-w-4xl mx-auto px-4">
+        <div className="w-9/12 mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold text-center fc-black mb-8 lg:mb-12">
             Why Choose CanonForces?
           </h2>
@@ -167,9 +145,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Call to Action Buttons */}
-      <div className="w-full flex justify-center py-8 bg-white px-4">
-        <div className="w-full max-w-4xl">
+      {/* Call to Action Buttons BELOW Features */}
+      <div className="w-full flex justify-center py-8 bg-white">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Start Competing Now Button (Blue) */}
            <button className={`${styles.button_blue} hover:bg-blue-700 text-white font-semibold px-5 py-3 rounded-lg shadow transition-all duration-200 hover:scale-105`}>
@@ -180,7 +157,6 @@ export default function Home() {
             View Demo
             <BsArrowRightCircle size={"1.3em"} />
           </button>
-        </div>
         </div>
       </div>
 
