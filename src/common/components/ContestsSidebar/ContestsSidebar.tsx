@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "./ContestsSidebar.module.css";
 import type { Contest, ContestsResponse } from "../../../pages/api/contests";
-import { BsTrophy, BsCalendar3, BsClock, BsLightbulb, BsStarFill } from "react-icons/bs";
-import { FaUserFriends } from "react-icons/fa";
+import { BsTrophy, BsCalendar3, BsClock } from "react-icons/bs";
 
 export function ContestsSidebar() {
   const [contests, setContests] = useState<Contest[]>([]);
@@ -76,76 +75,12 @@ export function ContestsSidebar() {
     );
   }
 
-  // Mock data for suggestions and rating
-  const suggestions = [
-    { id: 1, name: "Dynamic Programming", count: 24 },
-    { id: 2, name: "Graph Theory", count: 18 },
-    { id: 3, name: "Binary Search", count: 15 },
-  ];
-
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <div>Loading contests...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.container}>
-        <div className="text-red-500">Error loading contests</div>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.container}>
-      {/* Suggestions Section */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-            <FaUserFriends className="mr-2 text-blue-600" />
-            Suggested Topics
-          </h3>
-          <button className="text-sm text-blue-600 hover:text-blue-800">See All</button>
-        </div>
-        <div className="space-y-2">
-          {suggestions.map((topic) => (
-            <div key={topic.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-              <span className="text-gray-700">{topic.name}</span>
-              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                {topic.count} problems
-              </span>
-            </div>
-          ))}
-        </div>
+      <div className={styles.header}>
+        <BsTrophy className={styles.headerIcon} />
+        <h3 className={styles.title}>Contests</h3>
       </div>
-
-      {/* Rating Box */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-4 text-white mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold">Your Rating</h3>
-          <BsStarFill className="text-yellow-400" />
-        </div>
-        <div className="flex items-baseline">
-          <span className="text-2xl font-bold">1,524</span>
-          <span className="ml-2 text-sm text-blue-100">+24 this week</span>
-        </div>
-        <button className="mt-3 w-full bg-white text-blue-800 font-medium py-2 rounded-lg text-sm hover:bg-blue-50 transition-colors">
-          View Progress
-        </button>
-      </div>
-
-      {/* Contests Section */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-            <BsTrophy className="mr-2 text-blue-600" />
-            Upcoming Contests
-          </h3>
-          <button className="text-sm text-blue-600 hover:text-blue-800">View All</button>
-        </div>
       
       <div className={styles.contestsList}>
         {contests.length === 0 ? (
@@ -189,9 +124,6 @@ export function ContestsSidebar() {
           ))
         )}
       </div>
-    </div>
-  );
-}
 
       {contests.length > 0 && (
         <div className={styles.footer}>
