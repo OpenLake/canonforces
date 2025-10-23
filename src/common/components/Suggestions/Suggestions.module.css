@@ -185,3 +185,9 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Contests section styling */
+.contestsSection {
+  margin-bottom: 30px;
+  width: 100%;
+}

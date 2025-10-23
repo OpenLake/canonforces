@@ -2,6 +2,7 @@
 
 import styles from "./Suggestions.module.css";
 import UserSuggestionCard from "./UserSuggestions/UserSuggestions";
+import { ContestsSidebar } from "../ContestsSidebar/ContestsSidebar";
 import { SlGraph } from "react-icons/sl";
 import { useEffect, useState } from "react";
 import { getAllUsers } from "../../../services/firebase"; 
@@ -57,6 +58,11 @@ export default function Suggestions({ rating }: SuggestionsProps) {
 
   return (
     <div className={styles.suggestions}>
+      {/* Contests Sidebar */}
+      <div className={styles.contestsSection}>
+        <ContestsSidebar />
+      </div>
+
       <div className={styles.user}>
         <div className={styles.header}>
           <h1>Suggestion for you</h1>

@@ -4,7 +4,7 @@ import * as ROUTES from "../../../constants/routes";
 import styles from "./NavigationMenu.module.css";
 import Link from "next/link";
 import { AiFillHome } from "react-icons/ai";
-import { SiGooglemessages } from "react-icons/si";
+import { BsTrophy } from "react-icons/bs";
 import { FaRegAddressBook, FaRegBookmark, FaRegQuestionCircle, FaUser } from "react-icons/fa";
 import { TbSwords } from "react-icons/tb";
 import { IoMdLogOut } from "react-icons/io";
@@ -53,9 +53,9 @@ export default function NavigationMenu() {
                 <AiFillHome size={"1.5em"}/> <span>Home</span>
               </Link>
             </li>
-            <li className={isActive(ROUTES.MESSAGES) ? styles.active : ''}>
-              <Link href={ROUTES.MESSAGES}>
-                <SiGooglemessages size={"1.5em"}/> <span>Messages</span>
+            <li className={isActive(ROUTES.CONTESTS_LIST) ? styles.active : ''}>
+              <Link href={ROUTES.CONTESTS_LIST}>
+                <BsTrophy size={"1.5em"}/> <span>Contests</span>
               </Link>
             </li>
             <li className={isActive(ROUTES.STATS) ? styles.active : ''}>
