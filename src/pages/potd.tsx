@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { getPOTD } from "../services/potd_fetch";
-import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot, increment, updateDoc } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import styles from "../styles/POTDpage.module.css";
 import Image from "next/image";
 import { formatDescription } from "../utils/formatDescription";
+import { toast } from "sonner";
 
 // --- Types ---
 interface Solver {
@@ -23,6 +24,12 @@ interface Problem {
   test_case?: string;
   rating?: number;
   tags?: string[];
+}
+
+interface UserData {
+  coins: number;
+  streak: number;
+  lastSolvedDate?: string;
 }
 
 const FiCpu = () => (
@@ -60,6 +67,8 @@ const POTDPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [dailySolvers, setDailySolvers] = useState<Solver[]>([]);
   const [userSolved, setUserSolved] = useState(false);
+  const [userData, setUserData] = useState<UserData>({ coins: 0, streak: 0 });
+  const [isUpdatingCoins, setIsUpdatingCoins] = useState(false);
 
   const todayDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
@@ -113,27 +122,107 @@ const POTDPage: React.FC = () => {
     return () => unsubscribe();
   }, [todayDate, problem?.id]);
 
+  // Fetch user data (coins and streak)
+  useEffect(() => {
+    if (!auth.currentUser) return;
+
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    const unsubscribe = onSnapshot(userRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data() as UserData;
+        setUserData({
+          coins: data.coins || 0,
+          streak: data.streak || 0,
+          lastSolvedDate: data.lastSolvedDate
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [auth.currentUser]);
+
   const handleMarkSolved = async () => {
-    if (!auth.currentUser || !problem) return;
+    if (!auth.currentUser || !problem || userSolved || isUpdatingCoins) return;
 
-    const submissionRef = doc(db, "potd_submissions", todayDate);
-
-    await setDoc(
-      submissionRef,
-      {
-        problemId: problem.id,
-        solvers: {
-          [auth.currentUser.uid]: {
-            uid: auth.currentUser.uid,
-            username: auth.currentUser.displayName || auth.currentUser.email?.split("@")[0],
-            solvedAt: new Date(),
+    setIsUpdatingCoins(true);
+    
+    try {
+      const submissionRef = doc(db, "potd_submissions", todayDate);
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      
+      // Check if user document exists, create if not
+      const userDoc = await getDoc(userRef);
+      if (!userDoc.exists()) {
+        await setDoc(userRef, {
+          coins: 0,
+          streak: 0,
+          lastSolvedDate: null,
+          uid: auth.currentUser.uid,
+          email: auth.currentUser.email,
+          displayName: auth.currentUser.displayName
+        });
+      }
+      
+      // Calculate streak
+      const currentUserData = userDoc.exists() ? userDoc.data() as UserData : { coins: 0, streak: 0 };
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+      
+      let newStreak = 1;
+      if (currentUserData.lastSolvedDate === yesterdayStr) {
+        newStreak = (currentUserData.streak || 0) + 1;
+      } else if (currentUserData.lastSolvedDate === todayDate) {
+        // Already solved today, don't update
+        return;
+      }
+      
+      // Update user coins and streak
+      await updateDoc(userRef, {
+        coins: increment(5),
+        streak: newStreak,
+        lastSolvedDate: todayDate
+      });
+      
+      // Add to daily solvers
+      await setDoc(
+        submissionRef,
+        {
+          problemId: problem.id,
+          solvers: {
+            [auth.currentUser.uid]: {
+              uid: auth.currentUser.uid,
+              username: auth.currentUser.displayName || auth.currentUser.email?.split("@")[0],
+              solvedAt: new Date(),
+            },
           },
         },
-      },
-      { merge: true }
-    );
-
-    setUserSolved(true);
+        { merge: true }
+      );
+      
+      // Update local state
+      setUserSolved(true);
+      setUserData(prev => ({
+        ...prev,
+        coins: prev.coins + 5,
+        streak: newStreak
+      }));
+      
+      // Show success toast
+      toast.success(
+        `🎉 You earned +5 coins and ${newStreak > 1 ? `continued your ${newStreak}-day streak!` : 'started a new streak!'}`,
+        {
+          duration: 4000,
+          position: 'top-center',
+        }
+      );
+      
+    } catch (error) {
+      console.error('Error marking problem as solved:', error);
+      toast.error('Failed to mark problem as solved. Please try again.');
+    } finally {
+      setIsUpdatingCoins(false);
+    }
   };
 
   const getDifficulty = (rating?: number) => {
@@ -141,6 +230,15 @@ const POTDPage: React.FC = () => {
     if (rating < 1200) return "Easy";
     if (rating < 1800) return "Medium";
     return "Hard";
+  };
+
+  const getDifficultyEmoji = (difficulty: string) => {
+    switch (difficulty) {
+      case "Easy": return "🟢";
+      case "Medium": return "🟠";
+      case "Hard": return "🔴";
+      default: return "⚪";
+    }
   };
 
   const difficultyColors: Record<string, string> = {
@@ -176,7 +274,9 @@ const POTDPage: React.FC = () => {
           <div className={styles.cardContent}>
             <div className={styles.problemHeader}>
               <h2 className={styles.problemTitle}>{problem.title}</h2>
-              <span className={`${styles.difficulty} ${difficultyColors[difficulty]}`}>{difficulty}</span>
+              <span className={`${styles.difficultyBadge} ${difficultyColors[difficulty]}`}>
+                {getDifficultyEmoji(difficulty)} {difficulty}
+              </span>
             </div>
 
             {problem.description && <p className={styles.description}>{formatDescription(problem.description)}</p>}
@@ -194,16 +294,24 @@ const POTDPage: React.FC = () => {
               <a href={`/questions/${problem.id}`} className={styles.solveButton}>Solve Today&apos;s Problem</a>
             </div>
 
-            {/* Checkbox for testing */}
+            {/* Mark as solved section */}
             {auth.currentUser && (
-              <div className="mt-4">
-                <label className="flex items-center gap-2">
+              <div className={styles.solveStatusWrapper}>
+                <div className={styles.userStats}>
+                  <span className={styles.coinDisplay}>💰 {userData.coins} coins</span>
+                  <span className={styles.streakDisplay}>🔥 {userData.streak} day streak</span>
+                </div>
+                <label className={styles.solveCheckbox}>
                   <input
                     type="checkbox"
                     checked={userSolved}
                     onChange={handleMarkSolved}
+                    disabled={isUpdatingCoins}
+                    className={styles.checkboxInput}
                   />
-                  I have solved this problem
+                  <span className={styles.checkboxLabel}>
+                    {isUpdatingCoins ? 'Updating...' : userSolved ? '✅ Solved!' : 'Mark as solved'}
+                  </span>
                 </label>
               </div>
             )}

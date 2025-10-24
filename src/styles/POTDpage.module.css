@@ -47,7 +47,7 @@
 .card {
   background: #ffffff;
   border-radius: 1rem;
-  box-shadow: 0 10px S25px -5px rgba(0, 0, 0, 0.07), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   width: 100%;
   overflow: hidden;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -83,6 +83,23 @@
   font-weight: 600;
   border-radius: 9999px;
   flex-shrink: 0; /* Prevents the tag from shrinking */
+}
+
+.difficultyBadge {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.difficultyBadge:hover {
+  transform: translateY(-1px);
 }
 
 .easy {
@@ -153,6 +170,84 @@
 .solveButton:hover {
   background: #4338ca;
   transform: translateY(-2px);
+}
+
+.solveStatusWrapper {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.userStats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.coinDisplay, .streakDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #374151;
+  padding: 0.5rem 1rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.coinDisplay {
+  color: #f59e0b;
+}
+
+.streakDisplay {
+  color: #ef4444;
+}
+
+.solveCheckbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #374151;
+  transition: color 0.2s ease;
+}
+
+.solveCheckbox:hover {
+  color: #4f46e5;
+}
+
+.checkboxInput {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: #4f46e5;
+  cursor: pointer;
+}
+
+.checkboxInput:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.checkboxLabel {
+  transition: color 0.2s ease;
+}
+
+.solveCheckbox:has(.checkboxInput:checked) .checkboxLabel {
+  color: #059669;
+  font-weight: 700;
+}
+
+.solveCheckbox:has(.checkboxInput:disabled) {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .solverSection {
@@ -240,5 +335,20 @@
   }
   .problemTitle {
     font-size: 1.4rem;
+  }
+  
+  .problemHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .userStats {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .difficultyBadge {
+    align-self: flex-start;
   }
 }
