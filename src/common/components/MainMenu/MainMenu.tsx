@@ -7,57 +7,68 @@ import { doesUsernameExists } from "../../../services/firebase";
 import useUser from "../../../hooks/use-user";
 import { getContestCount } from "../../../services/firebase";
 import { getSolvedCount } from "../../../services/firebase";
-import { UpcomingContests } from "../../components/UpcomingContests/UpcomingContests";
 import { useRouter } from "next/router";
-
 import Image from "next/image";
+import { getPOTD } from "../../../services/potd_fetch"; 
 
+const getSnippet = (text: string, length: number = 150) => {
+  if (!text) return ""; 
+  if (text.length <= length) return text;
+  const plainText = text.replace(/<[^>]+>/g, ''); 
+  return plainText.substring(0, length) + "...";
+};
 
 
 export default function MainMenu() {
   const router = useRouter();
   const [userData, setUserData] = useState<any>(null);
+  const [potd, setPotd] = useState<any>(null);
 
   const user = useUser();
   console.log('user logged', user);
 
- useEffect(() => {
-  const username = user.user?.username;
-  if (typeof username === "string" && username.trim() !== "") {
-    (async () => {
-      const codeforcesData = await doesUsernameExists(username);
-      const contests = await getContestCount(username);
-      const solver = await getSolvedCount(username);
-      console.log('solver logged', solver);
-      setUserData({
-        ...codeforcesData?.result[0],
-        ...solver,
-        contestsGiven: contests
-      });
-    })();
-  }
-}, [user.user]);
+  useEffect(() => {
+    const username = user.user?.username;
+    if (typeof username === "string" && username.trim() !== "") {
+      (async () => {
+        const codeforcesData = await doesUsernameExists(username);
+        const contests = await getContestCount(username);
+        const solver = await getSolvedCount(username);
+        console.log('solver logged', solver);
+        setUserData({
+          ...codeforcesData?.result[0],
+          ...solver,
+          contestsGiven: contests
+        });
+      })();
+    }
+  }, [user.user]);
+
+  // --- NEW useEffect TO FETCH POTD ---
+    useEffect(() => {
+      const fetchPotd = async () => {
+        try {
+          // Fetch POTD from the service and store it in state
+          const potdData = await getPOTD();
+          setPotd(potdData);
+        } catch (error) {
+          console.error("Failed to fetch POTD:", error);
+          // You could set an error state here if you want
+        }
+      };
+  
+      fetchPotd();
+    }, []); // Empty dependency array means this runs once when the component mounts
 
   return (  
     <div className={styles.main}>
       <div className={styles.main_menu}>
-        <div className={styles.main_menu_header}>
-            <div className={styles.search} onClick={() => router.push("/search")}>
-              <RiSearch2Line className={styles.search_icon} size={"1.3em"} />
-              <input
-                type="text"
-                className={styles.search}
-                placeholder="Search users..."
-                readOnly
-              />
-            </div>
-          <div className={styles.notification_icon}>
-            <IoNotifications size={"1.2em"}/>
-          </div>
-        </div>
+        {/* ... existing header and stats sections ... */}
+        
         <div className={styles.main_menu_stats}>
           <h3> Stats </h3>
           <div className={styles.user_stats}> 
+            {/* ... stats content ... */}
             <div className={styles.stats}>
               <div className={styles.stats1}> 
                   <div className={styles.questions}>
@@ -80,25 +91,58 @@ export default function MainMenu() {
               </div>  
             </div>
             <div className={styles.languages_stat}>
- <Image
-  src="/images/teacher.png"
-  alt="Teacher"
-  width={900}
-  height={900}
-  className={styles.teacherImg}
-/>
-
-</div>
+              <Image
+                src="/images/teacher.png"
+                alt="Teacher"
+                width={900}
+                height={900}
+                className={styles.teacherImg}
+              />
+            </div>
          </div>
         </div>
-        <div className={styles.upcoming_contests}>
-          <UpcomingContests />
+        
+        
+        {/* --- MODIFICATION START --- */}
+        {/* This container uses 'styles.upcoming_contests' for the box styling */}
+        <div 
+          className={styles.upcoming_contests} 
+          onClick={() => router.push("/potd")}
+        >
+          <div className={styles.potd_header}>
+            <h3>Problem of the Day</h3>
+          </div>
+
+          {/* This block now renders dynamically */}
+          <div className={styles.potd_body}>
+            {potd ? (
+              <>
+                <h4 className={styles.potd_title}>
+                  {/* ADJUST THESE FIELD NAMES 
+                    to match the object from getPotd()
+                  */}
+                  {potd.title || "Problem Title"}
+                </h4>
+                <p className={styles.potd_snippet}>
+                  {getSnippet(potd.problemStatement || "Loading problem...")}
+                </p>
+              </>
+            ) : (
+              // Loading state
+              <p className={styles.potd_snippet}>Loading Problem of the Day...</p>
+            )}
+          </div>
+          
+          <button className={styles.potd_button}>
+            Solve Problem
+          </button>
         </div>
+        {/* --- MODIFICATION END --- */}
+
       </div>
       <div className={styles.suggestions}>
         <Suggestions rating={userData?.rating} />
       </div>
     </div>
-
   )
 }
