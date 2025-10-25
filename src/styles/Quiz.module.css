@@ -1067,3 +1067,63 @@
     transform: rotate(360deg);
   }
 }
+
+/* ==========================================================================
+   Fullscreen Quiz Mode Styles
+   ========================================================================== */
+
+/* When quiz is active, make the page wrapper fullscreen */
+.quiz-page-wrapper.fullscreen-mode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff;
+  z-index: 9999;
+  overflow-y: auto;
+  padding: 0;
+  margin: 0;
+}
+
+/* Container for fullscreen quiz content */
+.quiz-fullscreen-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #ffffff;
+}
+
+/* Adjust quiz form in fullscreen mode */
+.fullscreen-mode .quiz-form {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments for fullscreen mode */
+@media (max-width: 768px) {
+  .quiz-fullscreen-container {
+    padding: 1rem;
+  }
+  
+  .fullscreen-mode .quiz-form {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .quiz-fullscreen-container {
+    padding: 0.5rem;
+  }
+  
+  .fullscreen-mode .quiz-form {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+}
