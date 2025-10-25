@@ -40,7 +40,6 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
 
   const handleStartSolo = () => {
     onStart(selectedTopic, selectedDifficulty, totalQuestions);
-    document.documentElement.requestFullscreen().catch(err => console.log(err.message));
   };
 
   const handleCreatePrivateBattle = async () => {
@@ -65,7 +64,6 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
     socket.emit('join_random_queue', user.uid);
 
     socket.on('match_found', (roomId: string) => {
-      document.documentElement.requestFullscreen().catch(err => console.log(err.message));
       router.push(`/quiz/battle/${roomId}`);
     });
   };

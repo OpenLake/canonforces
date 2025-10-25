@@ -21,7 +21,6 @@ const QuestionDisplay: React.FC<Props> = ({ question, userAnswer, questionNumber
   const handleNext = useCallback(() => {
     if (questionNumber === totalQuestions) {
       dispatch({ type: 'FINISH_QUIZ' });
-      document.exitFullscreen().catch(err => console.log(err.message));
     } else {
       dispatch({ type: 'NEXT_QUESTION' });
     }

@@ -78,17 +78,20 @@ const QuizPage: React.FC = () => {
   }, [status, user, questions, userAnswers, score, totalQuestions]);
 
   return (
-    <div className={styles['quiz-page-wrapper']}>
+    <div className={`${styles['quiz-page-wrapper']} ${status === 'active' ? styles['fullscreen-mode'] : ''}`}>
       {/* 👇 This is the header section, now restored to the main page layout 👇 */}
-      <div className={styles["header-section"]}>
-        <div className={styles["header-text"]}>
-          <h1 className={styles["main-title"]}> 🧠 Quiz Yourself</h1>
-          <p className={styles["subtitle"]}>Test your knowledge with an AI-generated quiz</p>
+      {/* Hide header when quiz is active to provide distraction-free environment */}
+      {status !== 'active' && (
+        <div className={styles["header-section"]}>
+          <div className={styles["header-text"]}>
+            <h1 className={styles["main-title"]}> 🧠 Quiz Yourself</h1>
+            <p className={styles["subtitle"]}>Test your knowledge with an AI-generated quiz</p>
+          </div>
+          <div className={styles["header-image"]}>
+            <img src="/images/study.png" alt="Study illustration" className={styles["practice-image"]} />
+          </div>
         </div>
-        <div className={styles["header-image"]}>
-          <img src="/images/study.png" alt="Study illustration" className={styles["practice-image"]} />
-        </div>
-      </div>
+      )}
 
       {/* The rest of the page logic correctly renders the right component below the header */}
       {status === 'loading' && <p className={styles.loading}>Generating your quiz...</p>}
@@ -96,13 +99,15 @@ const QuizPage: React.FC = () => {
       {status === 'ready' && <StartScreen onStart={handleStartQuiz} />}
 
       {status === 'active' && questions.length > 0 && (
-        <QuestionDisplay
-          question={questions[index]}
-          userAnswer={userAnswers[index]}
-          questionNumber={index + 1}
-          totalQuestions={questions.length}
-          dispatch={dispatch}
-        />
+        <div className={styles['quiz-fullscreen-container']}>
+          <QuestionDisplay
+            question={questions[index]}
+            userAnswer={userAnswers[index]}
+            questionNumber={index + 1}
+            totalQuestions={questions.length}
+            dispatch={dispatch}
+          />
+        </div>
       )}
 
       {status === 'finished' && (
