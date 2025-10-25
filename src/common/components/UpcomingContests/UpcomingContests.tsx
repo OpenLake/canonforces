@@ -46,52 +46,39 @@ export function UpcomingContests() {
   };
 
   if (loading) {
-    return (
-      <div>
-        <h3 className={styles.title}>Upcoming Contests</h3>
-        <div className={styles.loading}>Loading contests...</div>
-      </div>
-    );
+    // UPDATED: Removed wrapper <div> and <h3>
+    return <div className={styles.loading}>Loading contests...</div>;
   }
 
   if (error) {
-    return (
-      <div>
-        <h3 className={styles.title}>Upcoming Contests</h3>
-        <div className={styles.error}>Error: {error}</div>
-      </div>
-    );
+    // UPDATED: Removed wrapper <div> and <h3>
+    return <div className={styles.error}>Error: {error}</div>;
   }
 
+  // UPDATED: Removed outer <div> and <h3>.
+  // The .contestsList div is now the main container.
   return (
-    <div>
-      <h3 className={styles.title}>Upcoming Contests</h3>
-      <div className={styles.contestsList}>
-        {contests.length === 0 ? (
-          <div className={styles.noContests}>No upcoming contests</div>
-        ) : (
-          contests.map((contest: Contest, index: number) => (
-            <a
-              key={index}
-              href={contest.contestLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.contestCard}
-            >
-              <div className={styles.contestHeader}>
-                <span className={styles.platform}>{contest.platform}</span>
-                <span className={styles.duration}>
-                  {contest.contestDuration}
-                </span>
-              </div>
-              <h4 className={styles.contestName}>{contest.contestName}</h4>
-              <p className={styles.startTime}>
-                {formatDate(contest.startTime)}
-              </p>
-            </a>
-          ))
-        )}
-      </div>
+    <div className={styles.contestsList}>
+      {contests.length === 0 ? (
+        <div className={styles.noContests}>No upcoming contests</div>
+      ) : (
+        contests.map((contest: Contest, index: number) => (
+          <a
+            key={index}
+            href={contest.contestLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.contestCard}
+          >
+            <div className={styles.contestHeader}>
+              <span className={styles.platform}>{contest.platform}</span>
+              <span className={styles.duration}>{contest.contestDuration}</span>
+            </div>
+            <h4 className={styles.contestName}>{contest.contestName}</h4>
+            <p className={styles.startTime}>{formatDate(contest.startTime)}</p>
+          </a>
+        ))
+      )}
     </div>
   );
 }
