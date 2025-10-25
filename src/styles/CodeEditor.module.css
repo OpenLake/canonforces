@@ -1,11 +1,12 @@
 /* Main Container */
 .container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   background: #0d1117;
   color: #e6edf3;
   font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
   overflow: hidden;
+  position: relative;
 }
 
 /* Left Panel - Problem Description */
@@ -17,6 +18,9 @@
   flex-direction: column;
   transition: all 0.3s ease;
   min-width: 350px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .leftPane.collapsed {
@@ -39,6 +43,7 @@
   font-weight: 600;
   color: #f0f6fc;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .collapseBtn {
@@ -63,7 +68,10 @@
 .problemContent {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1.5rem;
+  /* Smooth scrolling for better UX */
+  scroll-behavior: smooth;
 }
 
 /* Problem Header */
@@ -117,13 +125,12 @@
 }
 
 .sectionTitle {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: #79c0ff;
   margin: 0 0 0.75rem 0;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.875rem;
+  letter-spacing: 0.05em;
 }
 
 .description {
@@ -144,7 +151,7 @@
   border: 1px solid #30363d;
   border-radius: 6px;
   padding: 1rem;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
   font-size: 0.875rem;
   color: #e6edf3;
   overflow-x: auto;
@@ -152,6 +159,8 @@
   word-break: break-word;
   margin: 0;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .sampleInput {
@@ -176,6 +185,12 @@
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: sticky;
+  top: 0;
+  right: 0;
 }
 
 .rightPane.expanded {
@@ -188,6 +203,7 @@
   flex-direction: column;
   background: #0d1117;
   overflow: hidden;
+  height: 100%;
 }
 
 /* Loading States */
@@ -252,20 +268,29 @@
 }
 
 /* Scrollbar Styling */
-.problemContent::-webkit-scrollbar {
-  width: 8px;
+.problemContent::-webkit-scrollbar,
+.leftPane::-webkit-scrollbar,
+.rightPane::-webkit-scrollbar {
+  width: 10px;
 }
 
-.problemContent::-webkit-scrollbar-track {
+.problemContent::-webkit-scrollbar-track,
+.leftPane::-webkit-scrollbar-track,
+.rightPane::-webkit-scrollbar-track {
   background: #161b22;
 }
 
-.problemContent::-webkit-scrollbar-thumb {
+.problemContent::-webkit-scrollbar-thumb,
+.leftPane::-webkit-scrollbar-thumb,
+.rightPane::-webkit-scrollbar-thumb {
   background: #30363d;
-  border-radius: 4px;
+  border-radius: 5px;
+  border: 2px solid #161b22;
 }
 
-.problemContent::-webkit-scrollbar-thumb:hover {
+.problemContent::-webkit-scrollbar-thumb:hover,
+.leftPane::-webkit-scrollbar-thumb:hover,
+.rightPane::-webkit-scrollbar-thumb:hover {
   background: #484f58;
 }
 
@@ -281,6 +306,8 @@
     min-width: unset;
     border-right: none;
     border-bottom: 1px solid #30363d;
+    height: auto;
+    position: relative;
   }
   
   .leftPane.collapsed {
@@ -289,6 +316,8 @@
   
   .rightPane {
     flex: 1;
+    position: relative;
+    height: auto;
   }
   
   .problemContent {
@@ -388,52 +417,25 @@
   }
 }
 
-.container {
-  height: 100vh;
-  overflow: hidden;
-}
-
-.leftPane {
-  overflow-y: auto;
-}
-
-.rightPane {
-  overflow-y: auto;
-}
-
-.editorContainer {
-  height: 100%;
-  overflow-y: auto;
-}
-
-/* Add these to your CodeEditor.module.css file */
-
 /* Style for the new Back button */
 .backBtn {
   background: none;
-  border: 1px solid #ccc;
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 4px;
+  border: 1px solid #30363d;
+  color: #f0f6fc;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
-  margin-right: auto; /* Pushes other items to the right */
+  font-size: 0.875rem;
+  margin-right: auto;
   transition: background-color 0.2s, border-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .backBtn:hover {
-  background-color: #444;
-  border-color: #888;
-}
-
-/* Style for the panel header to accommodate the new button */
-.panelHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* This might need adjustment */
-  gap: 1rem; /* Adds space between header items */
-  padding: 10px 15px;
-  border-bottom: 1px solid #333;
+  background-color: #21262d;
+  border-color: #484f58;
 }
 
 /* Style for the dedicated Expand button */
@@ -442,22 +444,23 @@
   left: 10px;
   top: 15px;
   z-index: 100;
-  background-color: #333;
+  background-color: #238636;
   color: white;
-  border: 1px solid #555;
+  border: 1px solid #2ea043;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
+  transition: background-color 0.2s;
 }
 
 .expandBtn:hover {
-  background-color: #444;
+  background-color: #2ea043;
 }
 
 /* Reduced motion support */
