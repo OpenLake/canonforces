@@ -1,13 +1,16 @@
 .main {
   flex: 1;
-  margin-left: 15rem;
-  padding: 2rem;
+  margin-left: 1rem;
+  padding-top: 0rem;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 0;
   min-height: 100vh;
 }
 
 .container {
   max-width: 1100px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .header {
@@ -86,8 +89,11 @@
 /* Responsive Design */
 @media (max-width: 1024px) {
   .main {
-    margin-left: 12rem;
-    padding: 1.5rem;
+    margin-left: 1rem;
+    padding-top: 1.5rem;
+    padding-right: 1.5rem;
+    padding-bottom: 1.5rem;
+    padding-left: 0;
   }
 }
 
