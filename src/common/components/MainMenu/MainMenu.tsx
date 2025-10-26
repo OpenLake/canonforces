@@ -10,9 +10,12 @@ import { getSolvedCount } from "../../../services/firebase";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { getPOTD } from "../../../services/potd_fetch"; 
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../../lib/firebase";
+
 
 const getSnippet = (text: string, length: number = 150) => {
-  if (!text) return ""; 
+  if (!text) return "";
   if (text.length <= length) return text;
   const plainText = text.replace(/<[^>]+>/g, ''); 
   return plainText.substring(0, length) + "...";
@@ -44,31 +47,40 @@ export default function MainMenu() {
     }
   }, [user.user]);
 
-  // --- NEW useEffect TO FETCH POTD ---
-    useEffect(() => {
-      const fetchPotd = async () => {
-        try {
-          // Fetch POTD from the service and store it in state
-          const potdData = await getPOTD();
-          setPotd(potdData);
-        } catch (error) {
-          console.error("Failed to fetch POTD:", error);
-          // You could set an error state here if you want
+  // --- UPDATED useEffect (copied logic from potd.tsx) ---
+  useEffect(() => {
+    async function fetchPOTD() {
+      try {
+        // Step 1: Get the POTD ID (which is a string)
+        const problemId = await getPOTD();
+        if (!problemId || typeof problemId !== "string") {
+          throw new Error("Invalid POTD ID");
         }
-      };
-  
-      fetchPotd();
-    }, []); // Empty dependency array means this runs once when the component mounts
+
+        // Step 2: Use the ID to get the problem doc from Firestore
+        const ref = doc(db, "problems", problemId);
+        const snapshot = await getDoc(ref);
+        if (!snapshot.exists()) {
+          throw new Error("Problem not found");
+        }
+
+        // Step 3: Set the problem state
+        setPotd({ id: snapshot.id, ...(snapshot.data()) });
+
+      } catch (err: any) {
+        console.error("Failed to fetch POTD:", err.message || "Error fetching POTD");
+      }
+    }
+    fetchPOTD();
+  }, []);
 
   return (  
     <div className={styles.main}>
       <div className={styles.main_menu}>
-        {/* ... existing header and stats sections ... */}
         
         <div className={styles.main_menu_stats}>
           <h3> Stats </h3>
           <div className={styles.user_stats}> 
-            {/* ... stats content ... */}
             <div className={styles.stats}>
               <div className={styles.stats1}> 
                   <div className={styles.questions}>
@@ -103,8 +115,7 @@ export default function MainMenu() {
         </div>
         
         
-        {/* --- MODIFICATION START --- */}
-        {/* This container uses 'styles.upcoming_contests' for the box styling */}
+        {/* --- POTD SNIPPET --- */}
         <div 
           className={styles.upcoming_contests} 
           onClick={() => router.push("/potd")}
@@ -113,22 +124,17 @@ export default function MainMenu() {
             <h3>Problem of the Day</h3>
           </div>
 
-          {/* This block now renders dynamically */}
           <div className={styles.potd_body}>
             {potd ? (
               <>
                 <h4 className={styles.potd_title}>
-                  {/* ADJUST THESE FIELD NAMES 
-                    to match the object from getPotd()
-                  */}
                   {potd.title || "Problem Title"}
                 </h4>
                 <p className={styles.potd_snippet}>
-                  {getSnippet(potd.problemStatement || "Loading problem...")}
+                  {getSnippet(potd.description || "Loading problem...")}
                 </p>
               </>
             ) : (
-              // Loading state
               <p className={styles.potd_snippet}>Loading Problem of the Day...</p>
             )}
           </div>
@@ -137,7 +143,7 @@ export default function MainMenu() {
             Solve Problem
           </button>
         </div>
-        {/* --- MODIFICATION END --- */}
+        {/* --- END POTD SNIPPET --- */}
 
       </div>
       <div className={styles.suggestions}>
