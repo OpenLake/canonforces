@@ -1,3 +1,5 @@
+// pages/api/hello.ts
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { LANGUAGE_IDS } from '../../constants/boilerplate';
@@ -47,39 +49,21 @@ export const executeCode = async (
   }
 };
 
+// ✅ FIXED HANDLER
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'POST') {
+    const { language, codeValue, input } = req.body;
 
+    if (!language || !codeValue) {
+      return res.status(400).json({
+        error: 'Missing language or code input',
+      });
+    }
 
+    const result = await executeCode(language, codeValue, input);
+    return res.status(200).json(result);
+  }
 
-
-
-
-
-
-
-// Sample output
-// {
-//     "stdout": "1\nhello\n",
-//     "time": "0.009",
-//     "memory": 3156,
-//     "stderr": null,
-//     "token": "a2ff4f6a-de2a-4c9a-a491-2dcf94b55606",
-//     "compile_output": null,
-//     "message": null,
-//     "status": {
-//         "id": 3,
-//         "description": "Accepted"
-//     }
-// }
-
-
-
-type Data = {
-  name: string
-}
-
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
-  res.status(200).json({ name: 'John Doe' })
+  // Default GET route (optional)
+  return res.status(200).json({ name: 'Judge0 API Running' });
 }
