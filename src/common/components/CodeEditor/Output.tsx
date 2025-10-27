@@ -1,18 +1,40 @@
 import React, { useState } from 'react';
 import styles from './Output.module.css'; // <-- CORRECTED IMPORT
 
-/**
- * This component renders the "IDE Terminal" style output.
- * It assumes it receives props like:
- * - output: The stdout from a code execution.
- * - testCases: An array of sample test cases.
- * - isRunning: A boolean to show a loading/running state.
- * - submissionResult: The result from a full submission.
- *
- * You may need to adapt the prop names to what your parent
- * component (like Problem.js) is passing down.
- */
-const Output = ({ output, testCases = [], isRunning, submissionResult }) => {
+// Define types for props
+type TestCase = {
+  input: string;
+  output: string;
+};
+
+type SubmissionResult = {
+  status: string;
+  message: string;
+  results?: Array<{
+    status: string;
+    // ... other properties
+  }>;
+} | null;
+
+type Props = {
+  output: string | null;
+  testCases?: TestCase[]; // Made optional, but defaulted in destructuring
+  isRunning: boolean;
+  submissionResult: SubmissionResult;
+  // These props are passed from CodeEditor but not used here,
+  // but we must accept them to prevent TS errors.
+  id: string;
+  language: string;
+  value: string;
+  problemData?: any;
+};
+
+const Output: React.FC<Props> = ({
+  output,
+  testCases = [], // Defaulting here
+  isRunning,
+  submissionResult,
+}) => {
   const [activeTab, setActiveTab] = useState('output'); // 'output' or 'testcases'
 
   const renderContent = () => {
@@ -21,26 +43,75 @@ const Output = ({ output, testCases = [], isRunning, submissionResult }) => {
     }
 
     if (activeTab === 'output') {
-      // Show submission result if it exists, otherwise show run output
-      const content = submissionResult ? submissionResult.message : output;
-      
-      let statusClass = '';
-      if (submissionResult) {
-        statusClass = submissionResult.status === 'Accepted' ? styles.statusAccepted : styles.statusError;
-      }
-
+      // This tab should ONLY show the stdout from a "Run" action.
       return (
-        <pre className={`${styles.outputContent} ${statusClass}`}>
-          {content || 'Run your code to see the output here.'}
+        <pre className={styles.outputContent}>
+          {output ||
+            'Run your code to see the output here.'}
         </pre>
       );
     }
 
     if (activeTab === 'testcases') {
-      // This is a placeholder. You should map over your actual testCases prop.
-      if (testCases.length === 0) {
-        return <pre className={styles.outputContent}>No sample test cases provided.</pre>;
+      // This tab should show submission results IF they exist.
+      // If not, show the sample test cases.
+
+      if (submissionResult) {
+        // --- We have a submission result ---
+        const statusClass =
+          submissionResult.status === 'Accepted'
+            ? styles.statusAccepted
+            : styles.statusError;
+
+        // Check if 'results' is an array (for multi-test-case submissions)
+        if (submissionResult.results && Array.isArray(submissionResult.results)) {
+          return (
+            <div className={`${styles.outputContent} ${styles.testcasesGrid}`}>
+              <div style={{ gridColumn: '1 / -1', marginBottom: '10px' }}>
+                <strong>
+                  Overall Status:{' '}
+                  <span className={statusClass}>{submissionResult.status}</span>
+                </strong>
+              </div>
+              {submissionResult.results.map((result: any, index: number) => (
+                <div key={index} className={styles.testcaseItem}>
+                  <strong>Test Case {index + 1}: </strong>
+                  <span
+                    className={
+                      result.status === 'Accepted'
+                        ? styles.statusAccepted
+                        : styles.statusError
+                    }
+                  >
+                    {result.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          );
+        }
+
+        // --- It's a simple submission result (e.g., compile error) ---
+        return (
+          <div className={styles.outputContent}>
+            <strong>
+              Status:{' '}
+              <span className={statusClass}>{submissionResult.status}</span>
+            </strong>
+            <pre>{submissionResult.message}</pre>
+          </div>
+        );
       }
+
+      // --- No submission result, show sample test cases ---
+      if (!testCases || testCases.length === 0) {
+        return (
+          <pre className={styles.outputContent}>
+            No sample test cases provided.
+          </pre>
+        );
+      }
+
       return (
         <div className={`${styles.outputContent} ${styles.testcasesGrid}`}>
           {testCases.map((tc, index) => (
@@ -66,21 +137,23 @@ const Output = ({ output, testCases = [], isRunning, submissionResult }) => {
     <div className={styles.ideTerminal}>
       <div className={styles.terminalHeader}>
         <button
-          className={`${styles.terminalTab} ${activeTab === 'output' ? styles.active : ''}`}
+          className={`${styles.terminalTab} ${
+            activeTab === 'output' ? styles.active : ''
+          }`}
           onClick={() => setActiveTab('output')}
         >
           Output
         </button>
         <button
-          className={`${styles.terminalTab} ${activeTab === 'testcases' ? styles.active : ''}`}
+          className={`${styles.terminalTab} ${
+            activeTab === 'testcases' ? styles.active : ''
+          }`}
           onClick={() => setActiveTab('testcases')}
         >
           Test Cases
         </button>
       </div>
-      <div className={styles.terminalBody}>
-        {renderContent()}
-      </div>
+      <div className={styles.terminalBody}>{renderContent()}</div>
     </div>
   );
 };
