@@ -1,167 +1,78 @@
-/* CodeEditor.module.css */
+/* This file controls the INTERNAL layout of the CodeEditor component */
 
-
-/* Main wrapper for the whole code editor area */
 .editorWrapper {
   display: flex;
   flex-direction: column;
-  background: var(--panel);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  height: 100%;
-  min-height: 520px;
-  width: 100%;
+  height: 100%; /* Fill the parent container (which is .editorContainer) */
   overflow: hidden;
-  position: relative;
-  color: var(--text);
-  font-family: var(--code-font);
-  transition: box-shadow 0.2s;
+  background-color: #1e1e1e; /* VS Code dark background */
 }
 
-/* Fullscreen mode for the editor */
-.fullscreen {
-  position: fixed !important;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 9999;
-  border-radius: 0;
-  margin: 0;
-  width: 100vw;
-  height: 100vh;
-  background: var(--background);
-  box-shadow: none;
+/* This new class holds both editor and output */
+.mainContent {
+  flex-grow: 1; /* Makes this div take all available space */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%; /* Fix for flex layout */
 }
 
-/* Editor header (language dropdown, buttons) */
+.editorSection {
+  flex-grow: 1; /* The editor takes most of the space */
+  height: 0; /* This is a flexbox trick to make the editor scroll properly */
+  min-height: 100px; /* Give it a minimum size */
+  overflow: hidden; /* Important for Monaco editor */
+}
+
+.outputSection {
+  flex-shrink: 0; /* Prevents the terminal from shrinking */
+  height: 250px; /* Gives the terminal a fixed 250px height */
+  overflow: hidden; /* The Output.tsx component will handle its own scrolling */
+}
+
+/* --- HEADER STYLES (To restore the missing bar) --- */
+
 .editorHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--header-bg);
-  padding: 0.8rem 1.2rem;
-  border-bottom: 1px solid var(--border);
-  min-height: 48px;
+  padding: 8px 12px;
+  background-color: #252526; /* Darker header background */
+  flex-shrink: 0; /* Prevent header from shrinking */
+  border-bottom: 1px solid #333;
 }
 
 .headerLeft {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
 }
 
 .headerRight {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 10px;
 }
 
-/* Icon buttons for reset/fullscreen */
 .iconButton {
   background: none;
   border: none;
-  color: var(--text-secondary);
-  padding: 0.4rem;
-  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: #ccc;
+  padding: 4px;
+  border-radius: 4px;
 }
 
 .iconButton:hover {
-  background: var(--icon-hover);
-  color: var(--primary);
+  background-color: #333;
+  color: #fff;
 }
 
-/* Monaco Editor container */
-.editorSection {
-  flex: 1 1 0;
-  min-height: 320px;
-  height: 360px;
-  background: var(--editor-bg);
-  position: relative;
-  border-bottom: 1px solid var(--border);
-  /* Ensures Monaco always fills the space */
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 50;
 }
 
-.fullscreen .editorSection {
-  height: calc(100vh - 48px - 180px); /* adjust for header and output */
-  min-height: 0;
-}
-
-/* Monaco Editor overrides for font and background */
-.editorSection .monaco-editor, 
-.editorSection .monaco-editor-background, 
-.editorSection .monaco-editor .inputarea.ime-input {
-  background: var(--editor-bg) !important;
-  color: var(--text) !important;
-  font-family: var(--code-font) !important;
-  font-size: 15px !important;
-}
-
-.editorSection .view-lines {
-  font-family: var(--code-font) !important;
-  font-size: 15px !important;
-  color: var(--text) !important;
-}
-
-.editorSection .margin, 
-.editorSection .line-numbers {
-  background: var(--editor-bg) !important;
-  color: var(--text-secondary) !important;
-}
-
-/* Scrollbar styling for Monaco */
-.editorSection .monaco-scrollable-element > .scrollbar > .slider {
-  background: rgba(100, 100, 100, 0.4) !important;
-  border-radius: 4px !important;
-}
-
-/* Output section below the editor */
-.outputSection {
-  background: var(--background);
-  border-top: 1px solid var(--border);
-  padding: 0;
-  min-height: 180px;
-  max-height: 300px;
-  overflow-y: auto;
-  /* Output.module.css will handle inner styling */
-}
-
-/* Avoid global overflow-x: hidden, which breaks Monaco cursor/selection [5] */
-
-/* Responsive tweaks */
-@media (max-width: 900px) {
-  .editorWrapper {
-    min-height: 400px;
-  }
-  .editorSection {
-    min-height: 220px;
-    height: 220px;
-  }
-  .outputSection {
-    min-height: 120px;
-    max-height: 200px;
-  }
-}
-
-.editorSection {
-  /* Remove flex so it doesn't grow to fill the wrapper */
-  /* flex: 1 1 0; */
-  min-height: 220px;
-  height: 320px; /* Set the height you want for the editor */
-  max-height: 400px;
-  background: var(--editor-bg);
-  position: relative;
-  border-bottom: 1px solid var(--border);
-  /* Monaco will always fit in this space */
-}
-
-/* Responsive: shrink editor height on small screens */
-@media (max-width: 900px) {
-  .editorSection {
-    min-height: 120px;
-    height: 180px;
-    max-height: 220px;
-  }
-}
