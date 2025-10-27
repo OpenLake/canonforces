@@ -28,15 +28,15 @@ const Language: React.FC<LanguageProps> = ({ language, onSelect }) => {
     <div className={styles.languageWrapper}>
       <div className={styles.selectWrapper}>
         <div className={styles.currentLanguage}>
-          <span className={styles.languageIcon}>
+          {/* <span className={styles.languageIcon}>
             {getLanguageIcon(language)}
-          </span>
+          </span> */}
           <span className={styles.languageName}>
             {language.charAt(0).toUpperCase() + language.slice(1)}
           </span>
-          <span className={styles.version}>
+          {/* <span className={styles.version}>
             {LANGUAGE_VERSIONS[language as keyof typeof LANGUAGE_VERSIONS]}
-          </span>
+          </span> */}
         </div>
         <select
           className={styles.languageSelect}
