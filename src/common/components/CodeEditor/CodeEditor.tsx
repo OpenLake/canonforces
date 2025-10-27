@@ -4,6 +4,21 @@ import Language from './Language';
 import Output from './Output';
 import styles from './Editor.module.css';
 
+// Define types for better type safety
+type TestCase = {
+  input: string;
+  output: string;
+};
+
+type SubmissionResult = {
+  status: string;
+  message: string;
+  results?: Array<{
+    status: string;
+    // ... other properties per test case
+  }>;
+} | null;
+
 // This is now a "dumb" component. It just receives props.
 type Props = {
   id: string;
@@ -13,8 +28,8 @@ type Props = {
   onCodeChange: (value: string | undefined) => void; // This prop comes from [id].tsx
   output: string | null;
   isRunning: boolean;
-  submissionResult: any | null;
-  testCases: any[];
+  submissionResult: SubmissionResult;
+  testCases: TestCase[];
   problemData?: any;
 };
 
@@ -62,7 +77,16 @@ const CodeEditor = ({
             This Language component just DISPLAYS the language.
             The *actual* selector is in the parent ([id].tsx).
           */}
-          <Language language={language} onSelect={() => {}} />
+          <Language
+            language={language}
+            onSelect={(lang: string) => {
+              // Create a synthetic event to match the parent's expected type
+              const syntheticEvent = {
+                target: { value: lang },
+              } as React.ChangeEvent<HTMLSelectElement>;
+              onLanguageChange(syntheticEvent);
+            }}
+          />
         </div>
         <div className={styles.headerRight}>
           <button
@@ -176,4 +200,3 @@ const CodeEditor = ({
 };
 
 export default CodeEditor;
-
