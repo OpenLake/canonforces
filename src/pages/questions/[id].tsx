@@ -5,22 +5,33 @@ import styles from '../../styles/CodeEditor.module.css';
 import CodeEditor from '../../common/components/CodeEditor/CodeEditor';
 import { db } from '../../lib/firebase';
 import { formatDescription } from '../../utils/formatDescription';
-// Import the code snippets
-import { CODE_SNIPPETS } from '../../constants/boilerplate';
+// Import the code snippets AND language versions
+import {
+  CODE_SNIPPETS,
+  LANGUAGE_VERSIONS,
+} from '../../constants/boilerplate';
 
 // Helper function to parse test cases (simplified)
-const parseTestCases = (inputs, outputs) => {
+const parseTestCases = (inputs: string, outputs: string) => {
   if (!inputs || !outputs) {
     return [];
   }
-  // This is a simple parser. It assumes one input and one output.
-  // You can make this more complex later if needed.
   return [
     {
       input: inputs,
       output: outputs,
     },
   ];
+};
+
+// --- Define the shape of the API response ---
+type RunResult = {
+  output: string;
+  stderr: string;
+  compile_output: string;
+  status: string;
+  time: string;
+  memory: number;
 };
 
 const QuestionBar = () => {
@@ -34,7 +45,7 @@ const QuestionBar = () => {
     input_format?: string;
     output_format?: string;
     test_case?: string;
-    answer?: string;
+    answer?: string; // This is optional
     constraints?: string;
   };
 
@@ -63,9 +74,8 @@ const QuestionBar = () => {
         if (docSnap.exists()) {
           const problemData = docSnap.data() as Problem;
           setQues(problemData);
-          // Parse test cases when problem data is loaded
           setTestCases(
-            parseTestCases(problemData.test_case, problemData.answer)
+            parseTestCases(problemData.test_case || "", problemData.answer || "")
           );
         } else {
           console.warn('No such question found!');
@@ -89,49 +99,102 @@ const QuestionBar = () => {
     setLanguage(newLang);
     setCodeValue(CODE_SNIPPETS[newLang as keyof typeof CODE_SNIPPETS]);
     setOutput(null); // Clear output on lang change
+    setSubmissionResult(null); // Clear submission result on lang change
   };
 
   const onCodeChange = (value: string | undefined) => {
     setCodeValue(value || '');
   };
 
-  const handleRunCode = () => {
-    // This is where you would call your code execution API
-    console.log('Running code:', { language, codeValue });
+  // --- THIS IS NOW A REAL API CALL ---
+  const runSampleTest = async () => {
+    if (!testCases.length) {
+      setOutput('No sample test case available to run.');
+      return;
+    }
+
+    console.log('Running code against API...');
     setIsRunning(true);
     setOutput('Running your code...');
-    setSubmissionResult(null); // Clear old submission results
+    setSubmissionResult(null);
 
-    // Simulate an API call
-    setTimeout(() => {
+    const sampleInput = testCases[0]?.input || "";
+    const expectedOutput = ques?.answer || "";
+
+    let finalOutput = ""; // This will hold stdout or error
+    let status = "Error"; // Default status
+    let resultMessage = ""; // This goes below the stdout
+
+    try {
+      const response = await fetch('/api/hello', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          language,
+          codeValue,
+          input: sampleInput,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.statusText}`);
+      }
+
+      const data: { run: RunResult } = await response.json();
+      const runResult = data.run;
+
+      // 1. Check for compile or runtime errors
+      if (runResult.stderr) {
+        finalOutput = runResult.stderr;
+        status = "Runtime Error";
+        resultMessage = `\n\nResult: ❌ ${status}`;
+      } else if (runResult.compile_output) {
+        finalOutput = runResult.compile_output;
+        status = "Compilation Error";
+        resultMessage = `\n\nResult: ❌ ${status}`;
+      } else {
+        // 2. No errors, check for correctness
+        finalOutput = runResult.output;
+        const actualOutput = finalOutput.trim();
+
+        if (actualOutput === expectedOutput.trim()) {
+          status = "Accepted";
+          resultMessage = `\n\nResult: ✅ ${status}`;
+        } else {
+          status = "Wrong Answer";
+          resultMessage = `\n\nResult: ❌ ${status} \n\nExpected:\n${expectedOutput}\n\nGot:\n${actualOutput}`;
+        }
+      }
+
+    } catch (error: any) {
+      console.error('Fetch error:', error);
+      finalOutput = `Failed to connect to execution service.\n${error.message}`;
+      status = "Network Error";
+      resultMessage = `\n\nResult: ❌ ${status}`;
+    } finally {
       setIsRunning(false);
-      // This is mock output. Replace with your API's response.
-      const mockOutput = `Hello, CanonForces!
-Your code ran successfully.`;
-      setOutput(mockOutput);
-    }, 1500);
+      // Set output for the "OUTPUT" tab
+      setOutput(finalOutput + resultMessage);
+      
+      // Set submissionResult for the "TEST CASES" tab
+      setSubmissionResult({
+        status: status,
+        message: status,
+        results: [{ status: status }], // Show status for 1 test case
+      });
+    }
+  };
+
+  const handleRunCode = () => {
+    runSampleTest();
   };
 
   const handleSubmitCode = () => {
-    // This is where you would call your submission API
-    console.log('Submitting code:', { language, codeValue });
-    setIsRunning(true);
-    setOutput('Submitting your code for judging...');
-    setSubmissionResult(null);
-
-    // Simulate an API call
-    setTimeout(() => {
-      setIsRunning(false);
-      // This is mock submission output. Replace with your API's response.
-      const mockResult = {
-        status: 'Accepted',
-        message: 'All test cases passed!',
-      };
-      // Set submissionResult to show status (e.g., green "Accepted")
-      setSubmissionResult(mockResult);
-      // Set output to show the message
-      setOutput(mockResult.message);
-    }, 2500);
+    // For now, submit also just runs the sample test.
+    // You can change this later to run against hidden cases.
+    runSampleTest();
   };
   // ---------------------
 
@@ -143,8 +206,42 @@ Your code ran successfully.`;
           leftPanelCollapsed ? styles.collapsed : ''
         }`}
       >
-        {/* ... all the problem description JSX ... (no changes here) ... */}
-        {/* ... (this part is long, so redacting for brevity) ... */}
+        {/* --- ADDED: BACK NAVIGATION BUTTON --- */}
+        <div
+          style={{
+            padding: '10px 15px',
+            borderBottom: '1px solid #333',
+            display: leftPanelCollapsed ? 'none' : 'block',
+          }}
+        >
+          <button
+            onClick={() => router.back()}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#9e9e9e',
+              cursor: 'pointer',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              style={{ marginRight: '8px' }}
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            Back to Problems
+          </button>
+        </div>
+
+        {/* ... (rest of the problem description JSX is unchanged) ... */}
         {!leftPanelCollapsed && (
           <div className={styles.problemContent}>
             {loading ? (
@@ -192,7 +289,9 @@ Your code ran successfully.`;
                 </div>
                 <div className={styles.section}>
                   <h3 className={styles.sectionTitle}>Sample Output</h3>
-                  <pre className={`${styles.codeBlock} ${styles.sampleOutput}`}>
+                  <pre
+                    className={`${styles.codeBlock} ${styles.sampleOutput}`}
+                  >
                     {ques.answer}
                   </pre>
                 </div>
@@ -221,20 +320,10 @@ Your code ran successfully.`;
         }`}
       >
         <div className={styles.editorHeader}>
-          <div className={styles.languageSelector}>
-            {/* --- WIRE UP THE LANGUAGE SELECTOR --- */}
-            <select
-              className={`${styles.actionBtn} ${styles.secondary}`}
-              value={language}
-              onChange={onLanguageChange}
-            >
-              <option value="python">Python</option>
-              <option value="javascript">JavaScript</option>
-              <option value="cpp">C++</option>
-              <option value="java">Java</option>
-            </select>
-          </div>
-          <div className={styles.editorActions}>
+          {/* --- "ABOVE" LANGUAGE SELECTOR REMOVED --- */}
+          
+          {/* --- ADDED INLINE STYLE TO PUSH BUTTONS RIGHT --- */}
+          <div className={styles.editorActions} style={{ marginLeft: 'auto' }}>
             {/* --- WIRE UP THE BUTTONS --- */}
             <button
               className={`${styles.actionBtn} ${styles.secondary}`}
@@ -264,7 +353,7 @@ Your code ran successfully.`;
             isRunning={isRunning}
             submissionResult={submissionResult}
             testCases={testCases}
-            problemData={ques} // Pass problemData down (in case Output needs it)
+            problemData={ques} // Pass problemData down
           />
         </div>
       </div>
@@ -275,5 +364,3 @@ Your code ran successfully.`;
 };
 
 export default QuestionBar;
-
-
