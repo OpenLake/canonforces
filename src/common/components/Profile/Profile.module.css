@@ -1,324 +1,684 @@
 /* --- Global Page Styles --- */
 .profilePage {
-  /* background-color: #ffffff; */
   min-height: 100vh;
-  padding: 2rem;
+  padding: 2rem 1rem;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .mainContent {
-  display: flex;
-  align-items: flex-start;
-  gap: 4rem;
-  width: 100%;
-  max-width: 1200px;
-}
-
-/* --- Profile Card --- */
-.profileCard {
-  flex: 2;
-  max-width: 720px;
-  width: 100%;
-  background-color: #ffffff;
-  border: 1px solid #dbdbdb;
-  border-radius: 12px;
-}
-
-/* --- Illustration --- */
-.illustrationWrapper {
-  flex: 1;
-  padding-top: 2rem;
-  align-self: center;
-}
-
-.illustrationImage {
-  width: 100%;
-  height: auto;
-  max-width: 350px;
-}
-
-/* --- Card Header --- */
-.profileHeader {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
   gap: 2rem;
-  padding: 1.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.avatar img {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.headerInfo {
-  flex-grow: 1;
-}
-
-.usernameTitle {
-  font-size: 1.75rem;
-  font-weight: 300;
-  color: #262626;
-  margin: 0 0 0.5rem;
-}
-
-.headerActions {
+/* --- Left Column --- */
+.leftColumn {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 1.5rem;
 }
 
-.fullName {
-  font-size: 1rem;
+/* Profile Header with Banner */
+.profileHeader {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.banner {
+  height: 120px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.headerContent {
+  padding: 0 2rem 2rem;
+  margin-top: -60px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2rem;
+}
+
+.avatarContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid white;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.editProfileButton {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: #262626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editProfileButton:hover {
+  background: #5a6fd8;
+  transform: translateY(-1px);
+}
+
+.userInfo {
+  flex: 1;
+  padding-bottom: 1rem;
+}
+
+.usernameSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.username {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d3748;
   margin: 0;
 }
 
-.editButton {
-  background-color: #efefef;
-  color: #000;
-  border: 1px solid transparent;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.editButton:hover {
-  background-color: #dbdbdb;
-}
-
-
-/* --- Stats Bar (Instagram Style) --- */
-.profileStatsBar {
+.badges {
   display: flex;
-  justify-content: space-around;
-  text-align: center;
-  padding: 1rem 0;
-  border-top: 1px solid #dbdbdb;
-  border-bottom: 1px solid #dbdbdb;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.stat {
+.levelBadge {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  color: #2d3748;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.streakBadge {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tagline {
+  color: #718096;
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.statCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.statIcon {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7fafc;
+  border-radius: 12px;
+}
+
+.statContent {
   display: flex;
   flex-direction: column;
-  line-height: 1.3;
 }
 
 .statNumber {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #262626;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #2d3748;
+  line-height: 1;
 }
 
 .statLabel {
   font-size: 0.9rem;
-  color: #8e8e8e;
+  color: #718096;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* --- Card Body & Info Sections --- */
-.profileBody {
-  padding: 1.5rem 2rem;
-}
-
-.infoSection {
-  margin-bottom: 2rem;
+/* Codeforces Section */
+.cfSection {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .sectionTitle {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #8e8e8e;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 1.5rem 0;
 }
 
-.infoRow {
+.cfRankCard {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0;
-  font-size: 0.95rem;
-  color: #262626;
+  margin-bottom: 1.5rem;
 }
 
-.infoRow strong {
-  font-weight: 600;
-}
-
-/* --- Edit Form --- */
-.editForm {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.formGroup {
+.cfRankInfo {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.formGroup label {
-  font-size: 0.9rem;
+.cfHandle {
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #262626;
+  opacity: 0.9;
+}
+
+.cfRank {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.cfRatingInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: right;
+}
+
+.ratingItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ratingItem strong {
+  font-size: 1.1rem;
+}
+
+.ratingProgress {
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #718096;
+  font-weight: 600;
+}
+
+.progressBar {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Edit Form */
+.editForm {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2d3748;
 }
 
 .formGroup input {
-  padding: 0.75rem;
-  border: 1px solid #dbdbdb;
-  border-radius: 6px;
-  background-color: #fafafa;
-  font-size: 0.95rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
 }
 
 .formGroup input:focus {
   outline: none;
-  border-color: #a8a8a8;
-  box-shadow: 0 0 0 1px #a8a8a8;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.fileInput {
+  padding: 0.5rem !important;
+}
+
+.formGroup small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #718096;
+  font-size: 0.8rem;
 }
 
 .formActions {
   display: flex;
+  gap: 1rem;
   justify-content: flex-end;
 }
 
-.saveButton {
-  background-color: #0095f6;
-  color: white;
+.cancelButton {
+  background: #e2e8f0;
+  color: #4a5568;
   border: none;
-  padding: 0.6rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.saveButton:hover {
-  background-color: #0077c3;
+.cancelButton:hover {
+  background: #cbd5e0;
+}
+
+.saveButton {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: #5a6fd8;
+  transform: translateY(-1px);
 }
 
 .saveButton:disabled {
-  background-color: #b2dffc;
+  background: #a0aec0;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* --- Responsive & Loading --- */
-.loading {
-  font-size: 1.2rem;
-  text-align: center;
-  padding: 4rem;
-  color: #8e8e8e;
+.errorMessage {
+  background: #fed7d7;
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #feb2b2;
 }
 
-@media (max-width: 900px) {
-  .mainContent {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-  .illustrationWrapper {
-    display: none; /* Hide illustration on smaller screens for focus */
-  }
-  .profileCard {
-    max-width: 600px;
-  }
+/* --- Right Column --- */
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-@media (max-width: 600px) {
-  .profilePage {
-    padding: 0;
-  }
-  .profileCard {
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
-  .profileHeader {
-    padding: 1rem;
-    gap: 1rem;
-  }
-  .avatar img {
-    width: 70px;
-    height: 70px;
-  }
-  .usernameTitle {
-    font-size: 1.5rem;
-  }
-  .headerActions {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
+.activityPanel {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
-/* --- Global Page Styles --- */
-.profilePage {
-  /* background-color: #ffffff; */
-  min-height: 100vh;
-  /* padding: 2rem; */ /* REMOVE THIS LINE */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+.activitySection {
+  margin-bottom: 2rem;
+}
+
+.activitySection:last-child {
+  margin-bottom: 0;
+}
+
+.activitySection h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Streak Calendar */
+.streakCalendar {
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.calendarDay {
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #718096;
 }
 
-.mainContent {
+.calendarDay.active {
+  background: #ff6b6b;
+  color: white;
+}
+
+/* Submissions List */
+.submissionsList {
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.submissionItem {
   display: flex;
-  /* align-items: flex-start; */ /* CHANGE THIS... */
-  align-items: center;      /* ...TO THIS */
-  gap: 4rem;
-  width: 100%;
-  max-width: 1200px;
-  padding: 0 2rem; /* Add horizontal padding here instead of the main page */
-}
-
-/* --- Illustration --- */
-.illustrationWrapper {
-  flex: 1;
-  /* padding-top: 2rem; */ /* REMOVE THIS LINE */
-  align-self: center;
-}
-
-
-/* Find this existing class */
-.profileCard {
-  background: #ffffff;
-  border-radius: 16px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  width: 100%;
-  max-width: 650px; /* Original value might be smaller */
-  
-  /* --- CHANGE THIS --- */
-  max-width: 750px; /* Increase this value to make the card wider */
-  
+}
+
+.submissionTime {
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+.noActivity {
+  text-align: center;
+  color: #718096;
+  font-style: italic;
+  margin: 0;
+  padding: 1rem;
+}
+
+/* Difficulty Stats */
+.difficultyStats {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
 }
 
-.profileCard {
-  background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  width: 100%;
-  
-  /* --- CHANGE THIS VALUE --- */
-  /* You can adjust this value as needed */
-  max-width: 750px; 
+.difficultyItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+}
 
+.difficultyLabel {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.difficultyCount {
+  background: #667eea;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  font-size: 1.2rem;
+  color: #718096;
+  font-weight: 600;
+}
+
+/* Streak Warning Styles */
+.streakWarning {
+  background: #fff3cd;
+  color: #856404;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ffeaa7;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.streakDanger {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%) !important;
+  animation: pulse 2s infinite;
+}
+
+.streakDangerIcon {
+  animation: flame 1.5s infinite alternate;
+}
+
+.streakWarningText {
+  background: #fff3cd;
+  color: #856404;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  text-align: center;
+  border: 1px solid #ffeaa7;
+}
+
+/* Streak Animations */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes flame {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.2); }
+}
+
+/* Submission List  */
+.submissionInfo {
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
+}
+
+.lastActive {
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+.difficultyBreakdown {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.difficultyTag {
+  background: #667eea;
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* Quiz Stats */
+.quizStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  text-align: center;
+}
+
+.quizStat {
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.quizStat span {
+  display: block;
+  font-size: 0.8rem;
+  color: #718096;
+  margin-bottom: 0.5rem;
+}
+
+.quizStat strong {
+  font-size: 1.2rem;
+  color: #2d3748;
+  font-weight: 700;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 1024px) {
+  .mainContent {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .profilePage {
+    padding: 1rem 0.5rem;
+  }
+  
+  .headerContent {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 1rem 1.5rem;
+    margin-top: -40px;
+  }
+  
+  .avatar {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .usernameSection {
+    justify-content: center;
+  }
+  
+  .username {
+    font-size: 1.5rem;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .cfRankCard {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .cfRatingInfo {
+    text-align: center;
+  }
+  
+  .formActions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .profileHeader,
+  .cfSection,
+  .editForm,
+  .activityPanel {
+    padding: 1.5rem 1rem;
+  }
+  
+  .calendarGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
