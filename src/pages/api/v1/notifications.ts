@@ -36,6 +36,10 @@ export default async function handler(
                 return res.status(400).json({ error: "userId is required" });
             }
 
+            // Security: Firestore security rules ensure users can only read their own notifications
+            // The rules check: request.auth.uid == resource.data.userId
+            // See firestore-notifications-rules.txt for the complete security rules
+
             const notificationsRef = collection(db, "notifications");
             const q = query(
                 notificationsRef,
@@ -64,6 +68,11 @@ export default async function handler(
             if (!userId || !type) {
                 return res.status(400).json({ error: "userId and type are required" });
             }
+
+            // Security Note: In production, this endpoint should be restricted to server-side only
+            // or require admin authentication. Currently allows any authenticated user to create
+            // notifications. Consider using Firebase Admin SDK for server-side notification creation.
+            // See NOTIFICATION_SYSTEM.md for production security recommendations.
 
             // Generate message and link using utility functions
             const message = generateNotificationMessage({ type, metadata });

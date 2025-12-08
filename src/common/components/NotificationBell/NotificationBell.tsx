@@ -1,6 +1,6 @@
 // src/common/components/NotificationBell/NotificationBell.tsx
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { auth } from "../../../lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -23,18 +23,7 @@ export default function NotificationBell() {
         return () => unsubscribe();
     }, []);
 
-    useEffect(() => {
-        if (!userId) return;
-
-        fetchUnreadCount();
-
-        // Poll for new notifications every 30 seconds
-        const interval = setInterval(fetchUnreadCount, 30000);
-
-        return () => clearInterval(interval);
-    }, [userId]);
-
-    const fetchUnreadCount = async () => {
+    const fetchUnreadCount = useCallback(async () => {
         if (!userId) return;
 
         try {
@@ -48,7 +37,18 @@ export default function NotificationBell() {
         } catch (err) {
             console.error("Error fetching unread count:", err);
         }
-    };
+    }, [userId]);
+
+    useEffect(() => {
+        if (!userId) return;
+
+        fetchUnreadCount();
+
+        // Poll for new notifications every 30 seconds
+        const interval = setInterval(fetchUnreadCount, 30000);
+
+        return () => clearInterval(interval);
+    }, [userId, fetchUnreadCount]);
 
     if (!userId) return null;
 
