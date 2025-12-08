@@ -1,0 +1,108 @@
+/* src/common/components/Notifications/Notifications.module.css */
+
+.notificationItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.notificationItem:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  transform: translateX(4px);
+}
+
+.notificationItem.unread {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.notificationItem.unread:hover {
+  background: #dbeafe;
+}
+
+.notificationIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  border-radius: 50%;
+}
+
+.notificationItem.unread .notificationIcon {
+  background: #dbeafe;
+}
+
+.notificationContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.notificationMessage {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #1f2937;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.notificationTime {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  background: #3b82f6;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 0.5rem;
+}
+
+.notificationsList {
+  display: flex;
+  flex-direction: column;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.emptyText {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.loadingState {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.errorState {
+  text-align: center;
+  padding: 2rem;
+  color: #ef4444;
+}
