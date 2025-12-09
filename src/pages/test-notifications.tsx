@@ -1,6 +1,7 @@
 // src/pages/test-notifications.tsx
 // This is a test page to manually create and test notifications
 // Access at: http://localhost:3000/test-notifications
+// NOTE: This page is only accessible in development mode
 
 import React, { useState, useEffect } from "react";
 import { auth } from "../lib/firebase";
@@ -18,6 +19,12 @@ export default function TestNotificationsPage() {
     const [result, setResult] = useState<string | null>(null);
 
     useEffect(() => {
+        // Redirect to home in production
+        if (process.env.NODE_ENV === "production") {
+            router.push("/");
+            return;
+        }
+
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setUserId(user.uid);

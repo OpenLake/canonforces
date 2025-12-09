@@ -18,10 +18,18 @@ export default async function handler(
 
     try {
         const { id } = req.query;
+        const { userId } = req.body;
 
         if (!id || typeof id !== "string") {
             return res.status(400).json({ error: "Notification ID is required" });
         }
+
+        if (!userId || typeof userId !== "string") {
+            return res.status(400).json({ error: "userId is required" });
+        }
+
+        // Security: Firestore rules ensure users can only update their own notifications
+        // The rules check: request.auth.uid == resource.data.userId
 
         const notificationRef = doc(db, "notifications", id);
         await updateDoc(notificationRef, {

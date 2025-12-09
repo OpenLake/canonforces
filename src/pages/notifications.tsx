@@ -59,6 +59,10 @@ export default function NotificationsPage() {
         try {
             const response = await fetch(`/api/v1/notifications/read/${notificationId}`, {
                 method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ userId }),
             });
 
             if (response.ok) {

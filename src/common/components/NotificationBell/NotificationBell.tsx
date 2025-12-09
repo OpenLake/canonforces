@@ -53,7 +53,11 @@ export default function NotificationBell() {
     if (!userId) return null;
 
     return (
-        <Link href="/notifications" className={styles.bellContainer}>
+        <Link
+            href="/notifications"
+            className={styles.bellContainer}
+            aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : "Notifications"}
+        >
             <div className={styles.bellIcon}>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
