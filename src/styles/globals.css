@@ -1,16 +1,22 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
 }
+
 .__next {
   height: 100vh;
 }
@@ -35,8 +41,6 @@
   --code-font: 'Fira Mono', 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
 }
 
-
-
 :root {
   --background: #181a1b;
   --editor-bg: #1e1e1e;
@@ -59,7 +63,6 @@
   --primary-cyan: #06b6d4;
   --primary-pink: #ec4899;
   --primary-indigo: #6366f1;
-
 }
 
 html,
