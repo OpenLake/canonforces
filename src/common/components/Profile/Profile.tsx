@@ -436,7 +436,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
           {/* Stats Grid */}
           <div className={styles.statsGrid}>
             <div className={styles.statCard}>
-              <div className={styles.statIcon}><HiOutlinePuzzlePiece size={26} /></div>
+              <div className={styles.statIcon}><HiOutlinePuzzlePiece size={20} /></div>
               <div className={styles.statContent}>
                 <div className={styles.statNumber}>{solvedCount}</div>
                 <div className={styles.statLabel}>Solved</div>
@@ -444,7 +444,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
             </div>
             
             <div className={styles.statCard}>
-              <div className={styles.statIcon}><HiOutlineCurrencyRupee /></div>
+              <div className={styles.statIcon}><HiOutlineCurrencyRupee size={20} /></div>
               <div className={styles.statContent}>
                 <div className={styles.statNumber}>{user.coins || 0}</div>
                 <div className={styles.statLabel}>Coins</div>
@@ -452,7 +452,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
             </div>
             
             <div className={styles.statCard}>
-              <div className={`${styles.statIcon} ${streakDanger ? styles.streakDangerIcon : ''}`}><HiOutlineFire /></div>
+              <div className={`${styles.statIcon} ${streakDanger ? styles.streakDangerIcon : ''}`}><HiOutlineFire size={20} /></div>
               <div className={styles.statContent}>
                 <div className={styles.statNumber}>{currentStreak}</div>
                 <div className={styles.statLabel}>Streak</div>
@@ -460,7 +460,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
             </div>
             
             <div className={styles.statCard}>
-              <div className={styles.statIcon}><HiOutlineUsers /></div>
+              <div className={styles.statIcon}><HiOutlineUsers size={20} /></div>
               <div className={styles.statContent}>
                 <div className={styles.statNumber}>{user.followers?.length || 0}</div>
                 <div className={styles.statLabel}>Followers</div>
@@ -468,7 +468,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
             </div>
             
             <div className={styles.statCard}>
-              <div className={styles.statIcon}><HiArrowTrendingUp /></div>
+              <div className={styles.statIcon}><HiArrowTrendingUp size={20} /></div>
               <div className={styles.statContent}>
                 <div className={styles.statNumber}>{user.following?.length || 0}</div>
                 <div className={styles.statLabel}>Following</div>
@@ -476,7 +476,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
             </div>
             
             <div className={styles.statCard}>
-              <div className={styles.statIcon}><HiOutlineTag/> </div>
+              <div className={styles.statIcon}><HiOutlineTag size={20} /> </div>
               <div className={styles.statContent}>
                 <div className={styles.statNumber}>{accuracy}%</div>
                 <div className={styles.statLabel}>Accuracy</div>
