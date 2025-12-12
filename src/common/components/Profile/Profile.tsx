@@ -319,7 +319,10 @@ export default function Profile({ userId }: ProfileProps) {
   const streakCalendar = generateStreakCalendar();
   const level = calculateLevel();
   const solvedCount = Object.values(user.solvedQuestions || {}).flat().length;
-  const accuracy = user.totalAnswers ? Math.round((user.correctAnswers / user.totalAnswers) * 100) : 0;
+  const accuracy = user.totalAnswers
+  ? Math.round(((user.correctAnswers ?? 0) / user.totalAnswers) * 100)
+  : 0;
+
   const streakDanger = isStreakInDanger();
 
   return (
