@@ -8,6 +8,7 @@ import { auth } from "../lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import Link from "next/link"; // ✅ FIX ADDED
 import { createNotification } from "../services/notifications";
 
 export default function TestNotificationsPage() {
@@ -122,14 +123,17 @@ export default function TestNotificationsPage() {
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">
                             🧪 Notification Testing Page
                         </h1>
+
                         <p className="text-gray-600">
                             Click any button below to create a test notification for yourself.
                             Then check the bell icon or visit the{" "}
-                            <a href="/notifications" className="text-blue-600 hover:underline">
+                            {/* FIXED → Use Link instead of <a> */}
+                            <Link href="/notifications" className="text-blue-600 hover:underline">
                                 notifications page
-                            </a>
+                            </Link>
                             .
                         </p>
+
                         {userId && (
                             <p className="text-sm text-gray-500 mt-2">
                                 Your User ID: <code className="bg-gray-100 px-2 py-1 rounded">{userId}</code>
@@ -139,10 +143,11 @@ export default function TestNotificationsPage() {
 
                     {result && (
                         <div
-                            className={`p-4 rounded-lg mb-6 ${result.startsWith("✅")
+                            className={`p-4 rounded-lg mb-6 ${
+                                result.startsWith("✅")
                                     ? "bg-green-50 border border-green-200 text-green-800"
                                     : "bg-red-50 border border-red-200 text-red-800"
-                                }`}
+                            }`}
                         >
                             {result}
                         </div>
@@ -159,7 +164,9 @@ export default function TestNotificationsPage() {
                                     Type: <code className="bg-gray-100 px-1 rounded">{test.type}</code>
                                 </p>
                                 <button
-                                    onClick={() => handleCreateNotification(test.type, test.metadata)}
+                                    onClick={() =>
+                                        handleCreateNotification(test.type, test.metadata)
+                                    }
                                     disabled={loading}
                                     className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-sm font-medium"
                                 >
@@ -186,6 +193,7 @@ export default function TestNotificationsPage() {
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                             </div>
+
                             <button
                                 onClick={() =>
                                     handleCreateNotification("system", { message: customMessage })
@@ -204,7 +212,10 @@ export default function TestNotificationsPage() {
                             <li>• After creating a notification, check the bell icon in the header</li>
                             <li>• Visit <code>/notifications</code> to see all your notifications</li>
                             <li>• Click on a notification to mark it as read</li>
-                            <li>• Use "Mark all as read" to clear all unread notifications</li>
+
+                            {/* FIXED unescaped quotes */}
+                            <li>• Use &quot;Mark all as read&quot; to clear all unread notifications</li>
+
                             <li>• The bell icon updates every 30 seconds automatically</li>
                         </ul>
                     </div>
@@ -212,9 +223,9 @@ export default function TestNotificationsPage() {
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mt-6">
                         <h3 className="font-semibold text-yellow-900 mb-2">⚠️ Note</h3>
                         <p className="text-sm text-yellow-800">
-                            This is a testing page for development purposes. In production, notifications
-                            should be created automatically by the system when events occur (e.g., when
-                            someone follows you, when you solve a problem, etc.).
+                            This is a testing page for development purposes. In production,
+                            notifications should be created automatically by the system when events occur
+                            (e.g., when someone follows you, when you solve a problem, etc.).
                         </p>
                     </div>
                 </div>

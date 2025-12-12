@@ -120,7 +120,7 @@ export default function NotificationsPage() {
                                     </h1>
                                     {unreadCount > 0 && (
                                         <p className="text-sm text-gray-600 mt-1">
-                                            You have {unreadCount} unread notification{unreadCount !== 1 ? "s" : ""}
+                                            You have {unreadCount} unread notification{unreadCount !== 1 ? "s" : "&apos;"}
                                         </p>
                                     )}
                                 </div>
@@ -156,7 +156,7 @@ export default function NotificationsPage() {
                                     <div className={styles.emptyIcon}>🔔</div>
                                     <p className={styles.emptyText}>No notifications yet</p>
                                     <p className="text-sm text-gray-500 mt-2">
-                                        When you get notifications, they'll show up here
+                                        When you get notifications, they will show up here
                                     </p>
                                 </div>
                             ) : (
