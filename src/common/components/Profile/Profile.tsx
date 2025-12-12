@@ -40,27 +40,51 @@ export default function Profile({ userId }: ProfileProps) {
 
   const isOwnProfile = !userId || userId === loggedInUser?.docId;
 
-  useEffect(() => {
+  const rankThresholds: Record<string, number> = {
+  newbie: 1199,
+  pupil: 1399,
+  specialist: 1599,
+  expert: 1899,
+  "candidate master": 2099,
+  master: 2299,
+  "international master": 2399,
+  grandmaster: 2599,
+  "international grandmaster": 2899,
+  "legendary grandmaster": 9999 // unreachable top
+};
+
+
+useEffect(() => {
     const fetchUser = async () => {
       try {
         let userToSet: User | null = null;
+
         if (userId) {
           const userDocRef = doc(db, "users", userId);
           const userDocSnap = await getDoc(userDocRef);
+
           if (userDocSnap.exists()) {
-            userToSet = userDocSnap.data() as User;
+            userToSet = {
+              ...(userDocSnap.data() as User),
+              docId: userDocSnap.id
+            };
           } else {
             console.warn("User not found");
           }
         } else {
-          userToSet = loggedInUser || null;
+          // loggedInUser MUST carry docId
+          userToSet = loggedInUser 
+            ? { ...loggedInUser, docId: loggedInUser.docId }
+            : null;
         }
+
         setUser(userToSet);
 
       } catch (err) {
         console.error("Error fetching user data:", err);
       }
     };
+
     fetchUser();
   }, [userId, loggedInUser]);
 
@@ -134,41 +158,60 @@ export default function Profile({ userId }: ProfileProps) {
     }
   };
 
-  const uploadImageToCloudinary = async (file: File): Promise<string> => {
-    try {
-      const signResponse = await fetch('/api/sign-cloudinary-upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
+ const uploadImageToCloudinary = async (file: File): Promise<string> => {
+  try {
+    const signResponse = await fetch('/api/sign-cloudinary-upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
 
-      if (!signResponse.ok) {
-        throw new Error('Failed to get upload signature');
-      }
-
-      const signData = await signResponse.json();
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', signData.upload_preset);
-      formData.append('api_key', signData.api_key);
-      formData.append('signature', signData.signature);
-      formData.append('timestamp', signData.timestamp.toString());
-
-      const uploadUrl = `https://api.cloudinary.com/v1_1/${signData.cloud_name}/image/upload`;
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload image');
-      }
-      const uploadData = await uploadResponse.json();
-      return uploadData.secure_url;
-    } catch (error) {
-      console.error("Error uploading to Cloudinary:", error);
-      throw error;
+    if (!signResponse.ok) {
+      throw new Error('Failed to get upload signature');
     }
-  };
+
+    const signData = await signResponse.json();
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", signData.upload_preset);
+
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${signData.cloud_name}/image/upload`;
+    const uploadResponse = await fetch(uploadUrl, {
+      method: "POST",
+      body: formData,
+    });
+
+    const raw = await uploadResponse.text();
+    console.log("Cloudinary raw response:", raw);
+
+    if (!uploadResponse.ok) {
+      throw new Error("Failed to upload image: " + raw);
+    }
+
+    const uploadData = JSON.parse(raw);
+    return uploadData.secure_url;
+
+  } catch (error) {
+    console.error("Error uploading to Cloudinary:", error);
+    throw error;
+  }
+};
+
+const getProgressToNextRank = (rating: number | undefined, rank: string | undefined) => {
+  if (!rating || !rank) return 0;
+
+  const normalizedRank = rank.toLowerCase();
+  const nextThreshold = rankThresholds[normalizedRank];
+  if (!nextThreshold) return 0;
+
+  // Get previous threshold
+  const ranks = Object.keys(rankThresholds);
+  const idx = ranks.indexOf(normalizedRank);
+  const prevThreshold = idx > 0 ? rankThresholds[ranks[idx - 1]] : 0;
+
+  const progress = ((rating - prevThreshold) / (nextThreshold - prevThreshold)) * 100;
+  return Math.min(Math.max(Math.round(progress), 0), 100);
+};
 
   const handleSave = async () => {
     if (!user) {
@@ -207,6 +250,10 @@ export default function Profile({ userId }: ProfileProps) {
       setLoading(false);
     }
   };
+
+
+  const cfProgress = getProgressToNextRank(cfData?.rating, cfData?.rank);
+
 
   const getRankColor = (rank: string | undefined) => {
     const rankColors: Record<string, string> = {
@@ -363,7 +410,7 @@ export default function Profile({ userId }: ProfileProps) {
                   <div className={styles.badges}>
                     <span className={styles.levelBadge}>Level {level}</span>
                     <span className={`${styles.streakBadge} ${streakDanger ? styles.streakDanger : ''}`}>
-                      🔥 {currentStreak} days {streakDanger && '⚠️'}
+                      {currentStreak} days {streakDanger && '⚠️'}
                     </span>
                   </div>
                 </div>
@@ -454,17 +501,21 @@ export default function Profile({ userId }: ProfileProps) {
               
               {/* Rating Progress Bar */}
               <div className={styles.ratingProgress}>
-                <div className={styles.progressLabel}>
-                  <span>Progress to next rank</span>
-                  <span>65%</span>
-                </div>
-                <div className={styles.progressBar}>
-                  <div 
-                    className={styles.progressFill} 
-                    style={{ width: '65%', background: getRankColor(cfData.rank) }}
-                  ></div>
-                </div>
-              </div>
+  <div className={styles.progressLabel}>
+    <span>Progress to next rank</span>
+    <span>{cfProgress}%</span>
+  </div>
+  <div className={styles.progressBar}>
+    <div
+      className={styles.progressFill}
+      style={{
+        width: `${cfProgress}%`,
+        background: getRankColor(cfData?.rank)
+      }}
+    ></div>
+  </div>
+</div>
+
             </div>
           )}
 
@@ -558,7 +609,7 @@ export default function Profile({ userId }: ProfileProps) {
 
             {/* Recent Submissions */}
             <div className={styles.activitySection}>
-              <h4>📈 Recent Submissions</h4>
+              <h4>Recent Submissions</h4>
               <div className={styles.submissionsList}>
                 {solvedCount > 0 ? (
                   <div className={styles.submissionItem}>
@@ -584,7 +635,7 @@ export default function Profile({ userId }: ProfileProps) {
 
             {/* Quiz Performance */}
             <div className={styles.activitySection}>
-              <h4>🎯 Quiz Performance</h4>
+              <h4> Quiz Performance</h4>
               <div className={styles.quizStats}>
                 <div className={styles.quizStat}>
                   <span>Played</span>
