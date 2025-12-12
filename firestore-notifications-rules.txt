@@ -1,0 +1,134 @@
+// Firestore Security Rules for Notifications
+// Add these rules to your firestore.rules file
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Notifications collection rules
+    match /notifications/{notificationId} {
+      
+      // Allow users to read their own notifications
+      allow read: if request.auth != null 
+                  && request.auth.uid == resource.data.userId;
+      
+      // Allow creating notifications (for system/server)
+      // In production, you might want to restrict this to server-side only
+      allow create: if request.auth != null;
+      
+      // Allow users to update their own notifications (mark as read)
+      allow update: if request.auth != null 
+                    && request.auth.uid == resource.data.userId
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['read']);
+      
+      // Don't allow deleting notifications
+      allow delete: if false;
+    }
+    
+    // Your other collection rules...
+  }
+}
+
+/*
+ * EXPLANATION:
+ * 
+ * 1. READ: Users can only read notifications where userId matches their auth.uid
+ * 
+ * 2. CREATE: Any authenticated user can create notifications
+ *    - In production, consider restricting this to admin/server only
+ *    - You might want to use Firebase Admin SDK for server-side creation
+ * 
+ * 3. UPDATE: Users can only update their own notifications
+ *    - Only the 'read' field can be modified
+ *    - This prevents users from changing notification content
+ * 
+ * 4. DELETE: Notifications cannot be deleted by users
+ *    - Consider adding a soft-delete or archive feature instead
+ * 
+ * PRODUCTION RECOMMENDATIONS:
+ * 
+ * For better security in production:
+ * 
+ * 1. Use Firebase Admin SDK on the server to create notifications
+ * 2. Remove the 'allow create' rule for clients
+ * 3. Add this rule instead:
+ *    allow create: if false; // Only server can create
+ * 
+ * 4. Create notifications using Admin SDK in your API:
+ *    
+ *    import admin from 'firebase-admin';
+ *    
+ *    await admin.firestore()
+ *      .collection('notifications')
+ *      .add({
+ *        userId: targetUserId,
+ *        type: 'follow',
+ *        message: 'Someone followed you',
+ *        // ... other fields
+ *      });
+ */
+
+// FIRESTORE INDEXES
+// You'll also need to create these composite indexes in Firestore:
+
+/*
+ * Index 1: For fetching user notifications ordered by date
+ * Collection: notifications
+ * Fields:
+ *   - userId (Ascending)
+ *   - createdAt (Descending)
+ * 
+ * Index 2: For fetching unread notifications
+ * Collection: notifications
+ * Fields:
+ *   - userId (Ascending)
+ *   - read (Ascending)
+ *   - createdAt (Descending)
+ * 
+ * You can create these indexes:
+ * 1. Automatically: Run the app and click the link in the error message
+ * 2. Manually: Go to Firebase Console > Firestore > Indexes
+ * 3. Via Firebase CLI: Add to firestore.indexes.json
+ */
+
+// firestore.indexes.json example:
+/*
+{
+  "indexes": [
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "read",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
+*/
