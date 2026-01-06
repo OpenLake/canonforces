@@ -50,6 +50,7 @@
     "@types/react-dom": "^19.2.2",
     "@types/request": "^2.48.13",
     "autoprefixer": "^10.4.13",
+    "baseline-browser-mapping": "^2.9.11",
     "postcss": "^8.4.20",
     "tailwindcss": "^3.2.4",
     "tsx": "^4.20.3",

@@ -3,16 +3,15 @@ import { IoNotifications } from "react-icons/io5";
 import { RiSearch2Line } from "react-icons/ri";
 import Suggestions from "../Suggestions/Suggestions";
 import { useEffect, useState } from "react";
-import { doesUsernameExists } from "../../../services/firebase";
+import { getOrUpdateUserStats } from "../../../services/firebase"; 
 import useUser from "../../../hooks/use-user";
-import { getContestCount } from "../../../services/firebase";
-import { getSolvedCount } from "../../../services/firebase";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { getPOTD } from "../../../services/potd_fetch";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 
+const CACHE_KEY = "user_stats_cache"; // Key for local storage
 
 const getSnippet = (text: string, length: number = 150) => {
   if (!text) return "";
@@ -23,49 +22,59 @@ const getSnippet = (text: string, length: number = 150) => {
 
 export default function MainMenu() {
   const router = useRouter();
-  const [userData, setUserData] = useState<any>(null);
-  const [potd, setPotd] = useState<any>(null);
 
-  const user = useUser();
-  console.log('user logged', user);
-
-  useEffect(() => {
-    const username = user.user?.username;
-    if (typeof username === "string" && username.trim() !== "") {
-      (async () => {
-        const codeforcesData = await doesUsernameExists(username);
-        const contests = await getContestCount(username);
-        const solver = await getSolvedCount(username);
-        console.log('solver logged', solver);
-        setUserData({
-          ...codeforcesData?.result[0],
-          ...solver,
-          contestsGiven: contests
-        });
-      })();
+  // --- 1. INITIALIZE STATE FROM CACHE ---
+  const [userData, setUserData] = useState<any>(() => {
+    if (typeof window !== "undefined") { // Check if running in browser
+      const cached = localStorage.getItem(CACHE_KEY);
+      try {
+        return cached ? JSON.parse(cached) : null;
+      } catch (error) {
+        console.error("Error parsing user stats cache", error);
+        return null;
+      }
     }
-  }, [user.user]);
+    return null;
+  });
 
-  // --- UPDATED useEffect (copied logic from potd.tsx) ---
+  const [potd, setPotd] = useState<any>(null);
+  const user = useUser();
+
+  // --- UPDATED STATS FETCHING LOGIC ---
+  useEffect(() => {
+    const fetchStats = async () => {
+      const username = user.user?.username;
+      const docId = user.user?.docId; 
+
+      if (typeof username === "string" && username.trim() !== "" && docId) {
+        const stats = await getOrUpdateUserStats(username, docId);
+        
+        if (stats) {
+          setUserData(stats);
+          // --- 2. SAVE NEW DATA TO CACHE ---
+          localStorage.setItem(CACHE_KEY, JSON.stringify(stats));
+        }
+      }
+    };
+
+    fetchStats();
+  }, [user.user]); 
+  // ------------------------------------
+
+  // --- EXISTING POTD LOGIC (Unchanged) ---
   useEffect(() => {
     async function fetchPOTD() {
       try {
-        // Step 1: Get the POTD ID (which is a string)
         const problemId = await getPOTD();
         if (!problemId || typeof problemId !== "string") {
           throw new Error("Invalid POTD ID");
         }
-
-        // Step 2: Use the ID to get the problem doc from Firestore
         const ref = doc(db, "problems", problemId);
         const snapshot = await getDoc(ref);
         if (!snapshot.exists()) {
           throw new Error("Problem not found");
         }
-
-        // Step 3: Set the problem state
         setPotd({ id: snapshot.id, ...(snapshot.data()) });
-
       } catch (err: any) {
         console.error("Failed to fetch POTD:", err.message || "Error fetching POTD");
       }
@@ -99,21 +108,21 @@ export default function MainMenu() {
             <div className={styles.stats}>
               <div className={styles.stats1}>
                 <div className={styles.questions}>
-                  <span className={styles.number}> {userData?.rank ? userData?.rank : "pupil"} </span>  <span> Rank</span>
+                  {/* Now uses cached data immediately on load */}
+                  <span className={styles.number}> {userData?.rank ?? "pupil"} </span>  <span> Rank</span>
                 </div>
                 <div className={styles.questions}>
-                  <span className={styles.number}> {userData?.solved ? userData?.solved : "0"} </span>  <span>Problems Solved </span>
-                  <span className={styles.number}>{userData?.attempt ? userData?.attempt : "0"} </span>  <span>Submissions </span>
+                  <span className={styles.number}> {userData?.solved ?? "0"} </span>  <span>Problems Solved </span>
+                  <span className={styles.number}>{userData?.attempt ?? "0"} </span>  <span>Submissions </span>
                 </div>
 
               </div>
               <div className={styles.stats2}>
                 <div className={styles.ranking}>
-                  <span className={styles.number}> {userData?.maxRating ? userData?.maxRating : "Rating"} </span> <span> Max Rating </span>
+                  <span className={styles.number}> {userData?.maxRating ?? "Rating"} </span> <span> Max Rating </span>
                 </div>
                 <div className={styles.contest}>
-                  <span className={styles.number}> {userData?.contestsGiven ? userData?.contestsGiven : "0"} </span> <span> Contest played</span>
-                  {/* <span className={styles.number}> {user.user?.contestWon ? user.user?.contestWon: "0"} </span> <span> Won </span> */}
+                  <span className={styles.number}> {userData?.contestsGiven ?? "0"} </span> <span> Contest played</span>
                 </div>
               </div>
             </div>
@@ -128,7 +137,6 @@ export default function MainMenu() {
             </div>
           </div>
         </div>
-
 
         {/* --- POTD SNIPPET --- */}
         <div
@@ -162,6 +170,7 @@ export default function MainMenu() {
 
       </div>
       <div className={styles.suggestions}>
+        {/* userData will now have cached values, so suggestions load smoothly too */}
         <Suggestions rating={userData?.rating} />
       </div>
     </div>
