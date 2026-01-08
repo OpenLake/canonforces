@@ -1,16 +1,16 @@
 import styles from './Footer.module.css';
-import {AiFillTwitterCircle, AiFillLinkedin} from 'react-icons/ai';
-import {BsInstagram, BsFacebook} from 'react-icons/bs';
+import { AiFillTwitterCircle, AiFillLinkedin } from 'react-icons/ai';
+import { BsInstagram, BsFacebook, BsLightningFill } from 'react-icons/bs';
 
 export default function Footer() {
   return (
     <div className={styles.footer}>
       <div className={styles.footer__footer}>
         <div className={styles.playerTwo}>
-          <h4> Canonforces </h4>
+          <h4> CanonForces </h4>
           <p>
             {' '}
-            A paltform where you can showcase your codeforces profile in a more elegant way. 
+            A platform where you can showcase your Codeforces profile in a more elegant way.
             You can compete with other coders in a 1v1 match and improve your profile.{' '}
           </p>
         </div>
@@ -32,9 +32,15 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <hr className='w-3/6'/>
+      <hr className='w-3/6' />
       <div className={styles.footer__rights}>
-        <h3> @2022 Canonforces Pvt. Ltd. All Rights Reserved </h3>
+        <h3> © 2025 CanonForces. All Rights Reserved </h3>
+      </div>
+      <div className={styles.footer__attribution}>
+        <p className="flex items-center gap-2 text-sm">
+          <BsLightningFill className="text-yellow-400" size="1em" />
+          Maintained by Aviral Saxena
+        </p>
       </div>
     </div>
   );
