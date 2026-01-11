@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import styles from './QuesList.module.css';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import { db } from '../../../lib/firebase';
 import {
   collection,
@@ -9,20 +10,16 @@ import {
   getDocs,
   doc,
   getDoc,
-  setDoc,
   updateDoc,
 } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
+// --- Types ---
 type Problem = {
   id: string;
   title: string;
   description: string;
-  input_format: string;
-  output_format: string;
-  test_case: string;
-  answer: string;
-  solved: boolean;
+  problemUrl: string; 
   rating: number;
 };
 
@@ -30,17 +27,37 @@ type QuesListProps = {
   rating: string;
 };
 
+// --- Helper: Parse CF URL ---
+const parseCfUrl = (url: string) => {
+  try {
+    const parts = url.split('/');
+    // Handles formats like .../problem/1901/A
+    const index = parts.pop();
+    const contestId = parts.pop();
+    if (contestId && index && !isNaN(Number(contestId))) {
+      return { contestId: Number(contestId), index: index.toUpperCase() };
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+};
+
 const QuesList: React.FC<QuesListProps> = ({ rating }) => {
   const [questions, setQuestions] = useState<Problem[]>([]);
-  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  const [solvedIds, setSolvedIds] = useState<Set<string>>(new Set());
+  
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false); 
   const [userId, setUserId] = useState<string | null>(null);
+  const [cfHandle, setCfHandle] = useState<string | null>(null);
+
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [overallCompleted, setOverallCompleted] = useState(0);
   const router = useRouter();
 
   const currentRatingQuestions = questions.length;
-  const currentRatingCompleted = checkedIds.size;
+  const currentRatingCompleted = solvedIds.size;
   const currentRatingPercentage =
     currentRatingQuestions === 0
       ? 0
@@ -50,53 +67,33 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
       ? 0
       : Math.round((overallCompleted / totalQuestions) * 100);
 
-  // Get logged-in user via Firebase Auth
+  // 1. Auth & User Data Fetch
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
+        const userRef = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          // Assuming 'username' stores the Codeforces handle
+          if (data.username) setCfHandle(data.username);
+        }
       } else {
         setUserId(null);
+        setCfHandle(null);
       }
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Fetch total questions count and overall progress
-  const fetchOverallStats = useCallback(async () => {
+  // 2. Fetch Questions & Progress
+  const fetchQuestionsAndProgress = useCallback(async () => {
+    if (!userId) return;
+    setLoading(true);
     try {
-      const allQuestionsQuery = query(collection(db, 'problems'));
-      const allQuestionsSnapshot = await getDocs(allQuestionsQuery);
-      const total = allQuestionsSnapshot.size;
-      setTotalQuestions(total);
-
-      if (userId) {
-        const userRef = doc(db, 'users', userId);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          const allSolvedQuestions = userData?.solvedQuestions || {};
-
-          let overallSolved = 0;
-          Object.values(allSolvedQuestions).forEach((solvedArray: any) => {
-            if (Array.isArray(solvedArray)) {
-              overallSolved += solvedArray.length;
-            }
-          });
-          setOverallCompleted(overallSolved);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching overall stats:', error);
-    }
-  }, [userId]);
-
-  // Fetch Questions and User's Solved Questions
-  const fetchQuestions = useCallback(async () => {
-    try {
+      // Fetch Problems
       const q = query(
         collection(db, 'problems'),
         where('rating', '==', parseInt(rating))
@@ -108,131 +105,144 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
       }));
       setQuestions(fetchedQuestions);
 
-      if (userId) {
-        const userRef = doc(db, 'users', userId);
-        const userSnap = await getDoc(userRef);
+      // Fetch User Solved
+      const userRef = doc(db, 'users', userId);
+      const userSnap = await getDoc(userRef);
 
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          const solvedQuestions: string[] =
-            userData?.solvedQuestions?.[rating] || [];
-          setCheckedIds(new Set(solvedQuestions));
-        }
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const solvedArr: string[] = userData?.solvedQuestions?.[rating] || [];
+        setSolvedIds(new Set(solvedArr));
+        
+        // Overall Stats
+        const allSolvedMap = userData?.solvedQuestions || {};
+        let count = 0;
+        Object.values(allSolvedMap).forEach((arr: any) => {
+            if(Array.isArray(arr)) count += arr.length;
+        });
+        setOverallCompleted(count);
       }
+      
+      const allQ = await getDocs(collection(db, 'problems'));
+      setTotalQuestions(allQ.size);
+
     } catch (error) {
-      console.error('Error fetching questions:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
   }, [rating, userId]);
 
   useEffect(() => {
-    if (userId) {
-      fetchQuestions();
-      fetchOverallStats();
+    fetchQuestionsAndProgress();
+  }, [fetchQuestionsAndProgress]);
+
+
+  // 3. Sync with Codeforces API
+  const handleSyncWithCodeforces = async () => {
+    if (!cfHandle || !userId) {
+      alert("Please ensure you are logged in and have a Codeforces handle linked.");
+      return;
     }
-  }, [rating, userId, fetchQuestions, fetchOverallStats]);
-
-  // Update User's Solved Questions in Firestore
-  const updateUserSolvedQuestions = async (newCheckedIds: Set<string>) => {
-    if (!userId) return;
-
-    const userRef = doc(db, 'users', userId);
+    
+    setSyncing(true);
     try {
-      const userSnap = await getDoc(userRef);
+      const response = await fetch(`https://codeforces.com/api/user.status?handle=${cfHandle}`);
+      const data = await response.json();
 
-      const solvedQuestionsUpdate = {
-        ...(userSnap.exists() ? userSnap.data().solvedQuestions : {}),
-        [rating]: Array.from(newCheckedIds),
-      };
-
-      if (userSnap.exists()) {
-        await updateDoc(userRef, {
-          solvedQuestions: solvedQuestionsUpdate,
-        });
-      } else {
-        await setDoc(userRef, {
-          solvedQuestions: solvedQuestionsUpdate,
-        });
+      if (data.status !== 'OK') {
+        throw new Error('Failed to fetch Codeforces data');
       }
 
-      // Update overall progress
-      fetchOverallStats();
+      // Create verified set from CF
+      const cfSolvedSet = new Set<string>();
+      data.result.forEach((submission: any) => {
+        if (submission.verdict === 'OK') {
+          const key = `${submission.problem.contestId}-${submission.problem.index}`;
+          cfSolvedSet.add(key);
+        }
+      });
+
+      // Match against local questions
+      const newSolvedIds = new Set(solvedIds);
+      let hasUpdates = false;
+
+      questions.forEach((q) => {
+        if (!q.problemUrl) return;
+        
+        const parsed = parseCfUrl(q.problemUrl);
+        if (parsed) {
+          const key = `${parsed.contestId}-${parsed.index}`;
+          // If solved on CF but not marked locally
+          if (cfSolvedSet.has(key) && !solvedIds.has(q.id)) {
+            newSolvedIds.add(q.id);
+            hasUpdates = true;
+          }
+        }
+      });
+
+      // Update Firestore
+      if (hasUpdates) {
+        const userRef = doc(db, 'users', userId);
+        const userSnap = await getDoc(userRef);
+        const currentSolvedMap = userSnap.exists() ? userSnap.data().solvedQuestions : {};
+        
+        await updateDoc(userRef, {
+          solvedQuestions: {
+            ...currentSolvedMap,
+            [rating]: Array.from(newSolvedIds)
+          },
+          lastSolvedDate: new Date().toISOString().split('T')[0] 
+        });
+
+        setSolvedIds(newSolvedIds);
+        setOverallCompleted(prev => prev + (newSolvedIds.size - solvedIds.size));
+      }
+
     } catch (error) {
-      console.error('Error updating solved questions:', error);
+      console.error("Sync failed:", error);
+      alert("Could not sync with Codeforces. Please check your internet or try again later.");
+    } finally {
+      setSyncing(false);
     }
   };
 
-  const toggleCheckbox = (id: string) => {
-    setCheckedIds((prev) => {
-      const newSet = new Set(prev);
-      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
 
-      updateUserSolvedQuestions(newSet);
-      return newSet;
-    });
-  };
-
-  // Circular Progress Component
-  const CircularProgress = ({
-    percentage,
-    size = 80,
-    strokeWidth = 8,
-    label,
-    count,
-    total,
-  }: {
-    percentage: number;
-    size?: number;
-    strokeWidth?: number;
-    label: string;
-    count: number;
-    total: number;
-  }) => {
-    const radius = (size - strokeWidth) / 2;
+  // --- Circular Progress Component ---
+  const CircularProgress = ({ percentage, label, count, total }: any) => {
+    const radius = 36;
     const circumference = radius * 2 * Math.PI;
     const offset = circumference - (percentage / 100) * circumference;
 
     return (
       <div className={styles.circularProgressContainer}>
-        <div className={styles.circularProgressWrapper}>
-          <svg className={styles.circularProgressSvg} width={size} height={size}>
+        <div style={{ position: 'relative', width: '80px', height: '80px', flexShrink: 0 }}>
+          <svg width="80" height="80" style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx="40" cy="40" r={radius} stroke="#e2e8f0" strokeWidth="8" fill="none" />
             <circle
-              className={styles.circularProgressBackground}
-              stroke="#e2e8f0"
-              fill="transparent"
-              strokeWidth={strokeWidth}
+              cx="40"
+              cy="40"
               r={radius}
-              cx={size / 2}
-              cy={size / 2}
-            />
-            <circle
-              className={styles.circularProgressForeground}
               stroke="#3b82f6"
-              fill="transparent"
-              strokeWidth={strokeWidth}
+              strokeWidth="8"
+              fill="none"
               strokeDasharray={circumference}
               strokeDashoffset={offset}
               strokeLinecap="round"
-              r={radius}
-              cx={size / 2}
-              cy={size / 2}
+              style={{ transition: 'stroke-dashoffset 1s ease' }}
             />
           </svg>
-          <div className={styles.circularProgressText}>
-            <span className={styles.circularProgressPercentage}>
-              {percentage}%
-            </span>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#1e293b' }}>
+            {percentage}%
           </div>
         </div>
-        <div className={styles.circularProgressInfo}>
-          <h3 className={styles.circularProgressLabel}>{label}</h3>
-          <p className={styles.circularProgressCount}>
-            <span className={styles.countNumber}>{count}</span>
-            <span className={styles.countDivider}>/</span>
-            <span className={styles.countTotal}>{total}</span>
-          </p>
-          <p className={styles.circularProgressSubtext}>Problems Solved</p>
+        <div>
+          <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', color: '#64748b' }}>{label}</h3>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#0f172a' }}>
+            <span style={{ color: '#3b82f6' }}>{count}</span>
+            <span style={{ color: '#cbd5e1', margin: '0 4px' }}>/</span>
+            {total}
+          </div>
         </div>
       </div>
     );
@@ -240,94 +250,121 @@ const QuesList: React.FC<QuesListProps> = ({ rating }) => {
 
   return (
     <div className={styles.container}>
-      {/* Progress Dashboard */}
+      
+      {/* 1. Progress Dashboard */}
       <div className={styles.progressDashboard}>
         <div className={styles.progressCard}>
           <CircularProgress
             percentage={currentRatingPercentage}
-            label={`Rating ${rating} Progress`}
+            label={`Rating ${rating}`}
             count={currentRatingCompleted}
             total={currentRatingQuestions}
-            size={90}
-            strokeWidth={10}
           />
         </div>
         <div className={styles.progressCard}>
           <CircularProgress
             percentage={overallPercentage}
-            label="Overall Progress"
+            label="Total Solved"
             count={overallCompleted}
             total={totalQuestions}
-            size={90}
-            strokeWidth={10}
           />
         </div>
       </div>
 
-      {/* Questions List */}
+      {/* 2. Action Bar: Sync Button */}
+      <div className={styles.actionBar}>
+        <button 
+          className={styles.syncButton} 
+          onClick={handleSyncWithCodeforces}
+          disabled={syncing || loading}
+        >
+          {syncing ? (
+             <>
+               <span className={styles.spin}>↻</span> Syncing...
+             </>
+          ) : (
+             <>
+               <span>↻</span> Sync Progress
+             </>
+          )}
+        </button>
+      </div>
+
+      {/* 3. Questions List */}
       {loading ? (
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
-          <p className={styles.loadingText}>Loading questions...</p>
+          <p>Loading your arena...</p>
         </div>
       ) : questions.length === 0 ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyStateIcon}>📚</div>
-          <h3 className={styles.emptyStateTitle}>No Questions Found</h3>
-          <p className={styles.emptyStateText}>
-            No questions available for rating {rating} at the moment.
-          </p>
+          <h3>No Questions Found</h3>
+          <p>There are no active problems for rating {rating} yet.</p>
         </div>
       ) : (
         <div className={styles.questionsSection}>
           <div className={styles.questionsSectionHeader}>
-            <h2 className={styles.questionsSectionTitle}>
-              Rating {rating} Problems
-            </h2>
-            <span className={styles.questionsCount}>
-              {questions.length}{' '}
-              {questions.length === 1 ? 'problem' : 'problems'}
-            </span>
+            <h2 className={styles.questionsSectionTitle}>Rating {rating} Challenges</h2>
+            <span className={styles.questionsCount}>{questions.length} Problems</span>
           </div>
+          
           <ul className={styles.questionsList}>
-            {questions.map((q, index) => (
-              <li key={q.id} className={styles.questionItem}>
-                <div className={styles.questionItemContent}>
-                  <div className={styles.questionNumber}>{index + 1}</div>
-                  <div className={styles.checkboxContainer}>
-                    <input
-                      type="checkbox"
-                      className={styles.checkbox}
-                      checked={checkedIds.has(q.id)}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        toggleCheckbox(q.id);
-                      }}
-                      id={`checkbox-${q.id}`}
-                    />
-                    <label
-                      htmlFor={`checkbox-${q.id}`}
-                      className={styles.checkboxLabel}
-                    ></label>
-                  </div>
-                  <button
+            {questions.map((q, index) => {
+              const isSolved = solvedIds.has(q.id);
+              
+              return (
+                <li 
+                    key={q.id} 
+                    className={styles.questionItem}
                     onClick={() => router.push(`/questions/${q.id}`)}
-                    className={`${styles.questionButton} ${
-                      checkedIds.has(q.id)
-                        ? styles.questionButtonSolved
-                        : ''
-                    }`}
-                  >
-                    <span className={styles.questionTitle}>{q.title}</span>
-                    <div className={styles.questionMeta}>
-                      {checkedIds.has(q.id) && (
-                        <span className={styles.solvedBadge}>✓ Solved</span>
+                >
+                  
+                  {/* Left: Info */}
+                  <div className={styles.questionInfo}>
+                    <div className={styles.questionNumber}>{index + 1}</div>
+                    <div className={styles.questionContent}>
+                      <div className={styles.questionTitle}>{q.title}</div>
+                      <div className={styles.questionTags}>
+                        <span className={styles.tag}>Rating {rating}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Actions */}
+                  <div className={styles.questionActions}>
+                    {/* Status Badge */}
+                    <div className={`${styles.statusBadge} ${isSolved ? styles.solved : styles.unsolved}`}>
+                      {isSolved ? (
+                        <>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          Solved
+                        </>
+                      ) : (
+                        "Unsolved"
                       )}
                     </div>
-                  </button>
-                </div>
-              </li>
-            ))}
+
+                    {/* CF Link Button */}
+                    {q.problemUrl && (
+                      <div 
+                        className={styles.cfButton}
+                        title="View on Codeforces"
+                        onClick={(e) => {
+                            e.stopPropagation(); // Prevent redirecting to local editor
+                            window.open(q.problemUrl, '_blank');
+                        }}
+                      >
+                         <img 
+                           src="/logos/codeforces.png" 
+                           alt="CF" 
+                           className={styles.cfIcon}
+                         />
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

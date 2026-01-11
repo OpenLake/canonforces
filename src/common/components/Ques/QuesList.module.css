@@ -1,56 +1,44 @@
-/* ==========================================================================
-   QuesList Component - Enhanced Styling with Progress Dashboard
-   ========================================================================== */
+/* QuesList.module.css */
 
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 1.5rem;
-  background-color: #f8fafc;
-  min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-.container {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0; /* full bleed */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1e293b;
 }
 
-
-/* ==========================================================================
-   Progress Dashboard
-   ========================================================================== */
-
+/* --- Progress Dashboard --- */
 .progressDashboard {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
+  max-width: 95%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .progressCard {
   background: white;
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 2rem;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   gap: 2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: fadeInUp 0.4s ease forwards;
 }
 
 .progressCard:hover {
+  transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
 }
 
-/* ==========================================================================
-   Circular Progress
-   ========================================================================== */
-
+/* --- Circular Progress --- */
 .circularProgressContainer {
   display: flex;
   align-items: center;
@@ -58,170 +46,70 @@
   width: 100%;
 }
 
-.circularProgressWrapper {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.circularProgressSvg {
-  transform: rotate(-90deg);
-  filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.1));
-}
-
-.circularProgressBackground {
-  opacity: 0.2;
-}
-
-.circularProgressForeground {
-  transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.3));
-}
-
-.circularProgressText {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-
-.circularProgressPercentage {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1e293b;
-  line-height: 1;
-}
-
-.circularProgressInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.circularProgressLabel {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 0.5rem 0;
-  line-height: 1.3;
-}
-
-.circularProgressCount {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin: 0 0 0.25rem 0;
+/* --- Action Bar (Sync Button) --- */
+.actionBar {
   display: flex;
-  align-items: baseline;
-  gap: 0.25rem;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.countNumber {
-  color: #3b82f6;
-}
-
-.countDivider {
-  color: #94a3b8;
-  font-size: 1.5rem;
-}
-
-.countTotal {
-  color: #64748b;
-}
-
-.circularProgressSubtext {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin: 0;
-  font-weight: 500;
-}
-
-/* ==========================================================================
-   Linear Progress Bar
-   ========================================================================== */
-
-.linearProgressContainer {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.linearProgressHeader {
+.syncButton {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.linearProgressLabel {
+  gap: 0.6rem;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
   font-weight: 600;
-  color: #374151;
   font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.linearProgressPercentage {
-  font-weight: 700;
-  color: #3b82f6;
-  font-size: 1rem;
+.syncButton:hover {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.08);
 }
 
-.linearProgressBar {
-  background: #e2e8f0;
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
+.syncButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.linearProgressFill {
-  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+.spin {
+  animation: spin 1s linear infinite;
 }
 
-.linearProgressFill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-
-.linearProgressText {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin: 0;
-  text-align: center;
-  font-weight: 500;
-}
-
-/* ==========================================================================
-   Questions Section
-   ========================================================================== */
-
+/* --- Questions Section --- */
 .questionsSection {
   background: white;
-  border-radius: 16px;
+  border-radius: 18px;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   overflow: hidden;
+  width: 95%;
+  margin: 0 auto;
+  transition: box-shadow 0.3s ease;
+}
+
+.questionsSection:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .questionsSectionHeader {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 2px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -229,8 +117,9 @@
 
 .questionsSectionTitle {
   font-size: 1.5rem;
-  font-weight: 600;
-  color: #1e293b;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.3px;
   margin: 0;
 }
 
@@ -238,9 +127,9 @@
   background: #e0f2fe;
   color: #0369a1;
   padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
   border: 1px solid #7dd3fc;
 }
 
@@ -250,9 +139,17 @@
   margin: 0;
 }
 
+/* --- Question Item Row --- */
 .questionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
   border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
   transition: all 0.2s ease;
+  cursor: pointer; /* Indicates clickable row */
+  margin: 0; 
 }
 
 .questionItem:last-child {
@@ -263,470 +160,164 @@
   background-color: #f8fafc;
 }
 
-.questionItemContent {
+.questionInfo {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1.25rem 2rem;
+  gap: 1.5rem;
+  flex: 1;
 }
 
 .questionNumber {
   background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
   color: #475569;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: 700;
+  font-size: 0.9rem;
   flex-shrink: 0;
 }
 
-/* ==========================================================================
-   Custom Checkbox
-   ========================================================================== */
-
-.checkboxContainer {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.checkbox {
-  opacity: 0;
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-}
-
-.checkboxLabel {
-  display: block;
-  width: 24px;
-  height: 24px;
-  background: white;
-  border: 2px solid #cbd5e1;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.checkboxLabel::after {
-  content: '';
-  position: absolute;
-  left: 7px;
-  top: 3px;
-  width: 6px;
-  height: 12px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg) scale(0);
-  transition: transform 0.2s ease;
-}
-
-.checkbox:checked + .checkboxLabel {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.checkbox:checked + .checkboxLabel::after {
-  transform: rotate(45deg) scale(1);
-}
-
-.checkbox:focus + .checkboxLabel {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-/* ==========================================================================
-   Question Button
-   ========================================================================== */
-
-.questionButton {
-  flex: 1;
-  background: none;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.2s ease;
-  min-width: 0;
-}
-
-.questionButton:hover .questionTitle {
-  color: #3b82f6;
-}
-
-.questionButton:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-  border-radius: 8px;
-}
-
-.questionButtonSolved .questionTitle {
-  color: #059669;
+.questionContent {
+  display: flex;
+  flex-direction: column;
 }
 
 .questionTitle {
   font-size: 1.1rem;
   font-weight: 600;
   color: #1e293b;
-  line-height: 1.4;
-  margin-bottom: 0.5rem;
-  display: block;
+  margin-bottom: 0.25rem;
   transition: color 0.2s ease;
 }
 
-.questionMeta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+.questionItem:hover .questionTitle {
+  color: #3b82f6;
 }
 
-.ratingBadge {
-  background: #f1f5f9;
-  color: #475569;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+.questionTags {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tag {
   font-size: 0.75rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #64748b;
   font-weight: 600;
   border: 1px solid #e2e8f0;
 }
 
-.solvedBadge {
-  background: #dcfce7;
-  color: #059669;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
+/* --- Question Actions (Right Side) --- */
+.questionActions {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  z-index: 2; /* Ensures buttons are clickable above row link */
+}
+
+/* Status Badge */
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
   font-weight: 600;
+  min-width: 100px;
+  justify-content: center;
+}
+
+.solved {
+  background: #dcfce7;
+  color: #166534;
   border: 1px solid #bbf7d0;
 }
 
-/* ==========================================================================
-   Loading State
-   ========================================================================== */
+.unsolved {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
 
-.loadingContainer {
+/* CF Link Button */
+.cfButton {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
-  background: white;
-  border-radius: 16px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   border: 1px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.cfButton:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.cfIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* --- Animations & Loading --- */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.loadingContainer, .emptyState {
+  text-align: center;
+  padding: 4rem;
+  color: #64748b;
 }
 
 .loadingSpinner {
   width: 40px;
   height: 40px;
   border: 3px solid #e2e8f0;
-  border-top: 3px solid #3b82f6;
+  border-top-color: #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
+  margin: 0 auto 1rem;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loadingText {
-  color: #64748b;
-  font-size: 1.1rem;
-  font-weight: 500;
-  margin: 0;
-}
-
-/* ==========================================================================
-   Empty State
-   ========================================================================== */
-
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  text-align: center;
-}
-
-.emptyStateIcon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
-}
-
-.emptyStateTitle {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 0.5rem 0;
-}
-
-.emptyStateText {
-  color: #64748b;
-  font-size: 1rem;
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* ==========================================================================
-   Responsive Design
-   ========================================================================== */
-
+/* Responsive */
 @media (max-width: 768px) {
-  .container {
+  .questionsSectionHeader, .questionItem {
     padding: 1rem;
   }
-
-  .progressDashboard {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .progressCard {
-    padding: 1.5rem;
+  
+  .questionItem {
     flex-direction: column;
-    text-align: center;
-    gap: 1.5rem;
-  }
-
-  .circularProgressContainer {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .circularProgressInfo {
-    text-align: center;
-  }
-
-  .questionsSectionHeader {
-    padding: 1rem 1.5rem;
-    flex-direction: column;
-    gap: 1rem;
     align-items: flex-start;
+    gap: 1rem;
   }
-
-  .questionItemContent {
-    padding: 1rem 1.5rem;
-    gap: 0.75rem;
+  
+  .questionActions {
+    width: 100%;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f5f9;
   }
-
-  .questionTitle {
-    font-size: 1rem;
-  }
-
-  .questionMeta {
-    gap: 0.5rem;
-  }
-
-  .linearProgressContainer {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 0.75rem;
-  }
-
-  .progressCard {
-    padding: 1rem;
-  }
-
-  .circularProgressPercentage {
-    font-size: 1rem;
-  }
-
-  .circularProgressCount {
-    font-size: 1.5rem;
-  }
-
-  .circularProgressLabel {
-    font-size: 1rem;
-  }
-
-  .questionItemContent {
-    padding: 0.75rem 1rem;
-  }
-
-  .questionNumber {
-    width: 28px;
-    height: 28px;
-    font-size: 0.75rem;
-  }
-
-  .checkboxLabel {
-    width: 20px;
-    height: 20px;
-  }
-
-  .checkboxLabel::after {
-    left: 6px;
-    top: 2px;
-    width: 5px;
-    height: 10px;
-  }
-
-  .questionTitle {
-    font-size: 0.95rem;
-  }
-
-  .questionsSectionTitle {
-    font-size: 1.25rem;
-  }
-
-  .questionsCount {
-    font-size: 0.75rem;
-    padding: 0.375rem 0.75rem;
-  }
-}
-
-/* ==========================================================================
-   Animations
-   ========================================================================== */
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.questionItem {
-  animation: fadeInUp 0.3s ease forwards;
-}
-
-.questionItem:nth-child(1) { animation-delay: 0.05s; }
-.questionItem:nth-child(2) { animation-delay: 0.1s; }
-.questionItem:nth-child(3) { animation-delay: 0.15s; }
-.questionItem:nth-child(4) { animation-delay: 0.2s; }
-.questionItem:nth-child(5) { animation-delay: 0.25s; }
-
-.progressCard {
-  animation: fadeInUp 0.4s ease forwards;
-}
-
-.progressCard:nth-child(1) { animation-delay: 0.1s; }
-.progressCard:nth-child(2) { animation-delay: 0.2s; }
-
-/* ==========================================================================
-   Accessibility
-   ========================================================================== */
-
-@media (prefers-reduced-motion: reduce) {
-  .circularProgressForeground,
-  .linearProgressFill,
-  .checkboxLabel::after,
-  .questionItem,
-  .progressCard {
-    transition: none;
-    animation: none;
-  }
-
-  .loadingSpinner {
-    animation: none;
-    border-top-color: #3b82f6;
-  }
-}
-
-/* ==========================================================================
-   Print Styles
-   ========================================================================== */
-
-@media print {
-  .container {
-    background: white;
-    box-shadow: none;
-    padding: 1rem;
-  }
-
-  .progressCard,
-  .questionsSection,
-  .linearProgressContainer {
-    box-shadow: none;
-    border: 1px solid #ccc;
-  }
-
-  .loadingSpinner {
-    display: none;
-  }
-}
-
-.container {
-  max-width: 1600px; /* Increased from 1200px */
-}
-
-.questionsSection {
-  margin-top: 1rem;
-  width: 95%; /* Previously full width, now slightly inset */
-  margin-left: 1rem;
-  margin-right: auto;
-}
-
-.progressDashboard {
-  max-width: 95%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.progressCard,
-.questionsSection,
-.linearProgressContainer {
-  border-radius: 18px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
-}
-
-.progressCard:hover,
-.questionsSection:hover,
-.linearProgressContainer:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  transform: translateY(-3px);
-}
-
-
-.questionsSectionTitle {
-  font-size: 1.75rem; /* increased */
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.3px;
-}
-
-.questionsSectionHeader {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.questionItem {
-  border-bottom: 1px solid #f1f5f9;
-  background: #ffffff;
-  border-radius: 12px;
-  margin: 0.5rem 1rem;
-  transition: all 0.2s ease;
-}
-
-.questionItem:hover {
-  background: #f8fafc;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-  transform: translateY(-2px);
-}
-.progressDashboard {
-  margin-top: 1rem;
-  margin-bottom: 2.5rem;
 }

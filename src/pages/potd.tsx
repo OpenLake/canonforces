@@ -1,65 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { getPOTD } from "../services/potd_fetch";
-import { doc, getDoc, setDoc, onSnapshot, increment, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot, increment, runTransaction } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import styles from "../styles/POTDpage.module.css";
 import Image from "next/image";
 import { formatDescription } from "../utils/formatDescription";
 import { toast } from "sonner";
+import { checkCodeforcesSubmission } from "../services/codeforces_api";
+import { FiRefreshCw, FiCheck, FiAward, FiClock } from "react-icons/fi";
 
-// --- Types ---
+// ... [Interfaces remain the same] ...
 interface Solver {
   uid: string;
   username: string;
   solvedAt: string | Date;
+  codeforcesUsername?: string;
 }
 
 interface Problem {
   id: string;
   title: string;
   description?: string;
-  input_format?: string;
-  output_format?: string;
-  answer?: string;
-  test_case?: string;
   rating?: number;
   tags?: string[];
+  problemUrl?: string;
 }
 
 interface UserData {
   coins: number;
   streak: number;
   lastSolvedDate?: string;
+  username?: string;
 }
-
-const FiCpu = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={styles.cpuIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-    <rect x="9" y="9" width="6" height="6"></rect>
-    <line x1="9" y1="1" x2="9" y2="4"></line>
-    <line x1="15" y1="1" x2="15" y2="4"></line>
-    <line x1="9" y1="20" x2="9" y2="23"></line>
-    <line x1="15" y1="20" x2="15" y2="23"></line>
-    <line x1="20" y1="9" x2="23" y2="9"></line>
-    <line x1="20" y1="14" x2="23" y2="14"></line>
-    <line x1="1" y1="9" x2="4" y2="9"></line>
-    <line x1="1" y1="14" x2="4" y2="14"></line>
-  </svg>
-);
-
-const FiCode = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={styles.codeIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <polyline points="16 18 22 12 16 6"></polyline>
-    <polyline points="8 6 2 12 8 18"></polyline>
-  </svg>
-);
-
-const FiAward = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={styles.awardIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <circle cx="12" cy="8" r="7"></circle>
-    <polyline points="8.21 13.89 7 23 12 17 17 23 15.79 13.88"></polyline>
-  </svg>
-);
 
 const POTDPage: React.FC = () => {
   const [problem, setProblem] = useState<Problem | null>(null);
@@ -68,267 +40,244 @@ const POTDPage: React.FC = () => {
   const [dailySolvers, setDailySolvers] = useState<Solver[]>([]);
   const [userSolved, setUserSolved] = useState(false);
   const [userData, setUserData] = useState<UserData>({ coins: 0, streak: 0 });
-  const [isUpdatingCoins, setIsUpdatingCoins] = useState(false);
+  const [isCheckingCF, setIsCheckingCF] = useState(false);
+  const [cfUsername, setCfUsername] = useState<string>("");
 
-  const todayDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const todayDate = new Date().toISOString().split("T")[0];
+  const displayDate = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
-  // Fetch POTD
+  // ... [Keep truncateDescription, fetchPOTD, etc. logic SAME as before] ...
+  const truncateDescription = (desc: string, maxLength: number = 400): string => {
+    if (!desc) return "";
+    const stripped = desc.replace(/\*\*/g, '').replace(/`/g, '');
+    if (stripped.length <= maxLength) return desc;
+    const truncated = desc.substring(0, maxLength);
+    return truncated.substring(0, truncated.lastIndexOf(' ')) + '...';
+  };
+
   useEffect(() => {
     async function fetchPOTD() {
       try {
         const id = await getPOTD();
         if (!id || typeof id !== "string") throw new Error("Invalid POTD ID");
-
         const ref = doc(db, "problems", id);
         const snapshot = await getDoc(ref);
         if (!snapshot.exists()) throw new Error("Problem not found");
-
-        setProblem({ id, ...(snapshot.data() as Omit<Problem, "id">) });
-      } catch (err: any) {
-        setError(err.message || "Error fetching POTD");
-      } finally {
-        setLoading(false);
-      }
+        const data = snapshot.data();
+        setProblem({ 
+          id, title: data.title, description: data.description, rating: data.rating, tags: data.tags, problemUrl: data.problemUrl
+        });
+      } catch (err: any) { setError(err.message || "Error fetching POTD"); } finally { setLoading(false); }
     }
     fetchPOTD();
   }, []);
 
-  // Fetch solvers for today (real-time)
   useEffect(() => {
+    if (!problem?.id) return;
     const submissionRef = doc(db, "potd_submissions", todayDate);
-
     const unsubscribe = onSnapshot(submissionRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        if (data?.problemId !== problem?.id) return; // Only show solvers for current POTD
-
-        const solversData = data?.solvers || {};
-        const solversArray: Solver[] = Object.entries(solversData).map(([uid, value]: [string, any]) => ({
-          uid,
-          username: value.username,
-          solvedAt: value.solvedAt,
+        if (data?.problemId !== problem?.id) return;
+        const solversArray: Solver[] = Object.entries(data?.solvers || {}).map(([uid, value]: [string, any]) => ({
+          uid, username: value.username, solvedAt: value.solvedAt, codeforcesUsername: value.codeforcesUsername
         }));
-
         solversArray.sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
         setDailySolvers(solversArray);
-
-        const solved = auth.currentUser ? solversArray.some((s) => s.uid === auth.currentUser?.uid) : false;
-        setUserSolved(solved);
+        setUserSolved(auth.currentUser ? solversArray.some((s) => s.uid === auth.currentUser?.uid) : false);
       } else {
         setDoc(submissionRef, { problemId: problem?.id || "", solvers: {} }, { merge: true });
       }
     });
-
     return () => unsubscribe();
   }, [todayDate, problem?.id]);
 
-  // Fetch user data (coins and streak)
   useEffect(() => {
     if (!auth.currentUser) return;
-
     const userRef = doc(db, "users", auth.currentUser.uid);
     const unsubscribe = onSnapshot(userRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data() as UserData;
-        setUserData({
-          coins: data.coins || 0,
-          streak: data.streak || 0,
-          lastSolvedDate: data.lastSolvedDate
-        });
+        setUserData({ coins: data.coins || 0, streak: data.streak || 0, lastSolvedDate: data.lastSolvedDate, username: data.username });
+        setCfUsername(data.username || "");
       }
     });
-
     return () => unsubscribe();
   }, [auth.currentUser]);
 
-  const handleMarkSolved = async () => {
-    if (!auth.currentUser || !problem || userSolved || isUpdatingCoins) return;
+  // ... [Keep handleCheckCFSubmission and markAsSolved SAME as before] ...
+  const handleCheckCFSubmission = useCallback(async () => {
+      // ... logic from previous response ...
+      if (!auth.currentUser || !problem || userSolved || isCheckingCF) return;
+      if (!cfUsername) { toast.error("Please set your Codeforces username in settings"); return; }
+      setIsCheckingCF(true);
+      try {
+        const urlMatch = problem.problemUrl?.match(/codeforces\.com\/problemset\/problem\/(\d+)\/([A-Z]\d?)/);
+        if (!urlMatch) { toast.error("Invalid Codeforces problem URL"); return; }
+        const [, contestId, problemIndex] = urlMatch;
+        const hasSolved = await checkCodeforcesSubmission(cfUsername, contestId, problemIndex);
+        if (hasSolved) { await markAsSolved(); toast.success("🎉 Verified! Solution found!"); } 
+        else { toast.error("No accepted submission found today."); }
+      } catch (error: any) { toast.error(error.message); } finally { setIsCheckingCF(false); }
+  }, [auth.currentUser, problem, cfUsername, userSolved, isCheckingCF]);
 
-    setIsUpdatingCoins(true);
-    
-    try {
-      const submissionRef = doc(db, "potd_submissions", todayDate);
-      const userRef = doc(db, "users", auth.currentUser.uid);
-      
-      // Check if user document exists, create if not
-      const userDoc = await getDoc(userRef);
-      if (!userDoc.exists()) {
-        await setDoc(userRef, {
-          coins: 0,
-          streak: 0,
-          lastSolvedDate: null,
-          uid: auth.currentUser.uid,
-          email: auth.currentUser.email,
-          displayName: auth.currentUser.displayName
+  const markAsSolved = async () => {
+      // ... logic from previous response ...
+      if (!auth.currentUser || !problem || userSolved) return;
+      try {
+        const submissionRef = doc(db, "potd_submissions", todayDate);
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        await runTransaction(db, async (transaction) => {
+          const userDoc = await transaction.get(userRef);
+          const currentUserData = userDoc.exists() ? userDoc.data() as UserData : { coins: 0, streak: 0 };
+          const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toISOString().split("T")[0];
+          let newStreak = 1;
+          if (currentUserData.lastSolvedDate === yesterdayStr) newStreak = (currentUserData.streak || 0) + 1;
+          else if (currentUserData.lastSolvedDate === todayDate) return; 
+          transaction.update(userRef, { coins: increment(5), streak: newStreak, lastSolvedDate: todayDate });
+          transaction.set(submissionRef, {
+            problemId: problem.id,
+            solvers: { [auth.currentUser!.uid]: { uid: auth.currentUser!.uid, username: auth.currentUser!.displayName || "User", solvedAt: new Date().toISOString() } }
+          }, { merge: true });
         });
-      }
-      
-      // Calculate streak
-      const currentUserData = userDoc.exists() ? userDoc.data() as UserData : { coins: 0, streak: 0 };
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split("T")[0];
-      
-      let newStreak = 1;
-      if (currentUserData.lastSolvedDate === yesterdayStr) {
-        newStreak = (currentUserData.streak || 0) + 1;
-      } else if (currentUserData.lastSolvedDate === todayDate) {
-        // Already solved today, don't update
-        return;
-      }
-      
-      // Update user coins and streak
-      await updateDoc(userRef, {
-        coins: increment(5),
-        streak: newStreak,
-        lastSolvedDate: todayDate
-      });
-      
-      // Add to daily solvers
-      await setDoc(
-        submissionRef,
-        {
-          problemId: problem.id,
-          solvers: {
-            [auth.currentUser.uid]: {
-              uid: auth.currentUser.uid,
-              username: auth.currentUser.displayName || auth.currentUser.email?.split("@")[0],
-              solvedAt: new Date(),
-            },
-          },
-        },
-        { merge: true }
-      );
-      
-      // Update local state
-      setUserSolved(true);
-      setUserData(prev => ({
-        ...prev,
-        coins: prev.coins + 5,
-        streak: newStreak
-      }));
-      
-      // Show success toast
-      toast.success(
-        `🎉 You earned +5 coins and ${newStreak > 1 ? `continued your ${newStreak}-day streak!` : 'started a new streak!'}`,
-        {
-          duration: 4000,
-          position: 'top-center',
-        }
-      );
-      
-    } catch (error) {
-      console.error('Error marking problem as solved:', error);
-      toast.error('Failed to mark problem as solved. Please try again.');
-    } finally {
-      setIsUpdatingCoins(false);
-    }
+      } catch (error) { toast.error('Failed to save progress.'); }
   };
 
   const getDifficulty = (rating?: number) => {
     if (!rating) return "Unknown";
     if (rating < 1200) return "Easy";
-    if (rating < 1800) return "Medium";
+    if (rating < 1600) return "Medium";
     return "Hard";
   };
 
-  const getDifficultyEmoji = (difficulty: string) => {
-    switch (difficulty) {
-      case "Easy": return "🟢";
-      case "Medium": return "🟠";
-      case "Hard": return "🔴";
-      default: return "⚪";
-    }
-  };
-
-  const difficultyColors: Record<string, string> = {
-    Easy: styles.easy,
-    Medium: styles.medium,
-    Hard: styles.hard,
-    Unknown: styles.unknown,
-  };
-
-  if (loading) return <div className={styles.centerScreen}><p className={styles.loading}>Loading Problem of the Day...</p></div>;
-  if (error || !problem) return <div className={styles.centerScreen}><p className={styles.error}>{error || "Problem not found"}</p></div>;
+  if (loading) return <div style={{padding:'4rem', textAlign:'center'}}>Loading...</div>;
+  if (error || !problem) return <div style={{padding:'4rem', textAlign:'center', color:'red'}}>{error || "Problem not found"}</div>;
 
   const difficulty = getDifficulty(problem.rating);
+  const truncatedDesc = truncateDescription(problem.description || "", 300);
 
   return (
-    <div className={styles.pageWrapper}>
-      <Image src="/images/think.png" alt="Mascot thinking" width={400} height={400} className={styles.mascot} />
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <FiCpu />
-          <h1 className={styles.title}>Problem of the Day</h1>
-          <p className={styles.date}>
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
+    <div className={styles.pageContainer}>
+      <div className={styles.contentWrapper}>
+        
+        {/* --- Hero Section (Matches Practice Arena) --- */}
+        <div className={styles.heroSection}>
+          <div className={styles.heroContent}>
+            <div className={styles.titleRow}>
+              {/* 3D Icon matching your book style */}
+              <span className={styles.titleIcon}>📅</span> 
+              <h1 className={styles.heroTitle}>Problem of the Day</h1>
+            </div>
+            
+            {/* Subtitle matching "Master algorithmic..." */}
+            <h2 className={styles.heroSubtitle}>
+              {displayDate} — Keep your streak alive!
+            </h2>
+            
+            {/* Description matching "Choose your difficulty..." */}
+            <p className={styles.heroText}>
+              Solve today's carefully curated challenge designed to enhance your coding skills. 
+              Compete with peers and climb the daily leaderboard.
+            </p>
+          </div>
+
+          {/* Independent Image */}
+          <Image 
+            src="/images/think.png" 
+            alt="Mascot" 
+            width={150} 
+            height={150} 
+            priority
+            className={styles.mascotImage}
+          />
         </div>
 
-        <div className={styles.card}>
-          <div className={styles.cardContent}>
-            <div className={styles.problemHeader}>
-              <h2 className={styles.problemTitle}>{problem.title}</h2>
-              <span className={`${styles.difficultyBadge} ${difficultyColors[difficulty]}`}>
-                {getDifficultyEmoji(difficulty)} {difficulty}
-              </span>
-            </div>
-
-            {problem.description && <p className={styles.description}>{formatDescription(problem.description)}</p>}
-
-            {problem.tags && problem.tags.length > 0 && (
-              <div className={styles.tagsWrapper}>
-                <FiCode />
-                <div className={styles.tags}>
-                  {problem.tags.map((tag) => <span key={tag} className={styles.tag}>{tag}</span>)}
+        <div className={styles.mainGrid}>
+          {/* Left Column */}
+          <div className={styles.leftColumn}>
+            <div className={styles.problemCard}>
+              <div className={styles.problemHeader}>
+                <h2 className={styles.problemTitle}>{problem.title}</h2>
+                <div className={styles.problemMeta}>
+                  <span className={`${styles.difficultyBadge} ${styles[difficulty.toLowerCase()]}`}>
+                    {difficulty}
+                  </span>
+                  {problem.rating && <span className={styles.ratingText}>Rating: {problem.rating}</span>}
                 </div>
               </div>
-            )}
 
-            <div className={styles.solveButtonWrapper}>
-              <a href={`/questions/${problem.id}`} className={styles.solveButton}>Solve Today&apos;s Problem</a>
+              <div className={styles.description} dangerouslySetInnerHTML={{ __html: formatDescription(truncatedDesc) }} />
+
+              {problem.tags && (
+                <div className={styles.tagsContainer}>
+                  {problem.tags.slice(0, 5).map((tag) => <span key={tag} className={styles.tag}>{tag}</span>)}
+                </div>
+              )}
+
+              <div className={styles.actionButtons}>
+                <a href={`/questions/${problem.id}`} className={styles.primaryButton}>Solve Challenge</a>
+                {problem.problemUrl && (
+                  <a href={problem.problemUrl} target="_blank" rel="noopener noreferrer" className={styles.secondaryButton}>
+                    View on Codeforces
+                  </a>
+                )}
+              </div>
             </div>
 
-            {/* Mark as solved section */}
+            {/* Verification Card */}
             {auth.currentUser && (
-              <div className={styles.solveStatusWrapper}>
-                <div className={styles.userStats}>
-                  <span className={styles.coinDisplay}>💰 {userData.coins} coins</span>
-                  <span className={styles.streakDisplay}>🔥 {userData.streak} day streak</span>
+              <div className={styles.verificationCard}>
+                <div className={styles.userStatsRow}>
+                   <div className={styles.userStat}>
+                     <span style={{fontSize:'2rem'}}>💰</span>
+                     <div><div className={styles.statValue}>{userData.coins}</div><div className={styles.statLabel}>Coins</div></div>
+                   </div>
+                   <div className={styles.userStat}>
+                     <span style={{fontSize:'2rem'}}>🔥</span>
+                     <div><div className={styles.statValue}>{userData.streak}</div><div className={styles.statLabel}>Day Streak</div></div>
+                   </div>
                 </div>
-                <label className={styles.solveCheckbox}>
-                  <input
-                    type="checkbox"
-                    checked={userSolved}
-                    onChange={handleMarkSolved}
-                    disabled={isUpdatingCoins}
-                    className={styles.checkboxInput}
-                  />
-                  <span className={styles.checkboxLabel}>
-                    {isUpdatingCoins ? 'Updating...' : userSolved ? '✅ Solved!' : 'Mark as solved'}
-                  </span>
-                </label>
+                {userSolved ? (
+                  <div style={{background:'#f0fdf4', color:'#166534', padding:'1rem', borderRadius:'8px', display:'flex', alignItems:'center', gap:'0.5rem', fontWeight:'600'}}>
+                    <FiCheck /> Solved!
+                  </div>
+                ) : (
+                  <button onClick={handleCheckCFSubmission} disabled={isCheckingCF} className={styles.verifyButton}>
+                    {isCheckingCF ? "Verifying..." : "Verify Codeforces Submission"}
+                  </button>
+                )}
               </div>
             )}
           </div>
 
-          {dailySolvers.length > 0 && (
-            <div className={styles.solverSection}>
-              <h3 className={styles.solverHeading}><FiAward /> First Solvers Today</h3>
-              <ul className={styles.solverList}>
-                {dailySolvers.map((solver, i) => (
-                  <li key={solver.uid} className={styles.solverItem}>
-                    🏅 {i + 1}. {solver.username}
-                  </li>
-                ))}
-              </ul>
+          {/* Right Column */}
+          <div className={styles.rightColumn}>
+            <div className={styles.leaderboardCard}>
+              <div className={styles.leaderboardHeader}>
+                <h3 className={styles.leaderboardTitle}><FiAward className={styles.awardIcon} /> Top Solvers</h3>
+                <span style={{background:'#f1f5f9', padding:'2px 8px', borderRadius:'12px', fontSize:'0.8rem', fontWeight:'600'}}>{dailySolvers.length}</span>
+              </div>
+              <div className={styles.solversListContainer}>
+                {dailySolvers.length > 0 ? (
+                   <ul style={{listStyle:'none', padding:0, display:'flex', flexDirection:'column', gap:'0.5rem'}}>
+                     {dailySolvers.map((s, i) => (
+                       <li key={s.uid} style={{padding:'0.5rem', background:'#f8fafc', borderRadius:'8px', display:'flex', justifyContent:'space-between', fontSize:'0.9rem'}}>
+                         <span>#{i+1} <b>{s.username}</b></span>
+                         <span style={{color:'#94a3b8', fontSize:'0.8rem'}}>{new Date(s.solvedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                       </li>
+                     ))}
+                   </ul>
+                ) : (
+                  <div style={{textAlign:'center', padding:'2rem', color:'#94a3b8'}}>
+                    <Image src="/images/nosolver.png" alt="Empty" width={400} height={40
+                      } style={{marginBottom:'1rem', objectFit:'contain'}} />
+                    <p style={{margin:0}}>No one has solved it yet.<br/>Be the first!</p>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

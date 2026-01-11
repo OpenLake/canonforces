@@ -12,7 +12,6 @@
 .main_menu {
   display: flex;
   flex-direction: column;
-  /* background-color: antiquewhite; */
   width: 73%;
 }
 
@@ -22,6 +21,7 @@
   width: 100%;
   height: 3rem;
   align-items: center;
+  gap: 12px;
 }
 
 .search {
@@ -29,7 +29,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  /* padding: 10px; */
+  flex: 1;
 }
 
 .search_icon {
@@ -41,28 +41,45 @@
 }
 
 .search > input {
+  width: 100%;
   border: 1px solid rgb(221, 221, 221);
-  background-color: #f7f8fa;
+  background-color: #ffffff;
   padding: 10px;
   padding-left: 50px;
   border-radius: 40px;
   font-size: 14px;
+  transition: all 0.3s ease;
 }
 
 .search > input:focus {
   outline: none;
+  border-color: #66b2f5;
+  box-shadow: 0 0 0 3px rgba(102, 178, 245, 0.1);
+}
+
+.search > input::placeholder {
+  color: rgb(149, 149, 149);
 }
 
 .notification_icon {
   min-width: 50px;
-  margin-left: 10px;
+  width: 50px;
+  height: 50px;
   color: #898c92;
-  height: 100%;
   border-radius: 50%;
   border: 1px solid rgb(221, 221, 221);
+  background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.notification_icon:hover {
+  border-color: #66b2f5;
+  color: #66b2f5;
+  background-color: rgba(102, 178, 245, 0.05);
 }
 
 .main_menu_stats {
@@ -102,15 +119,39 @@
 .contest {
   display: flex;
   flex-direction: column;
-  background-color: rgb(102, 178, 245);
+  background: linear-gradient(135deg, rgb(102, 178, 245) 0%, rgb(80, 160, 235) 100%);
   color: #ffffff;
   height: 230px;
   min-width: 230px;
-  border-radius: 15px;
+  border-radius: 20px;
   padding: 20px;
   align-items: center;
   justify-content: center;
   margin-left: 20px;
+  box-shadow: 0 8px 20px rgba(102, 178, 245, 0.25);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.questions::before,
+.ranking::before,
+.contest::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.questions:hover,
+.ranking:hover,
+.contest:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(102, 178, 245, 0.35);
 }
 
 .languages_stat {
@@ -120,10 +161,20 @@
 .number {
   font-size: 30px;
   font-weight: bold;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .ranking {
-  background-color: rgb(206, 86, 59);
+  background: linear-gradient(135deg, rgb(220, 95, 68) 0%, rgb(206, 86, 59) 100%);
+  box-shadow: 0 8px 20px rgba(206, 86, 59, 0.25);
+}
+
+.ranking:hover {
+  box-shadow: 0 12px 28px rgba(206, 86, 59, 0.35);
+}
+
+.contest {
+  background: linear-gradient(135deg, rgb(102, 178, 245) 0%, rgb(80, 160, 235) 100%);
 }
 
 .suggestions {
@@ -132,6 +183,7 @@
   display: flex;
   width: 30%;
 }
+
 .languages_stat {
   margin-left: 10px;
   margin-right: 10px;
@@ -152,46 +204,104 @@
   margin-top: 30px;
 }
 
-.upcoming_contests {
-  margin-top: 40px;
+/* POTD Styles - Updated Design */
+.potd_container {
+  margin-top: 140px;
   margin-left: 15px;
-  background-color: #ffffff;
-  border: 1px solid rgb(221, 221, 221);
-  border-radius: 15px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  margin-right: 15px;
+}
+
+.potd_card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.potd_card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #66b2f5 0%, #4a9fe0 100%);
+}
+
+.potd_card:hover {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.potd_header_section {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.upcoming_contests:hover {
-  border-color: rgb(180, 180, 180);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+.potd_badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #66b2f5 0%, #5aa8f0 100%);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(102, 178, 245, 0.35);
 }
 
-.potd_header > h3 {
-  font-size: 1.8rem;
-  color: #76777a;
-  margin: 0 0 16px 0;
+.badge_icon {
+  font-size: 1.1rem;
 }
 
-.potd_body {
-  flex-grow: 1;
+.potd_date {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.potd_content {
+  margin-bottom: 24px;
+  min-height: 140px;
 }
 
 .potd_title {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+  letter-spacing: -0.3px;
+}
+
+.potd_meta {
+  margin-bottom: 14px;
+}
+
+.rating_badge {
+  display: inline-block;
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #333;
-  margin: 0 0 8px 0;
+  border: 1px solid #fde68a;
 }
 
 .potd_snippet {
-  font-size: 0.9rem;
-  color: #555;
-  line-height: 1.5;
-  margin-bottom: 20px;
+  font-size: 0.95rem;
+  color: #4b5563;
+  line-height: 1.7;
+  margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -200,20 +310,126 @@
   text-overflow: ellipsis;
 }
 
-.potd_button {
-  background-color: rgb(102, 178, 245);
+.potd_actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn_primary {
+  flex: 1;
+  background: linear-gradient(135deg, #66b2f5 0%, #4a9fe0 100%);
   color: #ffffff;
   border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  border-radius: 12px;
+  padding: 15px 28px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
-  align-self: flex-start;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 16px rgba(102, 178, 245, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.potd_button:hover {
-  background-color: rgb(80, 150, 220);
+.btn_primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
 }
 
+.btn_primary:hover::before {
+  left: 100%;
+}
+
+.btn_primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5aa8f0 0%, #3a8fd0 100%);
+  box-shadow: 0 8px 20px rgba(102, 178, 245, 0.45);
+  transform: translateY(-2px);
+}
+
+.btn_primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn_primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn_codeforces {
+  background-color: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 15px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.btn_codeforces:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
+  border-color: #66b2f5;
+  color: #66b2f5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 178, 245, 0.2);
+}
+
+.btn_codeforces:active {
+  transform: translateY(0);
+}
+
+.cf_logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.btn_codeforces:hover .cf_logo {
+  transform: scale(1.1);
+}
+
+.loading_state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 16px;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #66b2f5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading_state p {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+} 

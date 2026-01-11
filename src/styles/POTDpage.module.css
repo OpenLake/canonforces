@@ -1,354 +1,285 @@
-/* --- New Wrapper for Layout --- */
-.pageWrapper {
-  position: relative;
-  width: 100%;
+/* --- Global Page Styling --- */
+.pageContainer {
   min-height: 100vh;
-  background: #f9fafb;
+  background-color: #f8fafc;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   padding: 2rem;
-  overflow-x: hidden; /* Prevents horizontal scrollbar if mascot overflows */
+  color: #1e293b;
 }
 
-/* --- Main Content Column --- */
-.container {
-  max-width: 900px; /* Increased width for the central box */
-  margin: 0 auto;   /* This centers the container */
+.contentWrapper {
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
-/* --- Centered Header --- */
-.header {
-  text-align: center; /* Centers the title and date */
-  margin-bottom: 2rem;
-}
-
-.title {
-  font-size: 2.8rem;
-  font-weight: 800;
-  color: #1f2937;
-  margin-top: 0.5rem;
-}
-
-.date {
-  font-size: 1.1rem;
-  color: #6b7280;
-}
-
-/* --- Mascot (Absolutely Positioned) --- */
-.mascot {
-  position: absolute;
-  top: 10px;
-  right:-15px;
-  width: 200px;
-  height: auto;
-  object-fit: contain;
-  pointer-events: none; /* Prevents mascot from being clickable */
-}
-
-/* --- Card Styling --- */
-.card {
-  background: #ffffff;
-  border-radius: 1rem;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  width: 100%;
-  overflow: hidden;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-.cardContent {
-  padding: 2.5rem; /* Increased padding */
-}
-
-/* --- Other Elements (Minor Adjustments) --- */
-.problemHeader {
+/* --- Hero Section (Matches Practice Arena Style) --- */
+.heroSection {
+  /* Clean white card look */
+  background: white;
+  border-radius: 24px;
+  /* Removed heavy border, kept it subtle */
+  border: 1px solid #f1f5f9; 
+  padding: 2.5rem 3rem;
+  margin-bottom: 2.5rem;
+  position: relative; /* For the floating mascot */
   display: flex;
+  align-items: flex-start; /* Align text to top */
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
+  /* Soft shadow like the reference */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
 }
+
+.heroContent {
+  flex: 1;
+  max-width: 700px;
+  z-index: 2;
+  padding-right: 2rem;
+}
+
+/* Flex container for the Icon + Title */
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* The 3D Icon styling (matches the orange book look) */
+.titleIcon {
+  font-size: 2rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+.heroTitle {
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+/* "Master algorithmic..." equivalent */
+.heroSubtitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #64748b; /* Medium Grey */
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+/* "Choose your difficulty..." equivalent */
+.heroText {
+  font-size: 1rem;
+  color: #94a3b8; /* Lighter Grey */
+  line-height: 1.6;
+  margin: 0;
+  max-width: 90%;
+}
+
+/* Independent Mascot - Popping out */
+.mascotImage {
+  position: absolute;
+  right: 40px;
+  bottom: 2px; /* Anchored to bottom line */
+  width: auto;
+  height: 220px; /* Adjust based on your image aspect ratio */
+  object-fit: contain;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* --- Main Grid Layout --- */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr; /* Adjusted ratio for better spacing */
+  gap: 2rem;
+  align-items: start;
+}
+
+/* --- Card Styles (Cleaner) --- */
+.problemCard, .leaderboardCard, .verificationCard {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.problemCard:hover, .leaderboardCard:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+/* --- Left Column --- */
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.problemCard { padding: 2.5rem; }
+
+.problemHeader { margin-bottom: 2rem; }
 
 .problemTitle {
-  font-size: 1.75rem;
+  font-size: 2.25rem;
   font-weight: 700;
-  color: #111827;
+  color: #0f172a;
+  margin: 0 0 1rem 0;
   line-height: 1.2;
 }
 
-.difficulty {
-  padding: 0.35rem 0.85rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border-radius: 9999px;
-  flex-shrink: 0; /* Prevents the tag from shrinking */
+.problemMeta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .difficultyBadge {
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
-  font-weight: 700;
-  border-radius: 9999px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.difficultyBadge:hover {
-  transform: translateY(-1px);
-}
+.difficultyBadge.easy { background-color: #dcfce7; color: #166534; }
+.difficultyBadge.medium { background-color: #fef9c3; color: #854d0e; }
+.difficultyBadge.hard { background-color: #fee2e2; color: #991b1b; }
 
-.easy {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.medium {
-  background: #fef9c3;
-  color: #854d0e;
-}
-
-.hard {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.unknown {
-  background: #f3f4f6;
-  color: #4b5563;
-}
+.ratingText { font-size: 0.9rem; color: #64748b; font-weight: 500; }
 
 .description {
-  margin-top: 1.5rem;
-  color: #374151;
-  line-height: 1.6;
+  font-size: 1.1rem;
+  line-height: 1.75;
+  color: #334155;
+  margin-bottom: 2.5rem;
 }
 
-.tagsWrapper {
-  margin-top: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+/* Description formatting */
+.description :global(pre) {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+.description :global(code) {
+  background-color: #f1f5f9;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-family: 'Fira Code', monospace;
+  color: #0f172a;
 }
 
-.tags {
+.tagsContainer {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .tag {
-  background: #eef2ff;
-  color:  #007bff;
-  font-size: 0.8rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 0.4rem;
+  background-color: #f8fafc;
+  color: #475569;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
   font-weight: 500;
-}
-
-.solveButtonWrapper {
-  margin-top: 2.5rem;
-  text-align: center;
-}
-
-.solveButton {
-  background: #4f46e5;
-  color: white;
-  font-weight: 600;
-  font-size: 1.1rem;
-  padding: 0.85rem 2.5rem;
-  border-radius: 0.75rem;
-  transition: background 0.2s, transform 0.2s;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.solveButton:hover {
-  background: #4338ca;
-  transform: translateY(-2px);
-}
-
-.solveStatusWrapper {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: #f8fafc;
-  border-radius: 0.75rem;
   border: 1px solid #e2e8f0;
 }
 
-.userStats {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-bottom: 1rem;
-}
+.actionButtons { display: flex; gap: 1rem; }
 
-.coinDisplay, .streakDisplay {
-  display: flex;
+.primaryButton, .secondaryButton {
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
   font-size: 1rem;
-  color: #374151;
-  padding: 0.5rem 1rem;
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex: 1;
 }
 
-.coinDisplay {
-  color: #f59e0b;
+.primaryButton {
+  background-color: #2563eb; /* Use a brighter blue to match modern themes */
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 }
 
-.streakDisplay {
-  color: #ef4444;
+.primaryButton:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
 }
 
-.solveCheckbox {
-  display: flex;
+.secondaryButton {
+  background-color: white;
+  color: #1e293b;
+  border: 2px solid #e2e8f0;
+}
+
+.secondaryButton:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+/* --- Verification Card & Right Column (Compact) --- */
+.verificationCard { padding: 1.5rem; }
+.rightColumn { position: sticky; top: 2rem; }
+.leaderboardCard { max-height: calc(100vh - 4rem); display: flex; flex-direction: column; }
+.leaderboardHeader { padding: 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; background-color: #fff; }
+.leaderboardTitle { font-size: 1.1rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 0.5rem; }
+.solversListContainer { padding: 1rem; overflow-y: auto; flex-grow: 1; }
+
+.userStatsRow { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; }
+.userStat { display: flex; align-items: center; gap: 0.75rem; }
+.statValue { font-size: 1.5rem; font-weight: 800; color: #0f172a; }
+.statLabel { font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+
+.verifyButton {
+  width: 100%;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  cursor: pointer;
+  padding: 0.875rem;
+  border-radius: 12px;
+  font-size: 1rem;
   font-weight: 600;
-  font-size: 1.1rem;
-  color: #374151;
-  transition: color 0.2s ease;
-}
-
-.solveCheckbox:hover {
-  color: #4f46e5;
-}
-
-.checkboxInput {
-  width: 1.25rem;
-  height: 1.25rem;
-  accent-color: #4f46e5;
+  color: white;
+  background: #0f172a; /* Dark button for contrast */
+  border: none;
   cursor: pointer;
-}
-
-.checkboxInput:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.checkboxLabel {
-  transition: color 0.2s ease;
-}
-
-.solveCheckbox:has(.checkboxInput:checked) .checkboxLabel {
-  color: #059669;
-  font-weight: 700;
-}
-
-.solveCheckbox:has(.checkboxInput:disabled) {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.solverSection {
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
-  padding: 1.5rem 2.5rem;
-}
-
-.solverHeading {
-  display: flex;
-  align-items: center;
   gap: 0.5rem;
-  font-weight: 600;
-  color: #374151;
+  transition: all 0.2s;
 }
+.verifyButton:hover:not(:disabled) { background-color: #1e293b; transform: translateY(-1px); }
 
-.solverList {
-  margin-top: 1rem;
-  padding-left: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-}
-
-.solverItem {
-  font-size: 0.9rem;
-  color: #4b5563;
-}
-
-/* --- Icons --- */
-.cpuIcon {
-  margin: 0 auto 0.5rem;
-  height: 3rem;
-  width: 3rem;
-  color: #4f46e5;
-}
-
-.codeIcon {
-  height: 1.2rem;
-  width: 1.2rem;
-  color: #9ca3af;
-}
-
-.awardIcon {
-  height: 1.2rem;
-  width: 1.2rem;
-  color: #f59e0b;
-}
-
-/* --- States --- */
-.centerScreen {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.loading {
-  font-size: 1.1rem;
-  color: #6b7280;
-}
-
-.error {
-  color: #dc2626;
-  font-weight: 500;
-}
-
-/* --- Responsive Design --- */
-@media (max-width: 1200px) {
-  .mascot {
-    display: none; /* Hide mascot on smaller screens */
-  }
+/* --- Responsive --- */
+@media (max-width: 1024px) {
+  .mainGrid { grid-template-columns: 1fr; }
+  .rightColumn { position: static; }
+  .mascotImage { opacity: 0.2; height: 200px; right: 0; }
 }
 
 @media (max-width: 768px) {
-  .pageWrapper {
-    padding: 1rem;
-  }
-  .cardContent {
-    padding: 1.5rem;
-  }
-  .title {
-    font-size: 2.2rem;
-  }
-  .problemTitle {
-    font-size: 1.4rem;
-  }
-  
-  .problemHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-  
-  .userStats {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  .difficultyBadge {
-    align-self: flex-start;
-  }
+  .pageContainer { padding: 1rem; }
+  .heroSection { flex-direction: column; padding: 2rem 1.5rem; }
+  .heroContent { padding-right: 0; }
+  .mascotImage { display: none; }
+  .actionButtons { flex-direction: column; }
 }
