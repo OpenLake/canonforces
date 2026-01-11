@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { getPOTD } from "../services/potd_fetch";
 import { doc, getDoc, setDoc, onSnapshot, increment, updateDoc } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
@@ -6,58 +6,47 @@ import styles from "../styles/POTDpage.module.css";
 import Image from "next/image";
 import { formatDescription } from "../utils/formatDescription";
 import { toast } from "sonner";
+import { checkCodeforcesSubmission } from "../services/codeforces_api";
 
 // --- Types ---
 interface Solver {
   uid: string;
   username: string;
   solvedAt: string | Date;
+  codeforcesUsername?: string;
 }
 
 interface Problem {
   id: string;
   title: string;
   description?: string;
-  input_format?: string;
-  output_format?: string;
-  answer?: string;
-  test_case?: string;
   rating?: number;
   tags?: string[];
+  problemUrl?: string;
 }
 
 interface UserData {
   coins: number;
   streak: number;
   lastSolvedDate?: string;
+  username?: string;
 }
 
-const FiCpu = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={styles.cpuIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-    <rect x="9" y="9" width="6" height="6"></rect>
-    <line x1="9" y1="1" x2="9" y2="4"></line>
-    <line x1="15" y1="1" x2="15" y2="4"></line>
-    <line x1="9" y1="20" x2="9" y2="23"></line>
-    <line x1="15" y1="20" x2="15" y2="23"></line>
-    <line x1="20" y1="9" x2="23" y2="9"></line>
-    <line x1="20" y1="14" x2="23" y2="14"></line>
-    <line x1="1" y1="9" x2="4" y2="9"></line>
-    <line x1="1" y1="14" x2="4" y2="14"></line>
+// --- Icons ---
+const FiRefreshCw = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <polyline points="23 4 23 10 17 10"></polyline>
+    <polyline points="1 20 1 14 7 14"></polyline>
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
   </svg>
 );
 
-const FiCode = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={styles.codeIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <polyline points="16 18 22 12 16 6"></polyline>
-    <polyline points="8 6 2 12 8 18"></polyline>
-  </svg>
-);
-
-const FiAward = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={styles.awardIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <circle cx="12" cy="8" r="7"></circle>
-    <polyline points="8.21 13.89 7 23 12 17 17 23 15.79 13.88"></polyline>
+const FiCalendar = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={styles.calendarIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+    <line x1="16" y1="2" x2="16" y2="6"></line>
+    <line x1="8" y1="2" x2="8" y2="6"></line>
+    <line x1="3" y1="10" x2="21" y2="10"></line>
   </svg>
 );
 
@@ -68,9 +57,21 @@ const POTDPage: React.FC = () => {
   const [dailySolvers, setDailySolvers] = useState<Solver[]>([]);
   const [userSolved, setUserSolved] = useState(false);
   const [userData, setUserData] = useState<UserData>({ coins: 0, streak: 0 });
-  const [isUpdatingCoins, setIsUpdatingCoins] = useState(false);
+  const [isCheckingCF, setIsCheckingCF] = useState(false);
+  const [cfUsername, setCfUsername] = useState<string>("");
 
-  const todayDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const todayDate = new Date().toISOString().split("T")[0];
+
+  // Truncate description to first N characters
+  const truncateDescription = (desc: string, maxLength: number = 400): string => {
+    if (!desc) return "";
+    const stripped = desc.replace(/\*\*/g, '').replace(/`/g, '');
+    if (stripped.length <= maxLength) return desc;
+    
+    const truncated = desc.substring(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(' ');
+    return truncated.substring(0, lastSpace) + '...';
+  };
 
   // Fetch POTD
   useEffect(() => {
@@ -83,7 +84,15 @@ const POTDPage: React.FC = () => {
         const snapshot = await getDoc(ref);
         if (!snapshot.exists()) throw new Error("Problem not found");
 
-        setProblem({ id, ...(snapshot.data() as Omit<Problem, "id">) });
+        const data = snapshot.data();
+        setProblem({ 
+          id, 
+          title: data.title,
+          description: data.description,
+          rating: data.rating,
+          tags: data.tags,
+          problemUrl: data.problemUrl
+        });
       } catch (err: any) {
         setError(err.message || "Error fetching POTD");
       } finally {
@@ -95,18 +104,21 @@ const POTDPage: React.FC = () => {
 
   // Fetch solvers for today (real-time)
   useEffect(() => {
+    if (!problem?.id) return;
+
     const submissionRef = doc(db, "potd_submissions", todayDate);
 
     const unsubscribe = onSnapshot(submissionRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        if (data?.problemId !== problem?.id) return; // Only show solvers for current POTD
+        if (data?.problemId !== problem?.id) return;
 
         const solversData = data?.solvers || {};
         const solversArray: Solver[] = Object.entries(solversData).map(([uid, value]: [string, any]) => ({
           uid,
           username: value.username,
           solvedAt: value.solvedAt,
+          codeforcesUsername: value.codeforcesUsername
         }));
 
         solversArray.sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
@@ -122,7 +134,7 @@ const POTDPage: React.FC = () => {
     return () => unsubscribe();
   }, [todayDate, problem?.id]);
 
-  // Fetch user data (coins and streak)
+  // Fetch user data
   useEffect(() => {
     if (!auth.currentUser) return;
 
@@ -133,24 +145,58 @@ const POTDPage: React.FC = () => {
         setUserData({
           coins: data.coins || 0,
           streak: data.streak || 0,
-          lastSolvedDate: data.lastSolvedDate
+          lastSolvedDate: data.lastSolvedDate,
+          username: data.username
         });
+        setCfUsername(data.username || "");
       }
     });
 
     return () => unsubscribe();
   }, [auth.currentUser]);
 
-  const handleMarkSolved = async () => {
-    if (!auth.currentUser || !problem || userSolved || isUpdatingCoins) return;
+  const handleCheckCFSubmission = useCallback(async () => {
+    if (!auth.currentUser || !problem || userSolved || isCheckingCF) return;
 
-    setIsUpdatingCoins(true);
+    if (!cfUsername) {
+      toast.error("Please set your Codeforces username in settings");
+      return;
+    }
+
+    setIsCheckingCF(true);
     
+    try {
+      const urlMatch = problem.problemUrl?.match(/codeforces\.com\/problemset\/problem\/(\d+)\/([A-Z]\d?)/);
+      if (!urlMatch) {
+        toast.error("Invalid Codeforces problem URL");
+        return;
+      }
+
+      const [, contestId, problemIndex] = urlMatch;
+      
+      const hasSolved = await checkCodeforcesSubmission(cfUsername, contestId, problemIndex);
+      
+      if (hasSolved) {
+        await markAsSolved();
+        toast.success("🎉 Verified! Solution found on Codeforces!");
+      } else {
+        toast.error("No accepted submission found. Make sure you've solved this problem on Codeforces!");
+      }
+    } catch (error: any) {
+      console.error('Error checking Codeforces:', error);
+      toast.error(error.message || 'Failed to verify submission');
+    } finally {
+      setIsCheckingCF(false);
+    }
+  }, [auth.currentUser, problem, cfUsername, userSolved, isCheckingCF]);
+
+  const markAsSolved = async () => {
+    if (!auth.currentUser || !problem || userSolved) return;
+
     try {
       const submissionRef = doc(db, "potd_submissions", todayDate);
       const userRef = doc(db, "users", auth.currentUser.uid);
       
-      // Check if user document exists, create if not
       const userDoc = await getDoc(userRef);
       if (!userDoc.exists()) {
         await setDoc(userRef, {
@@ -163,7 +209,6 @@ const POTDPage: React.FC = () => {
         });
       }
       
-      // Calculate streak
       const currentUserData = userDoc.exists() ? userDoc.data() as UserData : { coins: 0, streak: 0 };
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
@@ -173,18 +218,15 @@ const POTDPage: React.FC = () => {
       if (currentUserData.lastSolvedDate === yesterdayStr) {
         newStreak = (currentUserData.streak || 0) + 1;
       } else if (currentUserData.lastSolvedDate === todayDate) {
-        // Already solved today, don't update
         return;
       }
       
-      // Update user coins and streak
       await updateDoc(userRef, {
         coins: increment(5),
         streak: newStreak,
         lastSolvedDate: todayDate
       });
       
-      // Add to daily solvers
       await setDoc(
         submissionRef,
         {
@@ -193,6 +235,7 @@ const POTDPage: React.FC = () => {
             [auth.currentUser.uid]: {
               uid: auth.currentUser.uid,
               username: auth.currentUser.displayName || auth.currentUser.email?.split("@")[0],
+              codeforcesUsername: cfUsername || null,
               solvedAt: new Date(),
             },
           },
@@ -200,7 +243,6 @@ const POTDPage: React.FC = () => {
         { merge: true }
       );
       
-      // Update local state
       setUserSolved(true);
       setUserData(prev => ({
         ...prev,
@@ -208,27 +250,16 @@ const POTDPage: React.FC = () => {
         streak: newStreak
       }));
       
-      // Show success toast
-      toast.success(
-        `🎉 You earned +5 coins and ${newStreak > 1 ? `continued your ${newStreak}-day streak!` : 'started a new streak!'}`,
-        {
-          duration: 4000,
-          position: 'top-center',
-        }
-      );
-      
     } catch (error) {
       console.error('Error marking problem as solved:', error);
       toast.error('Failed to mark problem as solved. Please try again.');
-    } finally {
-      setIsUpdatingCoins(false);
     }
   };
 
   const getDifficulty = (rating?: number) => {
     if (!rating) return "Unknown";
     if (rating < 1200) return "Easy";
-    if (rating < 1800) return "Medium";
+    if (rating < 1600) return "Medium";
     return "Hard";
   };
 
@@ -241,94 +272,173 @@ const POTDPage: React.FC = () => {
     }
   };
 
-  const difficultyColors: Record<string, string> = {
-    Easy: styles.easy,
-    Medium: styles.medium,
-    Hard: styles.hard,
-    Unknown: styles.unknown,
-  };
+  if (loading) {
+    return (
+      <div className={styles.centerScreen}>
+        <div className={styles.loadingSpinner}></div>
+        <p className={styles.loading}>Loading Problem of the Day...</p>
+      </div>
+    );
+  }
 
-  if (loading) return <div className={styles.centerScreen}><p className={styles.loading}>Loading Problem of the Day...</p></div>;
-  if (error || !problem) return <div className={styles.centerScreen}><p className={styles.error}>{error || "Problem not found"}</p></div>;
+  if (error || !problem) {
+    return (
+      <div className={styles.centerScreen}>
+        <p className={styles.error}>{error || "Problem not found"}</p>
+      </div>
+    );
+  }
 
   const difficulty = getDifficulty(problem.rating);
+  const truncatedDesc = truncateDescription(problem.description || "", 450);
 
   return (
     <div className={styles.pageWrapper}>
-      <Image src="/images/think.png" alt="Mascot thinking" width={400} height={400} className={styles.mascot} />
       <div className={styles.container}>
-        <div className={styles.header}>
-          <FiCpu />
-          <h1 className={styles.title}>Problem of the Day</h1>
-          <p className={styles.date}>
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
+        {/* Header Badge */}
+        <div className={styles.headerBadge}>
+          <FiCalendar />
+          <span>Problem of the Day</span>
+          <span className={styles.date}>
+            {new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+          </span>
         </div>
 
-        <div className={styles.card}>
-          <div className={styles.cardContent}>
-            <div className={styles.problemHeader}>
-              <h2 className={styles.problemTitle}>{problem.title}</h2>
-              <span className={`${styles.difficultyBadge} ${difficultyColors[difficulty]}`}>
-                {getDifficultyEmoji(difficulty)} {difficulty}
-              </span>
-            </div>
+        <div className={styles.contentGrid}>
+          {/* Left Column - Problem Details */}
+          <div className={styles.problemSection}>
+            <div className={styles.problemCard}>
+              <div className={styles.problemHeader}>
+                <h1 className={styles.problemTitle}>{problem.title}</h1>
+                <span className={`${styles.ratingBadge} ${styles[difficulty.toLowerCase()]}`}>
+                  Rating: {problem.rating || "N/A"}
+                </span>
+              </div>
 
-            {problem.description && <p className={styles.description}>{formatDescription(problem.description)}</p>}
+              <div 
+                className={styles.description}
+                dangerouslySetInnerHTML={{ __html: formatDescription(truncatedDesc) }}
+              />
 
-            {problem.tags && problem.tags.length > 0 && (
-              <div className={styles.tagsWrapper}>
-                <FiCode />
+              {problem.tags && problem.tags.length > 0 && (
                 <div className={styles.tags}>
-                  {problem.tags.map((tag) => <span key={tag} className={styles.tag}>{tag}</span>)}
+                  {problem.tags.slice(0, 5).map((tag) => (
+                    <span key={tag} className={styles.tag}>{tag}</span>
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className={styles.solveButtonWrapper}>
-              <a href={`/questions/${problem.id}`} className={styles.solveButton}>Solve Today&apos;s Problem</a>
+              <div className={styles.actionSection}>
+                <a 
+                  href={`/questions/${problem.id}`}
+                  className={styles.solveButton}
+                >
+                  Solve Challenge
+                </a>
+
+                {problem.problemUrl && (
+                  <a 
+                    href={problem.problemUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className={styles.cfButton}
+                  >
+                    <Image 
+                      src="/logos/codeforces.png" 
+                      alt="CF" 
+                      width={20} 
+                      height={20} 
+                      className={styles.cfLogo}
+                    />
+                    Codeforces
+                  </a>
+                )}
+              </div>
+
+              {auth.currentUser && (
+                <div className={styles.verificationSection}>
+                  <div className={styles.statsRow}>
+                    <div className={styles.statItem}>
+                      <span className={styles.statEmoji}>💰</span>
+                      <span className={styles.statValue}>{userData.coins}</span>
+                      <span className={styles.statLabel}>coins</span>
+                    </div>
+                    <div className={styles.statItem}>
+                      <span className={styles.statEmoji}>🔥</span>
+                      <span className={styles.statValue}>{userData.streak}</span>
+                      <span className={styles.statLabel}>day streak</span>
+                    </div>
+                  </div>
+
+                  {!userSolved ? (
+                    <button
+                      onClick={handleCheckCFSubmission}
+                      disabled={isCheckingCF || !cfUsername}
+                      className={styles.verifyButton}
+                    >
+                      {isCheckingCF ? (
+                        <>
+                          <div className={styles.buttonSpinner}></div>
+                          Checking...
+                        </>
+                      ) : (
+                        <>
+                          <FiRefreshCw className={styles.refreshIcon} />
+                          Verify CF Submission
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <div className={styles.solvedBadge}>
+                      <span className={styles.checkmark}>✓</span>
+                      Solved!
+                    </div>
+                  )}
+
+                  {!cfUsername && !userSolved && (
+                    <p className={styles.cfHint}>
+                      Set your Codeforces username in settings to verify submissions
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
-
-            {/* Mark as solved section */}
-            {auth.currentUser && (
-              <div className={styles.solveStatusWrapper}>
-                <div className={styles.userStats}>
-                  <span className={styles.coinDisplay}>💰 {userData.coins} coins</span>
-                  <span className={styles.streakDisplay}>🔥 {userData.streak} day streak</span>
-                </div>
-                <label className={styles.solveCheckbox}>
-                  <input
-                    type="checkbox"
-                    checked={userSolved}
-                    onChange={handleMarkSolved}
-                    disabled={isUpdatingCoins}
-                    className={styles.checkboxInput}
-                  />
-                  <span className={styles.checkboxLabel}>
-                    {isUpdatingCoins ? 'Updating...' : userSolved ? '✅ Solved!' : 'Mark as solved'}
-                  </span>
-                </label>
-              </div>
-            )}
           </div>
 
-          {dailySolvers.length > 0 && (
-            <div className={styles.solverSection}>
-              <h3 className={styles.solverHeading}><FiAward /> First Solvers Today</h3>
-              <ul className={styles.solverList}>
-                {dailySolvers.map((solver, i) => (
-                  <li key={solver.uid} className={styles.solverItem}>
-                    🏅 {i + 1}. {solver.username}
-                  </li>
-                ))}
-              </ul>
+          {/* Right Column - Solvers List */}
+          <div className={styles.solversSection}>
+            <div className={styles.solversCard}>
+              <div className={styles.solversHeader}>
+                <h2 className={styles.solversTitle}>Today's Solvers</h2>
+                <span className={styles.solversCount}>{dailySolvers.length}</span>
+              </div>
+
+              {dailySolvers.length > 0 ? (
+                <div className={styles.solversList}>
+                  {dailySolvers.map((solver, i) => (
+                    <div key={solver.uid} className={styles.solverItem}>
+                      <div className={styles.solverRank}>
+                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`}
+                      </div>
+                      <div className={styles.solverInfo}>
+                        <span className={styles.solverName}>{solver.username}</span>
+                        <span className={styles.solverTime}>
+                          {new Date(solver.solvedAt).toLocaleTimeString('en-US', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.noSolvers}>
+                  <p>🏁 Be the first to solve today's challenge!</p>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
