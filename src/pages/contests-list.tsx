@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
+import Image from "next/image"; // Import Image component
 import NavigationMenu from "../common/components/NavigationMenu/NavigationMenu";
 import styles from "../styles/ContestsList.module.css";
 import { BsTrophy, BsBook, BsCalendarEvent, BsClock, BsLink45Deg } from "react-icons/bs";
-import { SiCodeforces, SiLeetcode, SiCodechef } from "react-icons/si";
 
-// Interface matches the new API response
 interface Contest {
   platform: string;
   contestName: string;
@@ -33,7 +32,6 @@ const ContestsList = () => {
     fetchContests();
   }, []);
 
-  // Helper to format duration
   const formatDuration = (ms: number): string => {
     const totalMinutes = Math.floor(ms / 60000);
     const hours = Math.floor(totalMinutes / 60);
@@ -42,7 +40,6 @@ const ContestsList = () => {
     return `${hours}h ${minutes > 0 ? `${minutes}m` : ""}`;
   };
 
-  // Helper to format Date
   const formatDate = (ts: number) => {
     return new Date(ts).toLocaleString("en-US", {
       month: "short",
@@ -53,14 +50,27 @@ const ContestsList = () => {
     });
   };
 
-  // Helper for Platform Icons
-  const getPlatformIcon = (platform: string) => {
-    switch (platform.toLowerCase()) {
-      case "codeforces": return <SiCodeforces className="text-red-500" />;
-      case "leetcode": return <SiLeetcode className="text-orange-500" />;
-      case "codechef": return <SiCodechef className="text-amber-800" />;
-      default: return <BsTrophy className="text-blue-500" />;
+  // UPDATED: Function to render Image logos
+  const getPlatformLogo = (platform: string) => {
+    const p = platform.toLowerCase();
+    
+    // valid logos you added to /public/logos/
+    const validLogos = ["codeforces", "leetcode", "codechef"];
+
+    if (validLogos.includes(p)) {
+      return (
+        <Image 
+          src={`/logos/${p}.png`} 
+          alt={`${platform} logo`} 
+          width={32} 
+          height={32} 
+          className={styles.logoImage} // New CSS class for rounded corners/fit
+        />
+      );
     }
+    
+    // Fallback for unknown platforms
+    return <BsTrophy className="text-blue-500" size={24} />;
   };
 
   const filteredContests = filter === "all" 
@@ -73,7 +83,6 @@ const ContestsList = () => {
       <main className={styles.main}>
         <div className={styles.container}>
           
-          {/* Header */}
           <div className={styles.header}>
             <div className={styles.headerContent}>
               <div className={styles.headerIconWrapper}>
@@ -86,7 +95,6 @@ const ContestsList = () => {
             </div>
           </div>
 
-          {/* Filter Tabs */}
           <div className={styles.tabsContainer}>
             {["all", "codeforces", "leetcode", "codechef"].map((f) => (
               <button
@@ -99,7 +107,6 @@ const ContestsList = () => {
             ))}
           </div>
 
-          {/* Contests Grid */}
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}>
               {loading ? "Loading Schedule..." : `Upcoming Events (${filteredContests.length})`}
@@ -107,15 +114,16 @@ const ContestsList = () => {
             
             <div className={styles.grid}>
               {loading ? (
-                // Skeleton Loader
                 [1, 2, 3].map((n) => <div key={n} className={styles.skeletonCard}></div>)
               ) : filteredContests.length > 0 ? (
                 filteredContests.map((contest, idx) => (
                   <div key={idx} className={styles.card}>
                     <div className={styles.cardHeader}>
-                      <span className={styles.platformIcon}>
-                        {getPlatformIcon(contest.platform)}
-                      </span>
+                      {/* Logo Section */}
+                      <div className={styles.platformLogoWrapper}>
+                        {getPlatformLogo(contest.platform)}
+                      </div>
+                      
                       <span className={`${styles.badge} ${styles[contest.platform.toLowerCase()]}`}>
                         {contest.platform}
                       </span>
@@ -152,7 +160,6 @@ const ContestsList = () => {
             </div>
           </div>
 
-          {/* Solutions Section */}
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}>
               <BsBook className="text-indigo-500" /> Editorials
