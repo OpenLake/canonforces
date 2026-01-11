@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { getPOTD } from "../services/potd_fetch";
-import { doc, getDoc, setDoc, onSnapshot, increment, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot, increment, updateDoc, runTransaction } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import styles from "../styles/POTDpage.module.css";
 import Image from "next/image";
 import { formatDescription } from "../utils/formatDescription";
 import { toast } from "sonner";
 import { checkCodeforcesSubmission } from "../services/codeforces_api";
+import { FiRefreshCw, FiCheck, FiAward, FiClock } from "react-icons/fi";
 
 // --- Types ---
 interface Solver {
@@ -32,24 +33,6 @@ interface UserData {
   username?: string;
 }
 
-// --- Icons ---
-const FiRefreshCw = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <polyline points="23 4 23 10 17 10"></polyline>
-    <polyline points="1 20 1 14 7 14"></polyline>
-    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-  </svg>
-);
-
-const FiCalendar = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={styles.calendarIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-    <line x1="16" y1="2" x2="16" y2="6"></line>
-    <line x1="8" y1="2" x2="8" y2="6"></line>
-    <line x1="3" y1="10" x2="21" y2="10"></line>
-  </svg>
-);
-
 const POTDPage: React.FC = () => {
   const [problem, setProblem] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,8 +44,9 @@ const POTDPage: React.FC = () => {
   const [cfUsername, setCfUsername] = useState<string>("");
 
   const todayDate = new Date().toISOString().split("T")[0];
+  const displayDate = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
-  // Truncate description to first N characters
+  // Truncate description
   const truncateDescription = (desc: string, maxLength: number = 400): string => {
     if (!desc) return "";
     const stripped = desc.replace(/\*\*/g, '').replace(/`/g, '');
@@ -102,7 +86,7 @@ const POTDPage: React.FC = () => {
     fetchPOTD();
   }, []);
 
-  // Fetch solvers for today (real-time)
+  // Fetch solvers for today
   useEffect(() => {
     if (!problem?.id) return;
 
@@ -180,7 +164,7 @@ const POTDPage: React.FC = () => {
         await markAsSolved();
         toast.success("🎉 Verified! Solution found on Codeforces!");
       } else {
-        toast.error("No accepted submission found. Make sure you've solved this problem on Codeforces!");
+        toast.error("No accepted submission found on Codeforces for today.");
       }
     } catch (error: any) {
       console.error('Error checking Codeforces:', error);
@@ -197,62 +181,47 @@ const POTDPage: React.FC = () => {
       const submissionRef = doc(db, "potd_submissions", todayDate);
       const userRef = doc(db, "users", auth.currentUser.uid);
       
-      const userDoc = await getDoc(userRef);
-      if (!userDoc.exists()) {
-        await setDoc(userRef, {
-          coins: 0,
-          streak: 0,
-          lastSolvedDate: null,
-          uid: auth.currentUser.uid,
-          email: auth.currentUser.email,
-          displayName: auth.currentUser.displayName
+      await runTransaction(db, async (transaction) => {
+        const userDoc = await transaction.get(userRef);
+        const currentUserData = userDoc.exists() ? userDoc.data() as UserData : { coins: 0, streak: 0 };
+        
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split("T")[0];
+        
+        let newStreak = 1;
+        if (currentUserData.lastSolvedDate === yesterdayStr) {
+          newStreak = (currentUserData.streak || 0) + 1;
+        } else if (currentUserData.lastSolvedDate === todayDate) {
+          return; // Already solved today
+        }
+        
+        transaction.update(userRef, {
+          coins: increment(5),
+          streak: newStreak,
+          lastSolvedDate: todayDate
         });
-      }
-      
-      const currentUserData = userDoc.exists() ? userDoc.data() as UserData : { coins: 0, streak: 0 };
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split("T")[0];
-      
-      let newStreak = 1;
-      if (currentUserData.lastSolvedDate === yesterdayStr) {
-        newStreak = (currentUserData.streak || 0) + 1;
-      } else if (currentUserData.lastSolvedDate === todayDate) {
-        return;
-      }
-      
-      await updateDoc(userRef, {
-        coins: increment(5),
-        streak: newStreak,
-        lastSolvedDate: todayDate
-      });
-      
-      await setDoc(
-        submissionRef,
-        {
-          problemId: problem.id,
-          solvers: {
-            [auth.currentUser.uid]: {
-              uid: auth.currentUser.uid,
-              username: auth.currentUser.displayName || auth.currentUser.email?.split("@")[0],
-              codeforcesUsername: cfUsername || null,
-              solvedAt: new Date(),
+        
+        transaction.set(
+          submissionRef,
+          {
+            problemId: problem.id,
+            solvers: {
+              [auth.currentUser!.uid]: {
+                uid: auth.currentUser!.uid,
+                username: auth.currentUser!.displayName || auth.currentUser!.email?.split("@")[0],
+                codeforcesUsername: cfUsername || null,
+                solvedAt: new Date().toISOString(),
+              },
             },
           },
-        },
-        { merge: true }
-      );
-      
-      setUserSolved(true);
-      setUserData(prev => ({
-        ...prev,
-        coins: prev.coins + 5,
-        streak: newStreak
-      }));
+          { merge: true }
+        );
+      });
       
     } catch (error) {
       console.error('Error marking problem as solved:', error);
-      toast.error('Failed to mark problem as solved. Please try again.');
+      toast.error('Failed to save progress. Please try again.');
     }
   };
 
@@ -263,28 +232,19 @@ const POTDPage: React.FC = () => {
     return "Hard";
   };
 
-  const getDifficultyEmoji = (difficulty: string) => {
-    switch (difficulty) {
-      case "Easy": return "🟢";
-      case "Medium": return "🟠";
-      case "Hard": return "🔴";
-      default: return "⚪";
-    }
-  };
-
   if (loading) {
     return (
-      <div className={styles.centerScreen}>
-        <div className={styles.loadingSpinner}></div>
-        <p className={styles.loading}>Loading Problem of the Day...</p>
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
       </div>
     );
   }
 
   if (error || !problem) {
     return (
-      <div className={styles.centerScreen}>
-        <p className={styles.error}>{error || "Problem not found"}</p>
+      <div className={styles.errorContainer}>
+        <h3>Something went wrong</h3>
+        <p>{error || "Problem not found"}</p>
       </div>
     );
   }
@@ -293,26 +253,46 @@ const POTDPage: React.FC = () => {
   const truncatedDesc = truncateDescription(problem.description || "", 450);
 
   return (
-    <div className={styles.pageWrapper}>
-      <div className={styles.container}>
-        {/* Header Badge */}
-        <div className={styles.headerBadge}>
-          <FiCalendar />
-          <span>Problem of the Day</span>
-          <span className={styles.date}>
-            {new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
-          </span>
+    <div className={styles.pageContainer}>
+      <div className={styles.contentWrapper}>
+        
+        {/* --- Hero Section with Mascot --- */}
+        <div className={styles.heroSection}>
+          <div className={styles.heroContent}>
+            <h4 className={styles.heroSubtitle}>{displayDate}</h4>
+            <h1 className={styles.heroTitle}>Problem of the Day</h1>
+            <p className={styles.heroText}>
+              Solve today's challenge to keep your streak alive and earn coins!
+            </p>
+          </div>
+          <div className={styles.heroImageContainer}>
+             <Image 
+               src="/images/thinking.png" 
+               alt="Thinking Mascot" 
+               width={300} 
+               height={300} 
+               priority
+               className={styles.mascotImage}
+             />
+          </div>
         </div>
 
-        <div className={styles.contentGrid}>
+        <div className={styles.mainGrid}>
           {/* Left Column - Problem Details */}
-          <div className={styles.problemSection}>
+          <div className={styles.leftColumn}>
             <div className={styles.problemCard}>
               <div className={styles.problemHeader}>
-                <h1 className={styles.problemTitle}>{problem.title}</h1>
-                <span className={`${styles.ratingBadge} ${styles[difficulty.toLowerCase()]}`}>
-                  Rating: {problem.rating || "N/A"}
-                </span>
+                <div>
+                  <h2 className={styles.problemTitle}>{problem.title}</h2>
+                  <div className={styles.problemMeta}>
+                    <span className={`${styles.difficultyBadge} ${styles[difficulty.toLowerCase()]}`}>
+                      {difficulty}
+                    </span>
+                    {problem.rating && (
+                      <span className={styles.ratingText}>Rating: {problem.rating}</span>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div 
@@ -321,122 +301,127 @@ const POTDPage: React.FC = () => {
               />
 
               {problem.tags && problem.tags.length > 0 && (
-                <div className={styles.tags}>
+                <div className={styles.tagsContainer}>
                   {problem.tags.slice(0, 5).map((tag) => (
                     <span key={tag} className={styles.tag}>{tag}</span>
                   ))}
                 </div>
               )}
 
-              <div className={styles.actionSection}>
-                <a 
-                  href={`/questions/${problem.id}`}
-                  className={styles.solveButton}
-                >
+              <div className={styles.actionButtons}>
+                <a href={`/questions/${problem.id}`} className={styles.primaryButton}>
                   Solve Challenge
                 </a>
-
                 {problem.problemUrl && (
                   <a 
                     href={problem.problemUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className={styles.cfButton}
+                    className={styles.secondaryButton}
                   >
-                    <Image 
-                      src="/logos/codeforces.png" 
-                      alt="CF" 
-                      width={20} 
-                      height={20} 
-                      className={styles.cfLogo}
-                    />
-                    Codeforces
+                    <Image src="/logos/codeforces.png" alt="CF" width={20} height={20} />
+                    View on Codeforces
                   </a>
                 )}
               </div>
+            </div>
 
-              {auth.currentUser && (
-                <div className={styles.verificationSection}>
-                  <div className={styles.statsRow}>
-                    <div className={styles.statItem}>
-                      <span className={styles.statEmoji}>💰</span>
-                      <span className={styles.statValue}>{userData.coins}</span>
-                      <span className={styles.statLabel}>coins</span>
-                    </div>
-                    <div className={styles.statItem}>
-                      <span className={styles.statEmoji}>🔥</span>
-                      <span className={styles.statValue}>{userData.streak}</span>
-                      <span className={styles.statLabel}>day streak</span>
+            {/* Verification Section for Logged-in Users */}
+            {auth.currentUser && (
+              <div className={styles.verificationCard}>
+                <div className={styles.userStatsRow}>
+                  <div className={styles.userStat}>
+                    <span className={styles.statIcon}>💰</span>
+                    <div>
+                      <div className={styles.statValue}>{userData.coins}</div>
+                      <div className={styles.statLabel}>Coins</div>
                     </div>
                   </div>
-
-                  {!userSolved ? (
-                    <button
-                      onClick={handleCheckCFSubmission}
-                      disabled={isCheckingCF || !cfUsername}
-                      className={styles.verifyButton}
-                    >
-                      {isCheckingCF ? (
-                        <>
-                          <div className={styles.buttonSpinner}></div>
-                          Checking...
-                        </>
-                      ) : (
-                        <>
-                          <FiRefreshCw className={styles.refreshIcon} />
-                          Verify CF Submission
-                        </>
-                      )}
-                    </button>
-                  ) : (
-                    <div className={styles.solvedBadge}>
-                      <span className={styles.checkmark}>✓</span>
-                      Solved!
+                  <div className={styles.userStat}>
+                    <span className={styles.statIcon}>🔥</span>
+                    <div>
+                      <div className={styles.statValue}>{userData.streak}</div>
+                      <div className={styles.statLabel}>Day Streak</div>
                     </div>
-                  )}
+                  </div>
+                </div>
 
-                  {!cfUsername && !userSolved && (
-                    <p className={styles.cfHint}>
-                      Set your Codeforces username in settings to verify submissions
-                    </p>
+                <div className={styles.verificationAction}>
+                  {userSolved ? (
+                    <div className={styles.solvedMessage}>
+                      <FiCheck className={styles.checkIcon} />
+                      <span>You've solved today's problem!</span>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        onClick={handleCheckCFSubmission}
+                        disabled={isCheckingCF || !cfUsername}
+                        className={styles.verifyButton}
+                      >
+                        {isCheckingCF ? (
+                          <>
+                            <div className={styles.buttonSpinner}></div>
+                            Verifying...
+                          </>
+                        ) : (
+                          <>
+                            <FiRefreshCw /> Verify Codeforces Submission
+                          </>
+                        )}
+                      </button>
+                      {!cfUsername && (
+                        <p className={styles.hintText}>
+                          Link your Codeforces username in profile settings to verify.
+                        </p>
+                      )}
+                    </>
                   )}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
-          {/* Right Column - Solvers List */}
-          <div className={styles.solversSection}>
-            <div className={styles.solversCard}>
-              <div className={styles.solversHeader}>
-                <h2 className={styles.solversTitle}>Today's Solvers</h2>
-                <span className={styles.solversCount}>{dailySolvers.length}</span>
+          {/* Right Column - Solvers Leaderboard */}
+          <div className={styles.rightColumn}>
+            <div className={styles.leaderboardCard}>
+              <div className={styles.leaderboardHeader}>
+                <h3 className={styles.leaderboardTitle}>
+                  <FiAward className={styles.awardIcon} /> Today's Top Solvers
+                </h3>
+                <span className={styles.solverCountBadge}>{dailySolvers.length}</span>
               </div>
 
-              {dailySolvers.length > 0 ? (
-                <div className={styles.solversList}>
-                  {dailySolvers.map((solver, i) => (
-                    <div key={solver.uid} className={styles.solverItem}>
-                      <div className={styles.solverRank}>
-                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`}
-                      </div>
-                      <div className={styles.solverInfo}>
-                        <span className={styles.solverName}>{solver.username}</span>
-                        <span className={styles.solverTime}>
-                          {new Date(solver.solvedAt).toLocaleTimeString('en-US', { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.noSolvers}>
-                  <p>🏁 Be the first to solve today's challenge!</p>
-                </div>
-              )}
+              <div className={styles.solversListContainer}>
+                {dailySolvers.length > 0 ? (
+                  <ul className={styles.solversList}>
+                    {dailySolvers.map((solver, i) => (
+                      <li key={solver.uid} className={styles.solverItem}>
+                        <div className={styles.solverRank}>
+                          {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className={styles.numericRank}>{i + 1}</span>}
+                        </div>
+                        <div className={styles.solverDetails}>
+                          <span className={styles.solverName}>{solver.username}</span>
+                          <div className={styles.solverMeta}>
+                            <FiClock className={styles.clockIcon} />
+                            <time className={styles.solverTime}>
+                              {new Date(solver.solvedAt).toLocaleTimeString('en-US', { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                              })}
+                            </time>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className={styles.emptyState}>
+                    <Image src="/images/empty-state.svg" alt="No solvers yet" width={120} height={120} style={{opacity: 0.5}} />
+                    <p>Be the first to top the leaderboard!</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

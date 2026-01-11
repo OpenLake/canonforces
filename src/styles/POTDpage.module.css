@@ -1,439 +1,399 @@
-/* ============================================
-   POTD PAGE - MODERN CLEAN DESIGN
-   ============================================ */
-
-/* --- Page Wrapper --- */
-.pageWrapper {
+/* --- Global Page Styling --- */
+.pageContainer {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 2rem 1rem;
+  background-color: #f8fafc; /* Clean light gray background */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: 2rem 1.5rem;
+  color: #1e293b;
 }
 
-/* --- Container --- */
-.container {
-  max-width: 1400px;
+.contentWrapper {
+  max-width: 1280px;
   margin: 0 auto;
 }
 
-/* --- Header Badge --- */
-.headerBadge {
-  display: inline-flex;
+/* --- Hero Section --- */
+.heroSection {
+  display: flex;
   align-items: center;
-  gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 0.75rem 1.5rem;
-  border-radius: 50px;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
+  background: white;
+  border-radius: 24px;
+  /* Reduced padding for a tighter layout */
+  padding: 1.5rem 3rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  position: relative;
+}
+
+.heroContent {
+  flex: 1;
+  max-width: 600px;
+  z-index: 2;
+}
+
+.heroSubtitle {
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #1e293b;
-  animation: slideDown 0.6s ease-out;
+  color: #3b82f6;
+  /* Reduced margin */
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.heroTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #0f172a;
+  /* Reduced margin */
+  margin: 0 0 1rem 0;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
-.calendarIcon {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: #667eea;
-}
-
-.date {
+.heroText {
+  font-size: 1.25rem;
   color: #64748b;
-  font-weight: 500;
-  padding-left: 0.5rem;
-  border-left: 2px solid #e2e8f0;
+  line-height: 1.6;
+  margin: 0;
 }
 
-/* --- Content Grid (70:30) --- */
-.contentGrid {
+.heroImageContainer {
+  flex-shrink: 0;
+  margin-left: 2rem;
+  z-index: 1;
+  /* Added flex properties to ensure correct alignment */
+  display: flex;
+  align-items: center;
+}
+
+.mascotImage {
+  width: auto;
+  height: 280px; /* Kept image size as requested */
+  object-fit: contain;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
+  display: block; /* Removes potential inline spacing */
+}
+
+.heroSection:hover .mascotImage {
+  transform: translateY(-5px) rotate(2deg);
+}
+
+/* --- Main Grid Layout (70/30) --- */
+.mainGrid {
   display: grid;
-  grid-template-columns: 70fr 30fr;
+  grid-template-columns: 7fr 3fr;
   gap: 2rem;
-  animation: fadeIn 0.8s ease-out;
+  align-items: start;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* --- Common Card Styles --- */
+.problemCard, .leaderboardCard, .verificationCard {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
 }
 
-/* --- Problem Section --- */
-.problemSection {
-  animation: slideInLeft 0.8s ease-out;
+.problemCard:hover, .leaderboardCard:hover, .verificationCard:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* --- Left Column: Problem Details --- */
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .problemCard {
-  background: white;
-  border-radius: 24px;
   padding: 2.5rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease;
 }
 
-.problemCard:hover {
-  transform: translateY(-5px);
-}
-
-/* --- Problem Header --- */
 .problemHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1.5rem;
   margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid #f1f5f9;
 }
 
 .problemTitle {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #1e293b;
-  line-height: 1.3;
-  margin: 0;
-  flex: 1;
-}
-
-.ratingBadge {
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  font-size: 0.9rem;
+  font-size: 2.25rem;
   font-weight: 700;
-  white-space: nowrap;
-  flex-shrink: 0;
+  color: #0f172a;
+  margin: 0 0 1rem 0;
+  line-height: 1.25;
 }
 
-.ratingBadge.easy {
-  background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
-  color: #166534;
+.problemMeta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.ratingBadge.medium {
-  background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
-  color: #854d0e;
-}
-
-.ratingBadge.hard {
-  background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
-  color: #991b1b;
-}
-
-.ratingBadge.unknown {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-/* --- Description --- */
-.description {
-  color: #475569;
-  line-height: 1.8;
-  font-size: 1.05rem;
-  margin-bottom: 1.5rem;
-}
-
-.description :global(strong) {
-  color: #1e293b;
-  font-weight: 700;
-}
-
-.description :global(.inline-code) {
-  background: #f1f5f9;
-  color: #e11d48;
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.375rem;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  font-size: 0.9em;
+.difficultyBadge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-/* --- Tags --- */
-.tags {
+.difficultyBadge.easy { background-color: #dcfce7; color: #166534; }
+.difficultyBadge.medium { background-color: #fef9c3; color: #854d0e; }
+.difficultyBadge.hard { background-color: #fee2e2; color: #991b1b; }
+
+.ratingText {
+  font-size: 0.95rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.description {
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: #334155;
+  margin-bottom: 2rem;
+}
+
+.description :global(code) {
+  background-color: #f1f5f9;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-family: 'Fira Code', monospace;
+}
+
+.tagsContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
 }
 
 .tag {
-  background: #eef2ff;
-  color: #667eea;
-  font-size: 0.85rem;
-  padding: 0.4rem 0.9rem;
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 0.4rem 0.85rem;
   border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
 }
 
 .tag:hover {
-  background: #667eea;
-  color: white;
-  transform: translateY(-2px);
-}
-
-/* --- Action Section --- */
-.actionSection {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.solveButton {
-  flex: 1;
-  background: linear-gradient(135deg, #4f9cf9 0%, #2563eb 100%);
-  color: white;
-  font-weight: 700;
-  font-size: 1.05rem;
-  padding: 1rem 2rem;
-  border-radius: 16px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 20px rgba(79, 156, 249, 0.4);
-}
-
-.solveButton:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(79, 156, 249, 0.5);
-}
-
-.cfButton {
-  background: white;
-  color: #1e293b;
-  font-weight: 700;
-  font-size: 1.05rem;
-  padding: 1rem 1.75rem;
-  border-radius: 16px;
-  border: 2px solid #e2e8f0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.cfButton:hover {
-  background: #f8fafc;
+  background-color: #e2e8f0;
   border-color: #cbd5e1;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
-.cfLogo {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
+.actionButtons {
+  display: flex;
+  gap: 1rem;
 }
 
-/* --- Verification Section --- */
-.verificationSection {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-radius: 16px;
-  padding: 1.5rem;
+.primaryButton, .secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 1.75rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.primaryButton {
+  background-color: #0f172a;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.1);
+}
+
+.primaryButton:hover {
+  background-color: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(15, 23, 42, 0.15);
+}
+
+.secondaryButton {
+  background-color: white;
+  color: #0f172a;
   border: 2px solid #e2e8f0;
 }
 
-.statsRow {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+.secondaryButton:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
 }
 
-.statItem {
-  flex: 1;
+/* --- Verification Card --- */
+.verificationCard {
+  padding: 2rem;
+}
+
+.userStatsRow {
   display: flex;
-  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.userStat {
+  display: flex;
   align-items: center;
-  gap: 0.25rem;
-  background: white;
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  gap: 1rem;
 }
 
-.statEmoji {
-  font-size: 1.5rem;
+.statIcon {
+  font-size: 2.5rem;
 }
 
 .statValue {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 800;
-  color: #1e293b;
+  color: #0f172a;
+  line-height: 1;
 }
 
 .statLabel {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #64748b;
   font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.verificationAction {
+  text-align: center;
 }
 
 .verifyButton {
   width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-weight: 700;
-  font-size: 1rem;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  padding: 0.875rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  cursor: pointer;
+  gap: 0.75rem;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1);
 }
 
 .verifyButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.15);
 }
 
 .verifyButton:disabled {
-  opacity: 0.6;
+  opacity: 0.7;
   cursor: not-allowed;
-  transform: none;
-}
-
-.refreshIcon {
-  width: 1.2rem;
-  height: 1.2rem;
-}
-
-.verifyButton:not(:disabled):hover .refreshIcon {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .buttonSpinner {
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid rgba(255,255,255,0.3);
   border-top-color: white;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
-.solvedBadge {
-  width: 100%;
-  background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
-  color: #166534;
-  font-weight: 800;
-  font-size: 1.1rem;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.checkmark {
-  font-size: 1.5rem;
-}
-
-.cfHint {
-  text-align: center;
-  font-size: 0.85rem;
+.hintText {
+  font-size: 0.875rem;
   color: #64748b;
   margin-top: 1rem;
-  margin-bottom: 0;
 }
 
-/* --- Solvers Section --- */
-.solversSection {
-  animation: slideInRight 0.8s ease-out;
+.solvedMessage {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background-color: #f0fdf4;
+  color: #166534;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.125rem;
+  border: 1px solid #bbf7d0;
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.checkIcon {
+  font-size: 1.5rem;
+  color: #22c55e;
 }
 
-.solversCard {
-  background: white;
-  border-radius: 24px;
-  padding: 2rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+/* --- Right Column: Leaderboard --- */
+.rightColumn {
   position: sticky;
   top: 2rem;
-  max-height: calc(100vh - 4rem);
-  overflow-y: auto;
 }
 
-.solversHeader {
+.leaderboardCard {
+  max-height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
+}
+
+.leaderboardHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #f1f5f9;
+  background-color: #fafafa;
 }
 
-.solversTitle {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin: 0;
-}
-
-.solversCount {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-size: 0.9rem;
+.leaderboardTitle {
+  font-size: 1.25rem;
   font-weight: 700;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  min-width: 2rem;
-  text-align: center;
+  color: #0f172a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.awardIcon {
+  color: #eab308;
+  font-size: 1.5rem;
+}
+
+.solverCountBadge {
+  background-color: #e2e8f0;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+}
+
+.solversListContainer {
+  padding: 1rem;
+  overflow-y: auto;
+  flex-grow: 1;
 }
 
 .solversList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -443,176 +403,166 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 0.875rem;
+  background-color: #f8fafc;
   border-radius: 12px;
-  transition: all 0.2s ease;
+  border: 1px solid #f1f5f9;
+  transition: all 0.2s;
 }
 
 .solverItem:hover {
-  transform: translateX(5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: white;
+  border-color: #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .solverRank {
-  font-size: 1.3rem;
-  font-weight: 800;
-  min-width: 2rem;
+  font-size: 1.5rem;
+  min-width: 2.5rem;
   text-align: center;
-  color: #667eea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.solverInfo {
+.numericRank {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #64748b;
+  background-color: #e2e8f0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.solverDetails {
   flex: 1;
+  overflow: hidden;
 }
 
 .solverName {
-  font-weight: 700;
-  color: #1e293b;
-  font-size: 0.95rem;
-}
-
-.solverTime {
-  font-size: 0.8rem;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.noSolvers {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: #94a3b8;
   font-weight: 600;
+  color: #0f172a;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.25rem;
 }
 
-/* --- Loading States --- */
-.centerScreen {
-  min-height: 100vh;
+.solverMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.clockIcon {
+  font-size: 0.9rem;
+}
+
+.emptyState {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.emptyState p {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* --- Loading & Error States --- */
+.loadingContainer, .errorContainer {
+  min-height: 60vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: #f8fafc;
 }
 
-.loadingSpinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  border-top-color: white;
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid #e2e8f0;
+  border-top-color: #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
-.loading {
-  font-size: 1.2rem;
-  color: white;
-  font-weight: 600;
-}
-
-.error {
-  color: #fee2e2;
-  font-weight: 600;
-  font-size: 1.1rem;
-  padding: 1.5rem 2rem;
-  background: rgba(220, 38, 38, 0.2);
-  border-radius: 16px;
-  border: 2px solid rgba(220, 38, 38, 0.4);
+.errorContainer {
+  text-align: center;
+  color: #ef4444;
 }
 
 /* --- Responsive Design --- */
-@media (max-width: 1200px) {
-  .contentGrid {
-    grid-template-columns: 65fr 35fr;
-  }
-}
-
 @media (max-width: 1024px) {
-  .contentGrid {
+  .mainGrid {
     grid-template-columns: 1fr;
   }
-  
-  .solversCard {
-    position: relative;
-    top: 0;
-    max-height: none;
+
+  .rightColumn {
+    position: static;
+  }
+
+  .leaderboardCard {
+    max-height: 500px;
+  }
+
+  .heroSection {
+    padding: 2.5rem;
+  }
+
+  .mascotImage {
+    height: 220px;
   }
 }
 
 @media (max-width: 768px) {
-  .pageWrapper {
-    padding: 1rem 0.5rem;
+  .pageContainer {
+    padding: 1rem;
   }
-  
-  .problemCard {
-    padding: 1.5rem;
-    border-radius: 20px;
-  }
-  
-  .solversCard {
-    padding: 1.5rem;
-    border-radius: 20px;
-  }
-  
-  .problemTitle {
-    font-size: 1.5rem;
-  }
-  
-  .problemHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
-  .ratingBadge {
-    align-self: flex-start;
-  }
-  
-  .actionSection {
-    flex-direction: column;
-  }
-  
-  .solveButton, .cfButton {
-    width: 100%;
-  }
-  
-  .statsRow {
-    gap: 0.75rem;
-  }
-  
-  .statItem {
-    padding: 0.75rem;
-  }
-  
-  .headerBadge {
-    font-size: 0.9rem;
-    padding: 0.6rem 1.2rem;
-  }
-}
 
-@media (max-width: 480px) {
+  .heroSection {
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    gap: 2rem;
+  }
+
+  .heroImageContainer {
+    margin-left: 0;
+  }
+
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+  }
+
+  .problemCard, .verificationCard {
+    padding: 1.5rem;
+  }
+
   .problemTitle {
-    font-size: 1.3rem;
+    font-size: 1.75rem;
   }
-  
-  .description {
-    font-size: 0.95rem;
-  }
-  
-  .problemCard {
-    padding: 1.25rem;
-  }
-  
-  .solversCard {
-    padding: 1.25rem;
-  }
-  
-  .headerBadge {
-    flex-wrap: wrap;
-    justify-content: center;
+
+  .userStatsRow {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
   }
 }
