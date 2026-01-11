@@ -1,11 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export interface Contest {
   platform: string;
   contestName: string;
   contestLink: string;
-  startTime: string;
-  contestDuration: string;
+  startTime: number; // Changed to number (timestamp)
+  duration: number;  // Changed to number (ms)
 }
 
 export interface ContestsResponse {
@@ -20,28 +20,47 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ContestsResponse | ErrorResponse>
 ) {
-  // Only allow GET requests
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
   try {
-    const response = await fetch('https://cp-api-arnoob16.vercel.app/');
-    
+    const response = await fetch(
+      "https://competeapi.vercel.app/contests/upcoming/",
+      { signal: controller.signal }
+    );
+
+    clearTimeout(timeout);
+
     if (!response.ok) {
-      throw new Error('Failed to fetch contests from external API');
+      throw new Error("External API failed");
     }
-    
-    const data: ContestsResponse = await response.json();
-    
-    // Set cache headers - cache for 5 minutes
-    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
-    
-    return res.status(200).json(data);
-  } catch (error) {
-    console.error('Error fetching contests:', error);
-    return res.status(500).json({ 
-      error: error instanceof Error ? error.message : 'Failed to fetch contests' 
-    });
+
+    const rawData: any[] = await response.json();
+
+    // Send raw data to frontend for better formatting control
+    const contests: Contest[] = rawData.map((c) => ({
+      platform: c.site,
+      contestName: c.title,
+      contestLink: c.url,
+      startTime: c.startTime, 
+      duration: c.duration,     
+    }));
+
+    // Sort by start time (soonest first)
+    contests.sort((a, b) => a.startTime - b.startTime);
+
+    res.setHeader(
+      "Cache-Control",
+      "public, s-maxage=300, stale-while-revalidate=600"
+    );
+
+    return res.status(200).json({ contests });
+  } catch (err: any) {
+    console.error("Contest API error:", err.name || err);
+    return res.status(200).json({ contests: [] });
   }
 }
