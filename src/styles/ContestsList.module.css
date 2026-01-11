@@ -50,7 +50,7 @@
 .codeforces { background: #fee2e2; color: #dc2626; }
 .leetcode { background: #ffedd5; color: #ea580c; }
 .codechef { background: #fce7f3; color: #831843; }
-.cardTitle { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0 0 1rem 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 3rem; }
+.cardTitle { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0 0 1rem 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 3rem; }
 .metaInfo { display: flex; gap: 1rem; color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }
 .metaItem { display: flex; align-items: center; gap: 0.4rem; }
 .cardButton { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 0.75rem; border-radius: 10px; background: #f8fafc; color: #0f172a; font-weight: 600; border: 1px solid #e2e8f0; transition: all 0.2s; text-decoration: none; }
@@ -61,3 +61,16 @@
 .section { margin-bottom: 3rem; }
 .sectionTitle { font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
 .solutionsPlaceholder { background: white; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 3rem; text-align: center; color: #64748b; }
+
+
+/* Add these to your existing CSS file under the other badge classes */
+
+.atcoder {
+  background: #000000;
+  color: #ffffff;
+}
+
+.hackerearth {
+  background: #2c3e50; /* Dark Blue */
+  color: #ffffff;
+}

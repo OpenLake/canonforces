@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import Image from "next/image"; // Import Image component
+import Image from "next/image";
 import NavigationMenu from "../common/components/NavigationMenu/NavigationMenu";
 import styles from "../styles/ContestsList.module.css";
-import { BsTrophy, BsBook, BsCalendarEvent, BsClock, BsLink45Deg } from "react-icons/bs";
+import { BsTrophy, BsBook, BsCalendarEvent, BsClock, BsLink45Deg, BsExclamationTriangle } from "react-icons/bs";
 
 interface Contest {
   platform: string;
@@ -12,25 +12,33 @@ interface Contest {
   duration: number;
 }
 
+interface ApiResponse {
+  contests: Contest[];
+  source?: "clist" | "fallback";
+}
+
 const ContestsList = () => {
   const [contests, setContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [isFallback, setIsFallback] = useState(false); // Track if we are using backup data
 
-  useEffect(() => {
-    const fetchContests = async () => {
-      try {
-        const res = await fetch("/api/contests");
-        const data = await res.json();
-        setContests(data.contests || []);
-      } catch (error) {
-        console.error("Failed to fetch contests", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchContests();
-  }, []);
+ useEffect(() => {
+  const fetchContests = async () => {
+    try {
+      const res = await fetch("/api/contests");
+      const data = await res.json();
+      console.log("Contest source:", data.source);
+      setContests(data.contests || []);
+      setIsFallback(data.source === "fallback");
+    } catch (error) {
+      console.error("Failed to fetch contests", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchContests();
+}, []);
 
   const formatDuration = (ms: number): string => {
     const totalMinutes = Math.floor(ms / 60000);
@@ -50,12 +58,9 @@ const ContestsList = () => {
     });
   };
 
-  // UPDATED: Function to render Image logos
   const getPlatformLogo = (platform: string) => {
     const p = platform.toLowerCase();
-    
-    // valid logos you added to /public/logos/
-    const validLogos = ["codeforces", "leetcode", "codechef"];
+    const validLogos = ["codeforces", "leetcode", "codechef", "atcoder", "hackerearth"];
 
     if (validLogos.includes(p)) {
       return (
@@ -64,18 +69,20 @@ const ContestsList = () => {
           alt={`${platform} logo`} 
           width={32} 
           height={32} 
-          className={styles.logoImage} // New CSS class for rounded corners/fit
+          className={styles.logoImage} 
         />
       );
     }
-    
-    // Fallback for unknown platforms
     return <BsTrophy className="text-blue-500" size={24} />;
   };
 
+  // Filter Logic
   const filteredContests = filter === "all" 
     ? contests 
     : contests.filter(c => c.platform.toLowerCase() === filter);
+
+  // Define tabs based on available data or defaults
+  const tabs = ["all", "codeforces", "leetcode", "codechef", "atcoder", "hackerearth"];
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -83,6 +90,7 @@ const ContestsList = () => {
       <main className={styles.main}>
         <div className={styles.container}>
           
+          {/* Header */}
           <div className={styles.header}>
             <div className={styles.headerContent}>
               <div className={styles.headerIconWrapper}>
@@ -95,18 +103,36 @@ const ContestsList = () => {
             </div>
           </div>
 
+          {/* Warning if using Fallback Data */}
+          {isFallback && !loading && (
+            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-3 text-yellow-800">
+              <BsExclamationTriangle />
+              <span>
+                Note: Primary contest service is currently unavailable. Showing limited data (Codeforces, LeetCode, CodeChef only).
+              </span>
+            </div>
+          )}
+
+          {/* Tabs */}
           <div className={styles.tabsContainer}>
-            {["all", "codeforces", "leetcode", "codechef"].map((f) => (
+            {tabs.map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`${styles.tab} ${filter === f ? styles.activeTab : ""}`}
+                // Disable tabs for AtCoder/HackerEarth if in fallback mode
+                disabled={isFallback && (f === "atcoder" || f === "hackerearth")}
+                className={`
+                  ${styles.tab} 
+                  ${filter === f ? styles.activeTab : ""}
+                  ${(isFallback && (f === "atcoder" || f === "hackerearth")) ? "opacity-50 cursor-not-allowed" : ""}
+                `}
               >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
+                {f === "all" ? "All Platforms" : f.charAt(0).toUpperCase() + f.slice(1)}
               </button>
             ))}
           </div>
 
+          {/* Grid */}
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}>
               {loading ? "Loading Schedule..." : `Upcoming Events (${filteredContests.length})`}
@@ -119,7 +145,6 @@ const ContestsList = () => {
                 filteredContests.map((contest, idx) => (
                   <div key={idx} className={styles.card}>
                     <div className={styles.cardHeader}>
-                      {/* Logo Section */}
                       <div className={styles.platformLogoWrapper}>
                         {getPlatformLogo(contest.platform)}
                       </div>
@@ -160,6 +185,7 @@ const ContestsList = () => {
             </div>
           </div>
 
+          {/* Footer */}
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}>
               <BsBook className="text-indigo-500" /> Editorials
@@ -168,6 +194,7 @@ const ContestsList = () => {
               <p>💡 Solutions and editorials will appear here after contests conclude.</p>
             </div>
           </div>
+
         </div>
       </main>
     </div>

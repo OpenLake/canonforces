@@ -1,6 +1,18 @@
 import { useState, useEffect } from "react";
 import styles from "./UpcomingContests.module.css";
-import type { Contest, ContestsResponse } from "../../../pages/api/contests";
+
+// Updated Interface to match your new API response
+interface Contest {
+  platform: string;
+  contestName: string;
+  contestLink: string;
+  startTime: number; // Now a timestamp (number)
+  duration: number;  // Now in milliseconds (number)
+}
+
+interface ContestsResponse {
+  contests: Contest[];
+}
 
 export function UpcomingContests() {
   const [contests, setContests] = useState<Contest[]>([]);
@@ -30,16 +42,25 @@ export function UpcomingContests() {
     fetchContests();
   }, []);
 
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
+  // Helper: Format raw milliseconds into readable string (e.g., "2h 30m")
+  const formatDuration = (ms: number): string => {
+    const totalMinutes = Math.floor(ms / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
 
-    const formattedDate = new Date(date.getTime() + 5.5 * 60 * 60 * 1000); // add 5.5 hours
+    if (hours >= 24) {
+      const days = Math.floor(hours / 24);
+      return `${days}d ${hours % 24}h`;
+    }
+    return `${hours}h ${minutes > 0 ? `${minutes}m` : ""}`;
+  };
 
-    return formattedDate.toLocaleString("en-US", {
+  // Helper: Format timestamp to local readable string
+  const formatDate = (ts: number): string => {
+    return new Date(ts).toLocaleString("en-US", {
       month: "short",
       day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
+      hour: "numeric",
       minute: "2-digit",
       hour12: true,
     });
@@ -70,7 +91,7 @@ export function UpcomingContests() {
         {contests.length === 0 ? (
           <div className={styles.noContests}>No upcoming contests</div>
         ) : (
-          contests.map((contest: Contest, index: number) => (
+          contests.map((contest, index) => (
             <a
               key={index}
               href={contest.contestLink}
@@ -79,12 +100,20 @@ export function UpcomingContests() {
               className={styles.contestCard}
             >
               <div className={styles.contestHeader}>
-                <span className={styles.platform}>{contest.platform}</span>
+                {/* Capitalize platform name for better look */}
+                <span className={styles.platform}>
+                  {contest.platform.charAt(0).toUpperCase() + contest.platform.slice(1)}
+                </span>
+                
+                {/* We now format the duration on the fly */}
                 <span className={styles.duration}>
-                  {contest.contestDuration}
+                  {formatDuration(contest.duration)}
                 </span>
               </div>
+              
               <h4 className={styles.contestName}>{contest.contestName}</h4>
+              
+              {/* We now format the start time on the fly */}
               <p className={styles.startTime}>
                 {formatDate(contest.startTime)}
               </p>
