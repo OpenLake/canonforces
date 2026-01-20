@@ -30,7 +30,7 @@ export function ContestsSidebar() {
     fetchContests();
   }, []);
 
-  const formatDate = (dateString: string): string => {
+  const formatDate = (dateString: string | number): string => {
     const date = new Date(dateString);
     const formattedDate = new Date(date.getTime() + 5.5 * 60 * 60 * 1000);
 
@@ -43,7 +43,7 @@ export function ContestsSidebar() {
     });
   };
 
-  const isContestToday = (dateString: string): boolean => {
+  const isContestToday = (dateString: string | number): boolean => {
     const contestDate = new Date(dateString);
     const today = new Date();
     return contestDate.toDateString() === today.toDateString();
@@ -113,7 +113,7 @@ export function ContestsSidebar() {
                   <div className={styles.durationInfo}>
                     <BsClock className={styles.icon} />
                     <span className={styles.duration}>
-                      {contest.contestDuration}
+                      {contest.duration}
                     </span>
                   </div>
                 </div>
