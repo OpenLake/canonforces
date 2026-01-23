@@ -26,10 +26,10 @@ export default function App({ Component, pageProps }: AppProps) {
 
   // Define routes that DON'T need the main layout.
   // Note: /questions/[id] is dynamic, but Next.js router.pathname will show the template string
-  const noLayoutRoutes = ['/', '/login', '/signup','/questions/[id]','/CompleteProfile'];
+  const noLayoutRoutes = ['/', '/login', '/signup','/questions/[id]','/CompleteProfile','/demo','/profile-fill'];
 
   // Define routes that are PUBLIC and don't require a user to be logged in.
-  const publicRoutes = ['/', '/login', '/signup', '/questions/[id]'];
+  const publicRoutes = ['/', '/login', '/signup', '/questions/[id]','/demo'];
 
   // Check if current route is in the list for showing the layout
   const showLayout = !noLayoutRoutes.includes(router.pathname);
