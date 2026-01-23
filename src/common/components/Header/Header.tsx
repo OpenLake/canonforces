@@ -11,8 +11,8 @@ export default function Header() {
         <nav className="flex flex-row w-full">
           <div className="basis-1/4 flex items-center justify-center">
             <ul className="flex-row flex w-full justify-around">
-              <li> <Link href={ROUTES.DASHBOARD}> Dashboard </Link> </li>
-              <li> <Link href={ROUTES.USERS}> Users </Link> </li>
+              {/* <li> <Link href={ROUTES.DASHBOARD}> Dashboard </Link> </li> */}
+              {/* <li> <Link href={ROUTES.USERS}> Users </Link> </li> */}
             </ul>
           </div>
           <div className="basis-1/2 flex items-center justify-center">
@@ -22,7 +22,7 @@ export default function Header() {
           </div>
           <div className="basis-1/4 flex items-center justify-center">
             <ul className="flex-row flex w-full justify-around items-center">
-              <li> <NotificationBell /> </li>
+              {/* <li> <NotificationBell /> </li> */}
               <li> <Link href={ROUTES.SIGNUP}> Signup </Link> </li>
               <li> <Link href={ROUTES.LOGIN}> Login </Link> </li>
             </ul>
