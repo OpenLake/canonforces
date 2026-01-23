@@ -23,27 +23,27 @@
   width: 33%;
 }
 
-.playerTwo > h4,
-.company > h4,
-.social > h4 {
+.playerTwo>h4,
+.company>h4,
+.social>h4 {
   font-size: 25px;
   font-family: poppins;
   color: #ffffff;
   cursor: pointer;
 }
 
-.playerTwo > p {
+.playerTwo>p {
   margin-top: 10px;
   line-height: 1.6;
   font-weight: 500;
   cursor: pointer;
 }
 
-.company > ul {
+.company>ul {
   list-style-type: none;
 }
 
-.company > ul > li {
+.company>ul>li {
   margin-top: 10px;
   font-weight: 600;
   cursor: pointer;
@@ -57,4 +57,24 @@
   justify-content: space-between;
   width: 150%;
   cursor: pointer;
+}
+
+.footer__rights {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.footer__attribution {
+  text-align: center;
+  margin-top: 5px;
+  padding-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer__attribution p {
+  color: #ddd;
+  font-size: 14px;
+  font-weight: 500;
 }
