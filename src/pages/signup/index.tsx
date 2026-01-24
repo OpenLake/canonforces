@@ -8,6 +8,7 @@ import { FcGoogle } from "react-icons/fc";
 import { HiMail } from "react-icons/hi";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { BsPatchExclamation, BsPatchCheck } from "react-icons/bs";
+import { BsArrowLeft } from "react-icons/bs";
 import {
   doesUsernameExists,
   isCanonforcesUsernameTaken,
@@ -315,6 +316,11 @@ export default function Signup() {
             <div className="hidden md:flex justify-center items-center w-6/12 bg-gray-50">
                 <Image width={480} height={480} alt="signup" src="/images/signup.jpg" className="rounded-2xl object-cover" />
             </div>
+            {/* Added Button From Back to HomePage BY KJK */}
+            <button onClick={() => router.push("/")} className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition">
+                <BsArrowLeft />
+                Back to Home
+          </button>
         </div>
     </div>
   );

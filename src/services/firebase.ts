@@ -22,6 +22,7 @@ export interface UserProfile {
   emailAddress: string;
   following: string[];
   dateCreated: number;
+  profileCompleted?: boolean;
 }
 
 // --- Auth & User Management ---

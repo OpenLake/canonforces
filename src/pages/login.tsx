@@ -10,6 +10,7 @@ import { RiLockPasswordFill } from "react-icons/ri";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { getUserByUserId } from "../services/firebase";
+import { BsArrowLeft } from "react-icons/bs";
 
 export default function Login() {
   const router = useRouter();
@@ -40,35 +41,37 @@ export default function Login() {
     setLoading(false);
   };
 
-  const handleGoogleLogin = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+    const handleGoogleLogin = async () => {
+      setError("");
+      setLoading(true);
 
-      if (!user.uid) {
-        setError("Google authentication failed. Please try again.");
-        return;
+      try {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        if (!user?.uid) {
+          setError("Google authentication failed. Please try again.");
+          return;
+        }
+
+        // 🔑 CHECK IF USER PROFILE EXISTS IN DB
+        const userDoc = await getUserByUserId(user.uid);
+
+        if (userDoc !== null) {
+          router.push(ROUTES.DASHBOARD);
+        } else {
+          // New Google user trying to login
+          router.push(ROUTES.SIGNUP);
+        }
+
+      } catch (err) {
+        console.error("Google login failed", err);
+        setError("Google sign-in failed. Please try again.");
+      } finally {
+        setLoading(false);
       }
-
-      // 🔍 check if Firestore has a user document
-      const dbUserArray = await getUserByUserId(user.uid);
-
-      if (dbUserArray.length === 0) {
-        // no user doc exists → this person never signed up with CF handle
-        router.push(ROUTES.SIGNUP);
-      } else {
-        // user already exists in Firestore → take them to dashboard
-        router.push(ROUTES.DASHBOARD);
-      }
-    } catch (err: any) {
-      console.error("Google login failed", err);
-      setError("Google sign-in failed. Please try again.");
-    }
-    setLoading(false);
-  };
+    };
 
   useEffect(() => {
     document.title = "Canonforces Login";
@@ -166,6 +169,38 @@ export default function Login() {
               </p>
             </div>
           </form>
+          {/* Added Button From Back to HomePage BY KJK */}
+          <button onClick={() => router.push("/")} className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition">
+            <BsArrowLeft />
+            Back to HomePage
+          </button>
+          {loading && (
+            <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded shadow-lg flex items-center gap-2">
+                <svg
+                  className="animate-spin h-5 w-5 text-yellow-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  ></path>
+                </svg>
+                <span>Loading...</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
