@@ -41,38 +41,37 @@ export default function Login() {
     setLoading(false);
   };
 
-  const handleGoogleLogin = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+    const handleGoogleLogin = async () => {
+      setError("");
+      setLoading(true);
 
-      if (!user.uid) {
-        setError("Google authentication failed. Please try again.");
-        return;
+      try {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        if (!user?.uid) {
+          setError("Google authentication failed. Please try again.");
+          return;
+        }
+
+        // 🔑 CHECK IF USER PROFILE EXISTS IN DB
+        const userDoc = await getUserByUserId(user.uid);
+
+        if (userDoc !== null) {
+          router.push(ROUTES.DASHBOARD);
+        } else {
+          // New Google user trying to login
+          router.push(ROUTES.SIGNUP);
+        }
+
+      } catch (err) {
+        console.error("Google login failed", err);
+        setError("Google sign-in failed. Please try again.");
+      } finally {
+        setLoading(false);
       }
-
-      // 🔍 check if Firestore has a user document
-      const dbUserArray = await getUserByUserId(user.uid);
-
-    if (dbUserArray.length === 0) {
-      router.push(ROUTES.PROFILE_FILL);
-    } else {
-      const dbUser = dbUserArray[0];
-      if (!dbUser.username || !dbUser.profileCompleted) {
-        router.push(ROUTES.PROFILE_FILL);
-      } else {
-        router.push(ROUTES.DASHBOARD);
-      }
-    }
-    } catch (err: any) {
-      console.error("Google login failed", err);
-      setError("Google sign-in failed. Please try again.");
-    }
-    setLoading(false);
-  };
+    };
 
   useEffect(() => {
     document.title = "Canonforces Login";

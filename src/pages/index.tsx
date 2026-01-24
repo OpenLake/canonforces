@@ -55,7 +55,7 @@ export default function Home() {
              <button className={`${styles.button_blue}`}>Explore</button>  
 
               {/* Dashboard Button (Black) */}
-              <button className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition-all duration-200 hover:scale-105 flex items-center gap-2 w-1/2">
+              <button onClick={goToLogin} className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition-all duration-200 hover:scale-105 flex items-center gap-2 w-1/2">
                 Dashboard
                 <BsArrowRightCircle size={"1.3em"} className="transition-transform duration-200 hover:translate-x-1" />
               </button>

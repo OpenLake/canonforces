@@ -11,4 +11,3 @@ export const STATS = "/stats";
 export const POTD = "/potd";
 export const QUIZ = "/quiz";
 export const NOTIFICATIONS = "/notifications";
-export const PROFILE_FILL = "profile-fill";
