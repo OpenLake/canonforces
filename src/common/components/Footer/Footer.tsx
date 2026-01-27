@@ -10,7 +10,7 @@ export default function Footer() {
           <h4> Canonforces </h4>
           <p>
             {' '}
-            A paltform where you can showcase your codeforces profile in a more elegant way. 
+            A platform where you can showcase your codeforces profile in a more elegant way. 
             You can compete with other coders in a 1v1 match and improve your profile.{' '}
           </p>
         </div>
@@ -25,16 +25,48 @@ export default function Footer() {
         <div className={styles.social}>
           <h4> Socials </h4>
           <div className={styles.socials}>
-            <AiFillTwitterCircle size={'1.8em'} />
-            <AiFillLinkedin size={'1.7em'} />
-            <BsInstagram size={'1.6em'} />
-            <BsFacebook size={'1.5em'} />
+            <a
+              href="https://x.com/OpenLakeClub"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Twitter"
+            >
+              <AiFillTwitterCircle size="1.8em" />
+            </a>
+
+            <a
+              href="https://www.linkedin.com/company/openlake/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+            >
+              <AiFillLinkedin size="1.7em" />
+            </a>
+            
+            <a
+              href="https://www.instagram.com/openlake_iitbhilai/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+            >
+              <BsInstagram size="1.6em" />
+            </a>
+
+            <a
+            href="https://www.facebook.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
+            >
+              <BsFacebook size="1.5em" />
+          </a>
+
           </div>
         </div>
       </div>
       <hr className='w-3/6'/>
       <div className={styles.footer__rights}>
-        <h3> @2022 Canonforces Pvt. Ltd. All Rights Reserved </h3>
+        <h3> @2026 Canonforces Pvt. Ltd. All Rights Reserved </h3>
       </div>
     </div>
   );
