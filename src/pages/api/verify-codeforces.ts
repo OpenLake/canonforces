@@ -26,7 +26,7 @@ export default async function handler(
     }
 
     try {
-        const apiUrl = `https://codeforces.com/api/user.status?handle=${handle}&from=1&count=50`;
+        const apiUrl = `https://codeforces.com/api/user.status?handle=${handle}&from=1&count=2000`;
         console.log(`[VerifyAPI] Fetching: ${apiUrl}`);
 
         const response = await fetch(apiUrl);
@@ -45,13 +45,20 @@ export default async function handler(
 
         const targetContestId = parseInt(contestId);
 
-        const isSolved = data.result.some((submission: any) => {
+        const matchingSubmission = data.result.find((submission: any) => {
             return (
                 submission.contestId === targetContestId &&
-                submission.problem.index === problemIndex &&
-                submission.verdict === 'OK'
+                submission.problem.index === problemIndex
             );
         });
+
+        const isSolved = matchingSubmission?.verdict === 'OK';
+
+        if (matchingSubmission) {
+            console.log(`[VerifyAPI] Found submission for ${handle}: Verdict=${matchingSubmission.verdict}`);
+        } else {
+            console.log(`[VerifyAPI] No submission found for ${handle} in ${contestId}${problemIndex} within last 2000 submissions`);
+        }
 
         console.log(`[VerifyAPI] Result for ${handle} on ${contestId}${problemIndex}: ${isSolved}`);
         return res.status(200).json({ verified: isSolved });

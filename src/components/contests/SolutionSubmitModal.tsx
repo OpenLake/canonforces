@@ -170,7 +170,7 @@ const SolutionSubmitModal: React.FC<SolutionSubmitModalProps> = ({
 
         setIsVerifying(true);
         try {
-            const isSolved = await checkCodeforcesSubmission(cfHandle, contest.contestId, problem.problemIndex);
+            const isSolved = await checkCodeforcesSubmission(cfHandle.trim(), contest.contestId, problem.problemIndex);
 
             if (isSolved) {
                 await saveSubmission(
@@ -295,7 +295,6 @@ const SolutionSubmitModal: React.FC<SolutionSubmitModalProps> = ({
                             className={styles.verifyButton}
                             onClick={handleVerify}
                             disabled={submitting || isVerifying}
-                            style={{ backgroundColor: '#3b82f6', marginRight: 'auto', marginLeft: '10px' }}
                         >
                             {isVerifying ? "Verifying..." : "Verify Codeforces Submission"}
                         </button>
