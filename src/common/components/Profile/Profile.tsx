@@ -3,16 +3,18 @@ import Image from 'next/image';
 import styles from "./Profile.module.css";
 import useUser from "../../../hooks/use-user";
 import { updateUserProfile } from "../../../services/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, limit, orderBy, getDocs } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 import { User } from "../../../types/user";
-import { 
-  HiOutlinePuzzlePiece,   
-  HiOutlineCurrencyRupee, 
-  HiOutlineFire,         
-  HiOutlineUsers,         
-  HiArrowTrendingUp,      
-  HiOutlineTag    
+import { ContestSubmission } from "../../../types/contest-submission";
+import {
+  HiOutlinePuzzlePiece,
+  HiOutlineCurrencyRupee,
+  HiOutlineFire,
+  HiOutlineUsers,
+  HiArrowTrendingUp,
+  HiOutlineTag,
+  HiCheckCircle
 } from "react-icons/hi2";
 
 
@@ -29,8 +31,9 @@ type CfData = {
 
 export default function Profile({ userId }: ProfileProps) {
   const { user: loggedInUser } = useUser() as { user: User | undefined };
-  
+
   const [user, setUser] = useState<User | null>(null);
+  const [submissions, setSubmissions] = useState<ContestSubmission[]>([]);
   const [cfData, setCfData] = useState<CfData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -50,20 +53,20 @@ export default function Profile({ userId }: ProfileProps) {
   const isOwnProfile = !userId || userId === loggedInUser?.docId;
 
   const rankThresholds: Record<string, number> = {
-  newbie: 1199,
-  pupil: 1399,
-  specialist: 1599,
-  expert: 1899,
-  "candidate master": 2099,
-  master: 2299,
-  "international master": 2399,
-  grandmaster: 2599,
-  "international grandmaster": 2899,
-  "legendary grandmaster": 9999 // unreachable top
-};
+    newbie: 1199,
+    pupil: 1399,
+    specialist: 1599,
+    expert: 1899,
+    "candidate master": 2099,
+    master: 2299,
+    "international master": 2399,
+    grandmaster: 2599,
+    "international grandmaster": 2899,
+    "legendary grandmaster": 9999 // unreachable top
+  };
 
 
-useEffect(() => {
+  useEffect(() => {
     const fetchUser = async () => {
       try {
         let userToSet: User | null = null;
@@ -82,7 +85,7 @@ useEffect(() => {
           }
         } else {
           // loggedInUser MUST carry docId
-          userToSet = loggedInUser 
+          userToSet = loggedInUser
             ? { ...loggedInUser, docId: loggedInUser.docId }
             : null;
         }
@@ -96,6 +99,46 @@ useEffect(() => {
 
     fetchUser();
   }, [userId, loggedInUser]);
+
+  useEffect(() => {
+    if (user?.docId) {
+      const fetchSubmissions = async () => {
+        try {
+          const q = query(
+            collection(db, "contest_submissions"),
+            where("userId", "==", user.docId),
+            orderBy("submittedAt", "desc"), 
+            limit(50)
+          );
+
+          try {
+            const querySnapshot = await getDocs(q);
+            const subs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContestSubmission));
+            setSubmissions(subs);
+          } catch (indexError: any) {
+            console.warn("Index missing, falling back to in-memory sort", indexError);
+            const qFallback = query(
+              collection(db, "contest_submissions"),
+              where("userId", "==", user.docId),
+              limit(50) 
+            );
+            const querySnapshot = await getDocs(qFallback);
+            const subs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContestSubmission));
+            subs.sort((a, b) => {
+              const dateA = a.submittedAt?.toDate?.() || new Date(a.submittedAt);
+              const dateB = b.submittedAt?.toDate?.() || new Date(b.submittedAt);
+              return dateB.getTime() - dateA.getTime();
+            });
+            setSubmissions(subs.slice(0, 50));
+          }
+
+        } catch (error) {
+          console.error("Error fetching submissions:", error);
+        }
+      };
+      fetchSubmissions();
+    }
+  }, [user?.docId]);
 
   useEffect(() => {
     if (user?.username) {
@@ -167,60 +210,60 @@ useEffect(() => {
     }
   };
 
- const uploadImageToCloudinary = async (file: File): Promise<string> => {
-  try {
-    const signResponse = await fetch('/api/sign-cloudinary-upload', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    });
+  const uploadImageToCloudinary = async (file: File): Promise<string> => {
+    try {
+      const signResponse = await fetch('/api/sign-cloudinary-upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-    if (!signResponse.ok) {
-      throw new Error('Failed to get upload signature');
+      if (!signResponse.ok) {
+        throw new Error('Failed to get upload signature');
+      }
+
+      const signData = await signResponse.json();
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", signData.upload_preset);
+
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${signData.cloud_name}/image/upload`;
+      const uploadResponse = await fetch(uploadUrl, {
+        method: "POST",
+        body: formData,
+      });
+
+      const raw = await uploadResponse.text();
+      console.log("Cloudinary raw response:", raw);
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload image: " + raw);
+      }
+
+      const uploadData = JSON.parse(raw);
+      return uploadData.secure_url;
+
+    } catch (error) {
+      console.error("Error uploading to Cloudinary:", error);
+      throw error;
     }
+  };
 
-    const signData = await signResponse.json();
+  const getProgressToNextRank = (rating: number | undefined, rank: string | undefined) => {
+    if (!rating || !rank) return 0;
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", signData.upload_preset);
+    const normalizedRank = rank.toLowerCase();
+    const nextThreshold = rankThresholds[normalizedRank];
+    if (!nextThreshold) return 0;
 
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${signData.cloud_name}/image/upload`;
-    const uploadResponse = await fetch(uploadUrl, {
-      method: "POST",
-      body: formData,
-    });
+    // Get previous threshold
+    const ranks = Object.keys(rankThresholds);
+    const idx = ranks.indexOf(normalizedRank);
+    const prevThreshold = idx > 0 ? rankThresholds[ranks[idx - 1]] : 0;
 
-    const raw = await uploadResponse.text();
-    console.log("Cloudinary raw response:", raw);
-
-    if (!uploadResponse.ok) {
-      throw new Error("Failed to upload image: " + raw);
-    }
-
-    const uploadData = JSON.parse(raw);
-    return uploadData.secure_url;
-
-  } catch (error) {
-    console.error("Error uploading to Cloudinary:", error);
-    throw error;
-  }
-};
-
-const getProgressToNextRank = (rating: number | undefined, rank: string | undefined) => {
-  if (!rating || !rank) return 0;
-
-  const normalizedRank = rank.toLowerCase();
-  const nextThreshold = rankThresholds[normalizedRank];
-  if (!nextThreshold) return 0;
-
-  // Get previous threshold
-  const ranks = Object.keys(rankThresholds);
-  const idx = ranks.indexOf(normalizedRank);
-  const prevThreshold = idx > 0 ? rankThresholds[ranks[idx - 1]] : 0;
-
-  const progress = ((rating - prevThreshold) / (nextThreshold - prevThreshold)) * 100;
-  return Math.min(Math.max(Math.round(progress), 0), 100);
-};
+    const progress = ((rating - prevThreshold) / (nextThreshold - prevThreshold)) * 100;
+    return Math.min(Math.max(Math.round(progress), 0), 100);
+  };
 
   const handleSave = async () => {
     if (!user) {
@@ -293,27 +336,27 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
   // Fixed Streak Logic
   const calculateCurrentStreak = () => {
     if (!user?.lastSolvedDate) return user?.streak || 0;
-    
+
     const lastSolved = new Date(user.lastSolvedDate);
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     // Reset streak if last solved was more than 2 days ago
     const daysSinceLastSolved = Math.floor((today.getTime() - lastSolved.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (daysSinceLastSolved > 1) {
       return 0; // Streak broken
     }
-    
+
     // If last solved was today or yesterday, maintain streak
     const isToday = lastSolved.toDateString() === today.toDateString();
     const isYesterday = lastSolved.toDateString() === yesterday.toDateString();
-    
+
     if (isToday || isYesterday) {
       return user.streak || 0;
     }
-    
+
     return 0;
   };
 
@@ -330,32 +373,32 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
     const streak = calculateCurrentStreak();
     const calendarDays = [];
     const today = new Date();
-    
+
     // Generate last 7 days including today
     for (let i = 6; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const isActive = i >= (6 - Math.min(streak - 1, 6));
-      
+
       calendarDays.push({
         date: date.getDate(),
         month: date.getMonth(),
         isActive: isActive && streak > 0
       });
     }
-    
+
     return calendarDays;
   };
 
   // Check if streak is in danger (last solved was yesterday)
   const isStreakInDanger = () => {
     if (!user?.lastSolvedDate) return false;
-    
+
     const lastSolved = new Date(user.lastSolvedDate);
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     return lastSolved.toDateString() === yesterday.toDateString();
   };
 
@@ -376,8 +419,8 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
   const level = calculateLevel();
   const solvedCount = Object.values(user.solvedQuestions || {}).flat().length;
   const accuracy = user.totalAnswers
-  ? Math.round(((user.correctAnswers ?? 0) / user.totalAnswers) * 100)
-  : 0;
+    ? Math.round(((user.correctAnswers ?? 0) / user.totalAnswers) * 100)
+    : 0;
 
   const streakDanger = isStreakInDanger();
 
@@ -412,7 +455,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
                   </button>
                 )}
               </div>
-              
+
               <div className={styles.userInfo}>
                 <div className={styles.usernameSection}>
                   <h1 className={styles.username}>{user.username}</h1>
@@ -442,7 +485,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
                 <div className={styles.statLabel}>Solved</div>
               </div>
             </div>
-            
+
             <div className={styles.statCard}>
               <div className={styles.statIcon}><HiOutlineCurrencyRupee size={20} /></div>
               <div className={styles.statContent}>
@@ -450,7 +493,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
                 <div className={styles.statLabel}>Coins</div>
               </div>
             </div>
-            
+
             <div className={styles.statCard}>
               <div className={`${styles.statIcon} ${streakDanger ? styles.streakDangerIcon : ''}`}><HiOutlineFire size={20} /></div>
               <div className={styles.statContent}>
@@ -458,7 +501,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
                 <div className={styles.statLabel}>Streak</div>
               </div>
             </div>
-            
+
             <div className={styles.statCard}>
               <div className={styles.statIcon}><HiOutlineUsers size={20} /></div>
               <div className={styles.statContent}>
@@ -466,7 +509,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
                 <div className={styles.statLabel}>Followers</div>
               </div>
             </div>
-            
+
             <div className={styles.statCard}>
               <div className={styles.statIcon}><HiArrowTrendingUp size={20} /></div>
               <div className={styles.statContent}>
@@ -474,7 +517,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
                 <div className={styles.statLabel}>Following</div>
               </div>
             </div>
-            
+
             <div className={styles.statCard}>
               <div className={styles.statIcon}><HiOutlineTag size={20} /> </div>
               <div className={styles.statContent}>
@@ -488,7 +531,7 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
           {cfData && (
             <div className={styles.cfSection}>
               <h3 className={styles.sectionTitle}>Codeforces Stats</h3>
-              <div 
+              <div
                 className={styles.cfRankCard}
                 style={{ background: getRankGradient(cfData.rank) }}
               >
@@ -507,23 +550,23 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
                   </div>
                 </div>
               </div>
-              
+
               {/* Rating Progress Bar */}
               <div className={styles.ratingProgress}>
-  <div className={styles.progressLabel}>
-    <span>Progress to next rank</span>
-    <span>{cfProgress}%</span>
-  </div>
-  <div className={styles.progressBar}>
-    <div
-      className={styles.progressFill}
-      style={{
-        width: `${cfProgress}%`,
-        background: getRankColor(cfData?.rank)
-      }}
-    ></div>
-  </div>
-</div>
+                <div className={styles.progressLabel}>
+                  <span>Progress to next rank</span>
+                  <span>{cfProgress}%</span>
+                </div>
+                <div className={styles.progressBar}>
+                  <div
+                    className={styles.progressFill}
+                    style={{
+                      width: `${cfProgress}%`,
+                      background: getRankColor(cfData?.rank)
+                    }}
+                  ></div>
+                </div>
+              </div>
 
             </div>
           )}
@@ -535,43 +578,43 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
               {uploadError && (
                 <div className={styles.errorMessage}>{uploadError}</div>
               )}
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="fullname">Full Name</label>
-                <input 
-                  id="fullname" 
-                  type="text" 
-                  name="fullname" 
-                  value={editForm.fullname} 
-                  onChange={handleInputChange} 
-                  placeholder="Your Full Name" 
-                  disabled={loading} 
+                <input
+                  id="fullname"
+                  type="text"
+                  name="fullname"
+                  value={editForm.fullname}
+                  onChange={handleInputChange}
+                  placeholder="Your Full Name"
+                  disabled={loading}
                 />
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="email">Email Address</label>
-                <input 
-                  id="email" 
-                  type="email" 
-                  name="email" 
-                  value={editForm.email} 
-                  onChange={handleInputChange} 
-                  placeholder="your.email@example.com" 
-                  disabled={loading} 
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  value={editForm.email}
+                  onChange={handleInputChange}
+                  placeholder="your.email@example.com"
+                  disabled={loading}
                 />
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="photoFile">Change Profile Picture</label>
-                <input 
-                  id="photoFile" 
-                  type="file" 
-                  name="photoFile" 
-                  accept="image/png,image/jpeg,image/jpg,image/webp" 
-                  onChange={handleImageChange} 
-                  className={styles.fileInput} 
-                  disabled={loading} 
+                <input
+                  id="photoFile"
+                  type="file"
+                  name="photoFile"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={handleImageChange}
+                  className={styles.fileInput}
+                  disabled={loading}
                 />
                 <small>Max file size: 5MB. Supported formats: JPEG, PNG, WebP</small>
               </div>
@@ -592,15 +635,15 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
         <div className={styles.rightColumn}>
           <div className={styles.activityPanel}>
             <h3 className={styles.sectionTitle}>Recent Activity</h3>
-            
+
             {/* Streak Calendar */}
             <div className={styles.activitySection}>
               <h4>🔥 Current Streak - {currentStreak} days</h4>
               <div className={styles.streakCalendar}>
                 <div className={styles.calendarGrid}>
                   {streakCalendar.map((day, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className={`${styles.calendarDay} ${day.isActive ? styles.active : ''}`}
                       title={`${day.date}/${day.month + 1}`}
                     >
@@ -620,22 +663,44 @@ const getProgressToNextRank = (rating: number | undefined, rank: string | undefi
             <div className={styles.activitySection}>
               <h4>Recent Submissions</h4>
               <div className={styles.submissionsList}>
-                {solvedCount > 0 ? (
-                  <div className={styles.submissionItem}>
-                    <div className={styles.submissionInfo}>
-                      <span className={styles.problemCount}>Solved {solvedCount} problems</span>
-                      <span className={styles.lastActive}>
-                        Last active: {user.lastSolvedDate ? new Date(user.lastSolvedDate).toLocaleDateString() : 'Never'}
-                      </span>
-                    </div>
-                    <div className={styles.difficultyBreakdown}>
-                      {Object.entries(user.solvedQuestions || {}).map(([difficulty, problems]) => (
-                        <span key={difficulty} className={styles.difficultyTag}>
-                          {difficulty}: {problems.length}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                {submissions.length > 0 ? (
+                  submissions.map((sub) => {
+                    const date = sub.submittedAt?.toDate?.() || new Date(sub.submittedAt);
+                    const problemIndex = sub.problemId.split('_').pop();
+                    const problemLink = sub.platform.toLowerCase() === 'codeforces'
+                      ? `https://codeforces.com/contest/${sub.contestId}/problem/${problemIndex}`
+                      : null;
+
+                    return (
+                      <div key={sub.id} className={styles.submissionCard}>
+                        <div className={styles.submissionHeader}>
+                          <span className={styles.problemName}>
+                            {problemLink ? (
+                              <a
+                                href={problemLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.problemLink}
+                              >
+                                {sub.problemName}
+                              </a>
+                            ) : (
+                              sub.problemName
+                            )}
+                          </span>
+                          <span className={styles.submissionDate}>
+                            {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
+                        </div>
+                        <div className={styles.submissionDetails}>
+                          <span className={styles.languageBadge}>{sub.language}</span>
+                          <span className={styles.verdictBadge}>
+                            <HiCheckCircle size={16} /> Accepted
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
                 ) : (
                   <p className={styles.noActivity}>No submissions yet. Start solving problems!</p>
                 )}

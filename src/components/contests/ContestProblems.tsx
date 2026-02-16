@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { PastContest, ContestProblem } from "../../types/contest-submission";
 import { generateProblemsForContest } from "../../utils/generate-contest-problems";
 import SolutionSubmitModal from "./SolutionSubmitModal";
+import SolutionsListModal from "./SolutionsListModal";
 import styles from "./ContestProblems.module.css";
 
 interface ContestProblemsProps {
@@ -13,6 +14,7 @@ export default function ContestProblems({ contest, onClose }: ContestProblemsPro
     const [problems, setProblems] = useState<ContestProblem[]>([]);
     const [selectedProblem, setSelectedProblem] = useState<ContestProblem | null>(null);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+    const [isSolutionsModalOpen, setIsSolutionsModalOpen] = useState(false);
 
     useEffect(() => {
         // Generate problems for this contest
@@ -30,6 +32,16 @@ export default function ContestProblems({ contest, onClose }: ContestProblemsPro
 
     const handleCloseSubmitModal = () => {
         setIsSubmitModalOpen(false);
+        setSelectedProblem(null);
+    };
+
+    const handleViewSolutions = (problem: ContestProblem) => {
+        setSelectedProblem(problem);
+        setIsSolutionsModalOpen(true);
+    };
+
+    const handleCloseSolutionsModal = () => {
+        setIsSolutionsModalOpen(false);
         setSelectedProblem(null);
     };
 
@@ -74,6 +86,13 @@ export default function ContestProblems({ contest, onClose }: ContestProblemsPro
                                 >
                                     Submit Solution
                                 </button>
+                                <button
+                                    className={styles.viewButton}
+                                    onClick={() => handleViewSolutions(problem)}
+                                    style={{ marginLeft: '0.5rem', background: '#e5e7eb', color: '#374151', border: 'none' }}
+                                >
+                                    View Solutions
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -85,6 +104,15 @@ export default function ContestProblems({ contest, onClose }: ContestProblemsPro
                         contest={contest}
                         problem={selectedProblem}
                         onClose={handleCloseSubmitModal}
+                    />
+                )}
+
+                {/* Solutions Modal */}
+                {isSolutionsModalOpen && selectedProblem && (
+                    <SolutionsListModal
+                        contest={contest}
+                        problem={selectedProblem}
+                        onClose={handleCloseSolutionsModal}
                     />
                 )}
             </div>
