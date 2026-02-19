@@ -2,6 +2,7 @@ import Header from "../common/components/Header/Header";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import Footer from "../common/components/Footer/Footer";
+import { useRouter } from "next/router";
 import {
   BsArrowRightCircle,
   BsTrophy,
@@ -22,6 +23,13 @@ const DynamicFooter = dynamic(() => import("../common/components/Footer/Footer")
 });
 
 export default function Home() {
+      const router = useRouter();
+      const goToLogin = () => {
+        router.push("/login");
+      };
+      const goToDemo = () => {
+        router.push("/demo");
+      };
   return (
     <div className="flex flex-col w-full items-center">
       <DynamicHeader />
@@ -47,7 +55,7 @@ export default function Home() {
              <button className={`${styles.button_blue}`}>Explore</button>  
 
               {/* Dashboard Button (Black) */}
-              <button className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition-all duration-200 hover:scale-105 flex items-center gap-2 w-1/2">
+              <button onClick={goToLogin} className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition-all duration-200 hover:scale-105 flex items-center gap-2 w-1/2">
                 Dashboard
                 <BsArrowRightCircle size={"1.3em"} className="transition-transform duration-200 hover:translate-x-1" />
               </button>
@@ -149,11 +157,11 @@ export default function Home() {
       <div className="w-full flex justify-center py-8 bg-white">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Start Competing Now Button (Blue) */}
-           <button className={`${styles.button_blue} hover:bg-blue-700 text-white font-semibold px-5 py-3 rounded-lg shadow transition-all duration-200 hover:scale-105`}>
+           <button onClick={goToLogin} className={`${styles.button_blue} hover:bg-blue-700 text-white font-semibold px-5 py-3 rounded-lg shadow transition-all duration-200 hover:scale-105`}>
             Start Competing Now
           </button>
           {/* View Demo Button (Black) */}
-          <button className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-3 rounded-lg shadow transition-all duration-200 hover:scale-105 flex items-center gap-2">
+          <button onClick={goToDemo} className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-3 rounded-lg shadow transition-all duration-200 hover:scale-105 flex items-center gap-2">
             View Demo
             <BsArrowRightCircle size={"1.3em"} />
           </button>

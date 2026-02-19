@@ -23,7 +23,11 @@ const getTodayDate = () => {
   return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 };
 
-export default function MainMenu() {
+type MainMenuProps = {
+  username: string;
+};
+
+export default function MainMenu({ username }: MainMenuProps) {
   const router = useRouter();
 
   const [userData, setUserData] = useState<any>(() => {
@@ -40,19 +44,22 @@ export default function MainMenu() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const username = user.user?.username;
-      const docId = user.user?.docId; 
-
-      if (typeof username === "string" && username.trim() !== "" && docId) {
-        const stats = await getOrUpdateUserStats(username, docId);
-        if (stats) {
-          setUserData(stats);
-          localStorage.setItem(CACHE_KEY, JSON.stringify(stats));
+      if (typeof username === "string" && username.trim() !== "") {
+        const docId = user.user?.docId;
+        if (typeof docId === "string") {
+          const stats = await getOrUpdateUserStats(username, docId);
+          if (stats) {
+            setUserData(stats);
+            localStorage.setItem(CACHE_KEY, JSON.stringify(stats));
+          }
+        } else {
+          // Optionally clear user data if docId missing
+          setUserData(null);
         }
       }
     };
     fetchStats();
-  }, [user.user]); 
+  }, [username, user.user?.docId]);
 
   useEffect(() => {
     async function fetchPOTD() {
@@ -199,5 +206,5 @@ export default function MainMenu() {
         <Suggestions rating={userData?.rating} />
       </div>
     </div>
-  )
+  );
 }
