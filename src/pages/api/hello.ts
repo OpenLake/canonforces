@@ -51,18 +51,21 @@ export const executeCode = async (
         };
         const compiler = WANDBOX_COMPILERS[language] || 'cpython-3.14.0';
 
-        // Use native fetch to bypass Node.js axios IPv6 ECONNRESET issues with wandbox.org
-        const fallbackRes = await fetch('https://wandbox.org/api/compile.json', {
-          method: 'POST',
+        // Use axios with explicit IPv4 to bypass Node.js IPv6 ECONNRESET issues with wandbox.org
+        const https = require('https');
+        const agent = new https.Agent({ family: 4 });
+
+        const fallbackRes = await axios.post('https://wandbox.org/api/compile.json', {
+          compiler,
+          code: value,
+          stdin: input
+        }, {
+          httpsAgent: agent,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            compiler,
-            code: value,
-            stdin: input
-          })
+          timeout: 10000
         });
 
-        const fallbackData = await fallbackRes.json();
+        const fallbackData = fallbackRes.data;
 
         return {
           run: {
