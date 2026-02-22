@@ -19,7 +19,6 @@ type SubmissionResult = {
   }>;
 } | null;
 
-// This is now a "dumb" component. It just receives props.
 type Props = {
   id: string;
   language: string;
@@ -31,6 +30,8 @@ type Props = {
   submissionResult: SubmissionResult;
   testCases: TestCase[];
   problemData?: any;
+  onRun?: () => void;
+  onSubmit?: () => void;
 };
 
 const CodeEditor = ({
@@ -44,6 +45,8 @@ const CodeEditor = ({
   submissionResult,
   testCases,
   problemData,
+  onRun,
+  onSubmit,
 }: Props) => {
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const editorRef = useRef(null);
@@ -66,9 +69,8 @@ const CodeEditor = ({
 
   return (
     <div
-      className={`${styles.editorWrapper} ${
-        isFullscreen ? styles.fullscreen : ''
-      }`}
+      className={`${styles.editorWrapper} ${isFullscreen ? styles.fullscreen : ''
+        }`}
     >
       {/* Editor Header */}
       <div className={styles.editorHeader}>
@@ -192,6 +194,8 @@ const CodeEditor = ({
             language={language}
             value={codeValue}
             problemData={problemData}
+            onRun={onRun}
+            onSubmit={onSubmit}
           />
         </div>
       </div>

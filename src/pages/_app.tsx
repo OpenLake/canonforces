@@ -6,9 +6,10 @@ import * as ROUTES from "../constants/routes";
 import UserContext from '../context/user';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-import { useRouter }from 'next/router';
+import { useRouter } from 'next/router';
 import Layout from '../common/components/Layout/Layout';
 import { SocketProvider } from '../context/SocketContext';
+import { Toaster } from 'sonner';
 // import { AuthProvider,useAuth } from '../context/AuthContext';
 // -------------------------------------
 // FIX APPLIED HERE:
@@ -26,7 +27,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   // Define routes that DON'T need the main layout.
   // Note: /questions/[id] is dynamic, but Next.js router.pathname will show the template string
-  const noLayoutRoutes = ['/', '/login', '/signup','/questions/[id]','/CompleteProfile'];
+  const noLayoutRoutes = ['/', '/login', '/signup', '/questions/[id]', '/CompleteProfile'];
 
   // Define routes that are PUBLIC and don't require a user to be logged in.
   const publicRoutes = ['/', '/login', '/signup', '/questions/[id]'];
@@ -37,7 +38,7 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     // onAuthStateChanged returns an unsubscribe function. We'll use it for cleanup.
     const unsubscribe = onAuthStateChanged(auth, (authUser: any) => {
-      if(authUser) {
+      if (authUser) {
         // User is logged IN
         localStorage.setItem("authUser", JSON.stringify(authUser));
         setUser(authUser);
@@ -63,12 +64,13 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
+      <Toaster richColors position="top-center" />
       <style jsx global>{`
         html {
           font-family: ${poppins.style.fontFamily};
           }
           `}</style>
-        <SocketProvider>
+      <SocketProvider>
         {showLayout ? (
           <UserContext.Provider value={user}>
             <Layout>

@@ -52,7 +52,8 @@ export default async function handler(
 
     try {
         if (!adminDb) {
-            return res.status(503).json({ error: 'Server configuration error: Firebase Admin SDK not initialized. Missing environment variables.' });
+            console.error('Firebase Admin SDK not initialized. Missing environment variables.');
+            return res.status(503).json({ error: 'Server configuration error: Firebase Admin SDK not initialized. Please ensure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY are set in .env' });
         }
 
         const userRef = adminDb.collection('users').doc(userId);

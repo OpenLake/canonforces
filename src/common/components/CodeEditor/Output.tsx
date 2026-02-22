@@ -27,6 +27,8 @@ type Props = {
   language: string;
   value: string;
   problemData?: any;
+  onRun?: () => void;
+  onSubmit?: () => void;
 };
 
 const Output: React.FC<Props> = ({
@@ -34,6 +36,8 @@ const Output: React.FC<Props> = ({
   testCases = [], // Defaulting here
   isRunning,
   submissionResult,
+  onRun,
+  onSubmit,
 }) => {
   const [activeTab, setActiveTab] = useState('output'); // 'output' or 'testcases'
 
@@ -47,7 +51,7 @@ const Output: React.FC<Props> = ({
       return (
         <pre className={styles.outputContent}>
           {output ||
-            'Run your code to see the output here.'}
+            'Run your code to see the output here. (If execution fails, please check your RapidAPI subscription)'}
         </pre>
       );
     }
@@ -137,21 +141,35 @@ const Output: React.FC<Props> = ({
     <div className={styles.ideTerminal}>
       <div className={styles.terminalHeader}>
         <button
-          className={`${styles.terminalTab} ${
-            activeTab === 'output' ? styles.active : ''
-          }`}
+          className={`${styles.terminalTab} ${activeTab === 'output' ? styles.active : ''
+            }`}
           onClick={() => setActiveTab('output')}
         >
           Output
         </button>
         <button
-          className={`${styles.terminalTab} ${
-            activeTab === 'testcases' ? styles.active : ''
-          }`}
+          className={`${styles.terminalTab} ${activeTab === 'testcases' ? styles.active : ''
+            }`}
           onClick={() => setActiveTab('testcases')}
         >
           Test Cases
         </button>
+        <div className={styles.headerActions}>
+          <button
+            className={styles.runButton}
+            onClick={onRun}
+            disabled={isRunning}
+          >
+            {isRunning ? 'Running...' : 'Run'}
+          </button>
+          <button
+            className={styles.submitButton}
+            onClick={onSubmit}
+            disabled={isRunning}
+          >
+            Submit
+          </button>
+        </div>
       </div>
       <div className={styles.terminalBody}>{renderContent()}</div>
     </div>

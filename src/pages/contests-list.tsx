@@ -100,7 +100,11 @@ const ContestsList = () => {
               </div>
               <div className={styles.headerText}>
                 <h1 className={styles.title}>CanonForces Contests</h1>
-                <p className={styles.subtitle}>Track upcoming competitive programming events.</p>
+                <p className={styles.subtitle}>
+                  {view === "upcoming"
+                    ? "Track upcoming competitive programming events."
+                    : "Review previous contests and explore solutions."}
+                </p>
               </div>
             </div>
           </div>

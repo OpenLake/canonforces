@@ -2,15 +2,15 @@
 
 import { signInWithPopup } from "firebase/auth";
 import { auth, db, provider } from "../lib/firebase";
-import { 
-  collection, 
-  getDocs, 
-  query, 
-  where, 
-  limit, 
-  doc, 
-  updateDoc, 
-  getDoc 
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  limit,
+  doc,
+  updateDoc,
+  getDoc
 } from "firebase/firestore";
 
 // --- Types ---
@@ -51,7 +51,7 @@ export async function isCanonforcesUsernameTaken(username: string): Promise<bool
 export async function getUserByUserId(userId: string): Promise<UserProfile[]> {
   const q = query(collection(db, "users"), where("userId", "==", userId));
   const querySnapshot = await getDocs(q);
-  
+
   const users = querySnapshot.docs.map((item) => ({
     ...item.data(),
     docId: item.id,
@@ -105,29 +105,29 @@ export async function getUsersByQuery(search: string, currentUserId: string) {
   const filtered = unique.filter(doc => doc.id !== currentUserId);
 
   return filtered.map((doc) => ({
-      docId: doc.id,
-      userId: doc.data().userId,
-      username: doc.data().username,
-      fullname: doc.data().fullname,
-      email: doc.data().emailAddress,
-      dateCreated: doc.data().dateCreated,
-      photoURL: doc.data().photoURL,
-    }));
+    docId: doc.id,
+    userId: doc.data().userId,
+    username: doc.data().username,
+    fullname: doc.data().fullname,
+    email: doc.data().emailAddress,
+    dateCreated: doc.data().dateCreated,
+    photoURL: doc.data().photoURL,
+  }));
 }
 
 // --- Codeforces API Wrappers ---
 
-export const doesUsernameExists = async (username: string)=> {
+export const doesUsernameExists = async (username: string) => {
   try {
-    const user = await fetch(`https://codeforces.com/api/user.info?handles=${username}`);
-    if(user.status === 200) {
+    const user = await fetch(`/api/cf-proxy?url=${encodeURIComponent(`https://codeforces.com/api/user.info?handles=${username}`)}`);
+    if (user.status === 200) {
       return user.json().then((res) => {
         // console.log('Success', res)
         return res;
       });
     } else {
-       console.log('API limit crossed');
-       return null;
+      console.log('API limit crossed');
+      return null;
     }
   } catch (e) {
     console.error(e);
@@ -137,14 +137,14 @@ export const doesUsernameExists = async (username: string)=> {
 
 export const getContestCount = async (username: string) => {
   try {
-    const res = await fetch(`https://codeforces.com/api/user.rating?handle=${username}`);
+    const res = await fetch(`/api/cf-proxy?url=${encodeURIComponent(`https://codeforces.com/api/user.rating?handle=${username}`)}`);
     if (res.status === 200) {
       const data = await res.json();
       if (data.status === "OK") {
-        return data.result.length; 
+        return data.result.length;
       }
     }
-    return 0; 
+    return 0;
   } catch (e) {
     return 0;
   }
@@ -152,12 +152,12 @@ export const getContestCount = async (username: string) => {
 
 export const getSolvedCount = async (username: string) => {
   try {
-    const res = await fetch(`https://codeforces.com/api/user.status?handle=${username}`);
+    const res = await fetch(`/api/cf-proxy?url=${encodeURIComponent(`https://codeforces.com/api/user.status?handle=${username}`)}`);
     if (res.status === 200) {
       const data = await res.json();
       if (data.status === "OK") {
         const solvedSet = new Set();
-          
+
         for (const submission of data.result) {
           if (submission.verdict === "OK") {
             const problemId = `${submission.problem.contestId}-${submission.problem.index}`;
@@ -174,9 +174,9 @@ export const getSolvedCount = async (username: string) => {
   }
 };
 
-export const getRatingGraph = async (username: string)=>{
+export const getRatingGraph = async (username: string) => {
   try {
-    const res = await fetch(`https://codeforces.com/api/user.rating?handle=${username}`);
+    const res = await fetch(`/api/cf-proxy?url=${encodeURIComponent(`https://codeforces.com/api/user.rating?handle=${username}`)}`);
     if (res.status === 200) {
       const data = await res.json();
       const ratings = data.result;
@@ -194,7 +194,7 @@ export const getRatingGraph = async (username: string)=>{
 
 export async function getProblemsByTags(username: string) {
   try {
-    const res = await fetch(`https://codeforces.com/api/user.status?handle=${username}`);
+    const res = await fetch(`/api/cf-proxy?url=${encodeURIComponent(`https://codeforces.com/api/user.status?handle=${username}`)}`);
     const data = await res.json();
     if (data.status !== 'OK') return {};
 
@@ -220,7 +220,7 @@ export async function getProblemsByTags(username: string) {
 
 export async function getProblemsByDifficulty(username: string) {
   try {
-    const res = await fetch(`https://codeforces.com/api/user.status?handle=${username}`);
+    const res = await fetch(`/api/cf-proxy?url=${encodeURIComponent(`https://codeforces.com/api/user.status?handle=${username}`)}`);
     const data = await res.json();
     if (data.status !== 'OK') return {};
 
@@ -251,7 +251,7 @@ export async function getProblemsByDifficulty(username: string) {
 
 export async function getContestHistory(username: string) {
   try {
-    const res = await fetch(`https://codeforces.com/api/user.rating?handle=${username}`);
+    const res = await fetch(`/api/cf-proxy?url=${encodeURIComponent(`https://codeforces.com/api/user.rating?handle=${username}`)}`);
     const data = await res.json();
     if (data.status !== 'OK') return [];
 
@@ -280,7 +280,7 @@ export const getOrUpdateUserStats = async (username: string, userDocId: string) 
   try {
     // 1. Try to fetch all data from Codeforces API in parallel
     const [userInfoRes, contestCount, solveStats] = await Promise.all([
-      fetch(`https://codeforces.com/api/user.info?handles=${username}`),
+      fetch(`/api/cf-proxy?url=${encodeURIComponent(`https://codeforces.com/api/user.info?handles=${username}`)}`),
       getContestCount(username),
       getSolvedCount(username)
     ]);
@@ -289,10 +289,10 @@ export const getOrUpdateUserStats = async (username: string, userDocId: string) 
     if (userInfoRes.status !== 200) {
       throw new Error("Codeforces API Error or Limit Reached");
     }
-    
+
     const userInfoData = await userInfoRes.json();
     if (userInfoData.status !== "OK") {
-        throw new Error("Codeforces User Info Failed");
+      throw new Error("Codeforces User Info Failed");
     }
 
     const userDetails = userInfoData.result[0];
@@ -305,14 +305,14 @@ export const getOrUpdateUserStats = async (username: string, userDocId: string) 
       solved: solveStats?.solved || 0,
       attempt: solveStats?.attempt || 0,
       contestsGiven: contestCount || 0,
-      lastUpdated: Date.now() 
+      lastUpdated: Date.now()
     };
 
     // 4. If successful, Cache this to Firestore (Fire and Forget)
     if (userDocId) {
-        const userRef = doc(db, "users", userDocId);
-        // We use { merge: true } via updateDoc to avoid overwriting other fields
-        await updateDoc(userRef, { cachedStats: newStats }).catch(err => console.log("Cache update failed", err)); 
+      const userRef = doc(db, "users", userDocId);
+      // We use { merge: true } via updateDoc to avoid overwriting other fields
+      await updateDoc(userRef, { cachedStats: newStats }).catch(err => console.log("Cache update failed", err));
     }
 
     return newStats;
@@ -324,18 +324,18 @@ export const getOrUpdateUserStats = async (username: string, userDocId: string) 
     if (!userDocId) return null;
 
     try {
-        const userRef = doc(db, "users", userDocId);
-        const userSnap = await getDoc(userRef);
+      const userRef = doc(db, "users", userDocId);
+      const userSnap = await getDoc(userRef);
 
-        if (userSnap.exists()) {
-            const data = userSnap.data();
-            // Return the cached stats if they exist
-            if (data.cachedStats) {
-                return data.cachedStats;
-            }
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        // Return the cached stats if they exist
+        if (data.cachedStats) {
+          return data.cachedStats;
         }
+      }
     } catch (dbError) {
-        console.error("Firestore Cache fetch failed:", dbError);
+      console.error("Firestore Cache fetch failed:", dbError);
     }
 
     return null; // No API data and no Cache data

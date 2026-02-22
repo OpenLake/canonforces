@@ -104,3 +104,44 @@
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
+.headerActions {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+  padding-right: 15px;
+  align-items: center;
+}
+
+.runButton, .submitButton {
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.runButton {
+  background-color: #2ea44f;
+  color: white;
+}
+
+.runButton:hover:not(:disabled) {
+  background-color: #2c974b;
+}
+
+.submitButton {
+  background-color: #007acc;
+  color: white;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #0062a3;
+}
+
+.runButton:disabled, .submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
