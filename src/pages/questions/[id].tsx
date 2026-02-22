@@ -114,7 +114,7 @@ const QuestionBar = () => {
         setOutput(data.run.output || data.run.stderr || data.run.compile_output || 'Program executed successfully (no output).');
       } else if (data.error) {
         toast.error(`Execution failed: ${data.error}`);
-        setOutput(`Execution failed: ${response.status}\nError: ${data.error}`);
+        setOutput(`Execution failed: ${response.status}\nError: ${data.error}\nRaw Trace: ${data.rawError || 'none'}`);
       } else {
         toast.error('Failed to run code.');
         setOutput('Unknown error occurred. Check browser console for details.');
