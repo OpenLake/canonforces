@@ -51,21 +51,49 @@ export const executeCode = async (
         };
         const compiler = WANDBOX_COMPILERS[language] || 'cpython-3.14.0';
 
-        // Use axios with explicit IPv4 to bypass Node.js IPv6 ECONNRESET issues with wandbox.org
+        // Use strict Node `https` module to completely bypass Next.js IPv6 DNS resolution overrides
         const https = require('https');
-        const agent = new https.Agent({ family: 4 });
 
-        const fallbackRes = await axios.post('https://wandbox.org/api/compile.json', {
-          compiler,
-          code: value,
-          stdin: input
-        }, {
-          httpsAgent: agent,
-          headers: { 'Content-Type': 'application/json' },
-          timeout: 10000
+        const fallbackData: any = await new Promise((resolve, reject) => {
+          const postData = JSON.stringify({
+            compiler,
+            code: value,
+            stdin: input
+          });
+
+          const options = {
+            hostname: 'wandbox.org',
+            port: 443,
+            path: '/api/compile.json',
+            method: 'POST',
+            family: 4, // Force strict IPv4
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(postData)
+            }
+          };
+
+          const req = https.request(options, (res: any) => {
+            let body = '';
+            res.on('data', (chunk: any) => body += chunk);
+            res.on('end', () => {
+              try {
+                resolve(JSON.parse(body));
+              } catch (e) {
+                reject(new Error('Failed to parse Wandbox response'));
+              }
+            });
+          });
+
+          req.on('error', (e: any) => reject(e));
+          req.setTimeout(10000, () => {
+            req.destroy();
+            reject(new Error('Wandbox timeout'));
+          });
+
+          req.write(postData);
+          req.end();
         });
-
-        const fallbackData = fallbackRes.data;
 
         return {
           run: {
@@ -79,6 +107,8 @@ export const executeCode = async (
         console.error('All fallback endpoints failed:', fallbackError.message);
         return {
           error: 'All code execution services are currently unavailable.',
+          rawError: fallbackError.message,
+          stack: fallbackError.stack,
           status: 503,
         };
       }
