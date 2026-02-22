@@ -4,7 +4,7 @@ import admin from 'firebase-admin';
 import { getApps } from 'firebase-admin/app';
 
 const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
+  projectId: process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
   // This safely handles the private key, preventing crashes if it's missing
   privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
