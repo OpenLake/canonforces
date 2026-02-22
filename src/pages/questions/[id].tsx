@@ -3,8 +3,11 @@ import { useRouter } from 'next/router';
 import { doc, getDoc } from 'firebase/firestore';
 import styles from '../../styles/CodeEditor.module.css';
 import CodeEditor from '../../common/components/CodeEditor/CodeEditor';
-import { db } from '../../lib/firebase';
+import { db, auth } from '../../lib/firebase';
 import { formatDescription } from '../../utils/formatDescription';
+import { increment, runTransaction, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { toast } from 'sonner';
+import { getPOTD } from '../../services/potd_fetch';
 
 import {
   CODE_SNIPPETS,
@@ -90,13 +93,134 @@ const QuestionBar = () => {
     setCodeValue(value || '');
   };
 
+  const handleRun = async () => {
+    if (isRunning) return;
+    setIsRunning(true);
+    setOutput(null);
+
+    try {
+      const response = await fetch('/api/hello', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          language,
+          codeValue,
+          input: testCases[0]?.input || '',
+        }),
+      });
+
+      const data = await response.json();
+      if (data.run) {
+        setOutput(data.run.output || data.run.stderr || data.run.compile_output || 'Program executed successfully (no output).');
+      } else if (data.error) {
+        toast.error(`Execution failed: ${data.error}`);
+        setOutput(`Execution failed: ${response.status}\nError: ${data.error}`);
+      } else {
+        toast.error('Failed to run code.');
+        setOutput('Unknown error occurred. Check browser console for details.');
+      }
+    } catch (error) {
+      console.error('Run Error:', error);
+      toast.error('An error occurred while connecting to the execution server.');
+      setOutput('A network error occurred. Please check your internet connection and try again.');
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!auth.currentUser) {
+      toast.error('Please login to submit your solution.');
+      return;
+    }
+
+    if (!ques || !id) return;
+
+    setIsRunning(true);
+    try {
+      // Direct Firestore submission (Client-Side)
+      const submissionsRef = collection(db, 'contest_submissions');
+      await addDoc(submissionsRef, {
+        userId: auth.currentUser.uid,
+        contestId: 'practice',
+        problemId: id,
+        problemName: ques.title,
+        platform: 'CanonForces',
+        language,
+        code: codeValue,
+        submittedAt: serverTimestamp(),
+        coinsEarned: 0,
+      });
+
+      toast.success('Solution submitted successfully!');
+
+      const potdId = await getPOTD();
+      if (potdId === id) {
+        await markAsSolved();
+      }
+    } catch (error: any) {
+      console.error('Submission error:', error);
+      toast.error(error.message || 'Failed to submit solution.');
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const markAsSolved = async () => {
+    if (!auth.currentUser || !id) return;
+
+    const todayDate = new Date().toISOString().split("T")[0];
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    const submissionRef = doc(db, "potd_submissions", todayDate);
+
+    try {
+      await runTransaction(db, async (transaction) => {
+        const userDoc = await transaction.get(userRef);
+        const currentUserData = userDoc.exists() ? userDoc.data() : { coins: 0, streak: 0 };
+
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+        let newStreak = 1;
+        // @ts-ignore
+        if (currentUserData.lastSolvedDate === yesterdayStr) {
+          // @ts-ignore
+          newStreak = (currentUserData.streak || 0) + 1;
+          // @ts-ignore
+        } else if (currentUserData.lastSolvedDate === todayDate) {
+          return;
+        }
+
+        transaction.update(userRef, {
+          coins: increment(5),
+          streak: newStreak,
+          lastSolvedDate: todayDate
+        });
+
+        transaction.set(submissionRef, {
+          problemId: id,
+          solvers: {
+            [auth.currentUser!.uid]: {
+              uid: auth.currentUser!.uid,
+              username: auth.currentUser!.displayName || "User",
+              solvedAt: new Date().toISOString()
+            }
+          }
+        }, { merge: true });
+      });
+      toast.success("Streak updated! +5 coins awarded.");
+    } catch (error) {
+      console.error('Streak update failed:', error);
+    }
+  };
+
   return (
     <div className={styles.container}>
       {/* LEFT PANEL */}
       <div
-        className={`${styles.leftPane} ${
-          leftPanelCollapsed ? styles.collapsed : ''
-        }`}
+        className={`${styles.leftPane} ${leftPanelCollapsed ? styles.collapsed : ''
+          }`}
       >
         {!leftPanelCollapsed && (
           <div className={styles.problemContent}>
@@ -181,6 +305,8 @@ const QuestionBar = () => {
           submissionResult={submissionResult}
           testCases={testCases}
           problemData={ques}
+          onRun={handleRun}
+          onSubmit={handleSubmit}
         />
       </div>
     </div>
