@@ -61,6 +61,12 @@ const QuestionBar = () => {
   const [cfUsername, setCfUsername] = useState<string>('');
   const [isVerifying, setIsVerifying] = useState(false);
 
+  // AI Hint States
+  const [aiHints, setAiHints] = useState<[string, string, string] | null>(null);
+  const [hintLevel, setHintLevel] = useState<number>(0);
+  const [isFetchingHint, setIsFetchingHint] = useState<boolean>(false);
+  const HINT_COST = 10;
+
   useEffect(() => {
     if (!auth.currentUser) return;
     const userRef = doc(db, "users", auth.currentUser.uid);
@@ -142,6 +148,75 @@ const QuestionBar = () => {
       setOutput('A network error occurred. Please check your internet connection and try again.');
     } finally {
       setIsRunning(false);
+    }
+  };
+
+  const handleGetHint = async () => {
+    if (!auth.currentUser || !ques) {
+      toast.error('You must be logged in to get AI hints.');
+      return;
+    }
+
+    if (hintLevel >= 3) {
+      toast.info('All 3 hints are already revealed!');
+      return;
+    }
+
+    setIsFetchingHint(true);
+
+    try {
+      const userRef = doc(db, "users", auth.currentUser.uid);
+
+      // Step 1: Transaction to deduct coins FIRST safely
+      await runTransaction(db, async (transaction) => {
+        const userDoc = await transaction.get(userRef);
+        if (!userDoc.exists()) throw new Error("User not found");
+
+        const currentCoins = userDoc.data().coins || 0;
+        if (currentCoins < HINT_COST) {
+          throw new Error(`Not enough coins! You need ${HINT_COST} coins for a hint.`);
+        }
+
+        transaction.update(userRef, {
+          coins: increment(-HINT_COST)
+        });
+      });
+
+      // Step 2: If we are at level 0, we need to actually fetch from the API
+      if (hintLevel === 0) {
+        toast.info("Generating AI Hints... (This costs 10 coins)");
+        const response = await fetch('/api/ai-hint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            problemTitle: ques.title,
+            problemDescription: ques.description,
+            userCode: codeValue,
+            language: language,
+            errorOutput: output || null
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.error || "Failed to fetch hints from AI.");
+        }
+
+        const data = await response.json();
+        setAiHints(data.hints);
+        setHintLevel(1);
+        toast.success(`10 coins deducted. Topic Hint Revealed!`);
+      } else {
+        // Step 3: If we already have the hints, just increment the level
+        setHintLevel(prev => prev + 1);
+        toast.success(`10 coins deducted. Hint ${hintLevel + 1} Revealed!`);
+      }
+
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || 'An error occurred while getting the hint.');
+    } finally {
+      setIsFetchingHint(false);
     }
   };
 
@@ -465,6 +540,10 @@ const QuestionBar = () => {
           onSubmit={handleSubmit}
           onVerify={handleVerifyCodeforces}
           isVerifying={isVerifying}
+          aiHints={aiHints}
+          hintLevel={hintLevel}
+          isFetchingHint={isFetchingHint}
+          onGetHint={handleGetHint}
         />
       </div>
     </div>

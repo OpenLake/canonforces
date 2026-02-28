@@ -34,6 +34,10 @@ type Props = {
   onSubmit?: () => void;
   onVerify?: () => void;
   isVerifying?: boolean;
+  aiHints?: [string, string, string] | null;
+  hintLevel?: number;
+  isFetchingHint?: boolean;
+  onGetHint?: () => void;
 };
 
 const CodeEditor = ({
@@ -51,6 +55,10 @@ const CodeEditor = ({
   onSubmit,
   onVerify,
   isVerifying,
+  aiHints,
+  hintLevel,
+  isFetchingHint,
+  onGetHint,
 }: Props) => {
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const editorRef = useRef(null);
@@ -202,6 +210,10 @@ const CodeEditor = ({
             onSubmit={onSubmit}
             onVerify={onVerify}
             isVerifying={isVerifying}
+            aiHints={aiHints}
+            hintLevel={hintLevel}
+            isFetchingHint={isFetchingHint}
+            onGetHint={onGetHint}
           />
         </div>
       </div>
