@@ -32,6 +32,8 @@ type Props = {
   problemData?: any;
   onRun?: () => void;
   onSubmit?: () => void;
+  onVerify?: () => void;
+  isVerifying?: boolean;
 };
 
 const CodeEditor = ({
@@ -47,6 +49,8 @@ const CodeEditor = ({
   problemData,
   onRun,
   onSubmit,
+  onVerify,
+  isVerifying,
 }: Props) => {
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const editorRef = useRef(null);
@@ -196,6 +200,8 @@ const CodeEditor = ({
             problemData={problemData}
             onRun={onRun}
             onSubmit={onSubmit}
+            onVerify={onVerify}
+            isVerifying={isVerifying}
           />
         </div>
       </div>

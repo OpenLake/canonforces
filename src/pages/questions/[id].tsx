@@ -5,7 +5,8 @@ import styles from '../../styles/CodeEditor.module.css';
 import CodeEditor from '../../common/components/CodeEditor/CodeEditor';
 import { db, auth } from '../../lib/firebase';
 import { formatDescription } from '../../utils/formatDescription';
-import { increment, runTransaction, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { increment, runTransaction, setDoc, addDoc, collection, serverTimestamp, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
+import { checkCodeforcesSubmission } from '../../services/codeforces_api';
 import { toast } from 'sonner';
 import { getPOTD } from '../../services/potd_fetch';
 
@@ -15,8 +16,8 @@ import {
 } from '../../constants/boilerplate';
 
 const parseTestCases = (inputs: string, outputs: string) => {
-  if (!inputs || !outputs) return [];
-  return [{ input: inputs, output: outputs }];
+  if (!inputs && !outputs) return [];
+  return [{ input: inputs || '', output: outputs || '' }];
 };
 
 type RunResult = {
@@ -41,6 +42,8 @@ const QuestionBar = () => {
     test_case?: string;
     answer?: string;
     constraints?: string;
+    problemUrl?: string;
+    rating?: number;
   };
 
   const [ques, setQues] = useState<Problem | null>(null);
@@ -55,6 +58,20 @@ const QuestionBar = () => {
   const [output, setOutput] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<any | null>(null);
+  const [cfUsername, setCfUsername] = useState<string>('');
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  useEffect(() => {
+    if (!auth.currentUser) return;
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    const unsubscribe = onSnapshot(userRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setCfUsername(data.username || "");
+      }
+    });
+    return () => unsubscribe();
+  }, [auth.currentUser]);
 
   useEffect(() => {
     const fetchQuestion = async () => {
@@ -155,9 +172,8 @@ const QuestionBar = () => {
       toast.success('Solution submitted successfully!');
 
       const potdId = await getPOTD();
-      if (potdId === id) {
-        await markAsSolved();
-      }
+      // Points and streak are now handled strictly by the Verify Codeforces button.
+      // Removed automatic markAsSolved() call here for Codeforces problems.
     } catch (error: any) {
       console.error('Submission error:', error);
       toast.error(error.message || 'Failed to submit solution.');
@@ -212,6 +228,101 @@ const QuestionBar = () => {
       toast.success("Streak updated! +5 coins awarded.");
     } catch (error) {
       console.error('Streak update failed:', error);
+    }
+  };
+
+  const handleVerifyCodeforces = async () => {
+    console.log("Verify Codeforces button clicked.");
+    if (!auth.currentUser) {
+      console.log("auth.currentUser is null");
+      toast.error('Please login to verify your solution.');
+      return;
+    }
+    console.log("auth.currentUser:", auth.currentUser.uid);
+    console.log("cfUsername from DB:", cfUsername);
+
+    if (!cfUsername) {
+      toast.error("Please set your Codeforces username in your profile settings.");
+      return;
+    }
+    if (!ques || !id) {
+      console.log("ques or id missing", { ques, id });
+      return;
+    }
+    if (!ques.problemUrl) {
+      console.log("ques.problemUrl missing");
+      toast.error('This problem does not have a Codeforces URL to verify against.');
+      return;
+    }
+
+    setIsVerifying(true);
+    console.log("Setting isVerifying to true. problemUrl:", ques.problemUrl);
+    try {
+      // Handle both /problemset/problem/123/A and /contest/123/problem/A formats
+      const urlMatch = ques.problemUrl.match(/codeforces\.com\/(?:problemset\/problem|contest)\/(\d+)\/(?:problem\/)?([A-Z]\d?)/);
+      console.log("urlMatch result:", urlMatch);
+      if (!urlMatch) {
+        toast.error("Invalid Codeforces problem URL for verification");
+        return;
+      }
+      const [, contestId, problemIndex] = urlMatch;
+      console.log("Calling checkCodeforcesSubmission with:", { cfUsername, contestId, problemIndex });
+      const hasSolved = await checkCodeforcesSubmission(cfUsername, contestId, problemIndex);
+      console.log("checkCodeforcesSubmission returned:", hasSolved);
+
+      if (hasSolved) {
+        console.log("Recording submission in Firestore...");
+        // Add the submission record to track completion in CanonForces
+        const submissionsRef = collection(db, 'contest_submissions');
+        await addDoc(submissionsRef, {
+          userId: auth.currentUser.uid,
+          contestId: 'practice',
+          problemId: id,
+          problemName: ques.title,
+          platform: 'Codeforces',
+          language: 'Verified',
+          code: 'Verified via Codeforces API connection.',
+          submittedAt: serverTimestamp(),
+          coinsEarned: 5,
+        });
+
+        console.log("Updating user solvedQuestions array...");
+        // Update the user's solvedQuestions array to mark it complete in QuesList UI
+        const userRef = doc(db, 'users', auth.currentUser.uid);
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        if (ques.rating) {
+          await updateDoc(userRef, {
+            [`solvedQuestions.${ques.rating}`]: arrayUnion(id),
+            lastSolvedDate: todayStr
+          });
+        } else {
+          // Fallback if the problem doesn't have a rating
+          await updateDoc(userRef, {
+            [`solvedQuestions.Unrated`]: arrayUnion(id),
+            lastSolvedDate: todayStr
+          });
+        }
+
+        console.log("Checking POTD status...");
+        // Award the POTD streak if this happens to be the POTD
+        const potdId = await getPOTD();
+        if (potdId === id) {
+          await markAsSolved();
+        }
+
+        console.log("Verification complete. Showing success toast.");
+        toast.success("🎉 Verified! Solution found on Codeforces. Points awarded!");
+      } else {
+        console.log("Submission was NOT found on Codeforces.");
+        toast.error("No accepted submission found on Codeforces.");
+      }
+    } catch (error: any) {
+      console.error("Error in handleVerifyCodeforces:", error);
+      toast.error(error.message || "Failed to verify.");
+    } finally {
+      console.log("Setting isVerifying to false.");
+      setIsVerifying(false);
     }
   };
 
@@ -307,6 +418,8 @@ const QuestionBar = () => {
           problemData={ques}
           onRun={handleRun}
           onSubmit={handleSubmit}
+          onVerify={handleVerifyCodeforces}
+          isVerifying={isVerifying}
         />
       </div>
     </div>

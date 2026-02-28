@@ -29,6 +29,8 @@ type Props = {
   problemData?: any;
   onRun?: () => void;
   onSubmit?: () => void;
+  onVerify?: () => void;
+  isVerifying?: boolean;
 };
 
 const Output: React.FC<Props> = ({
@@ -38,6 +40,9 @@ const Output: React.FC<Props> = ({
   submissionResult,
   onRun,
   onSubmit,
+  onVerify,
+  isVerifying,
+  problemData,
 }) => {
   const [activeTab, setActiveTab] = useState('output'); // 'output' or 'testcases'
 
@@ -165,10 +170,20 @@ const Output: React.FC<Props> = ({
           <button
             className={styles.submitButton}
             onClick={onSubmit}
-            disabled={isRunning}
+            disabled={isRunning || isVerifying}
           >
             Submit
           </button>
+          {problemData?.problemUrl && onVerify && (
+            <button
+              className={styles.submitButton}
+              onClick={onVerify}
+              disabled={isRunning || isVerifying}
+              style={{ backgroundColor: '#10b981', marginLeft: '8px' }}
+            >
+              {isVerifying ? 'Verifying...' : 'Verify on CF'}
+            </button>
+          )}
         </div>
       </div>
       <div className={styles.terminalBody}>{renderContent()}</div>
