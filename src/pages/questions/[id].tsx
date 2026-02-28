@@ -152,28 +152,73 @@ const QuestionBar = () => {
     }
 
     if (!ques || !id) return;
+    if (!testCases || testCases.length === 0) {
+      toast.error("No test cases to run against.");
+      return;
+    }
 
     setIsRunning(true);
+    setSubmissionResult(null);
+    setOutput(null);
+
     try {
-      // Direct Firestore submission (Client-Side)
-      const submissionsRef = collection(db, 'contest_submissions');
-      await addDoc(submissionsRef, {
-        userId: auth.currentUser.uid,
-        contestId: 'practice',
-        problemId: id,
-        problemName: ques.title,
-        platform: 'CanonForces',
-        language,
-        code: codeValue,
-        submittedAt: serverTimestamp(),
-        coinsEarned: 0,
+      let allPassed = true;
+      const results = [];
+
+      for (let i = 0; i < testCases.length; i++) {
+        const tc = testCases[i];
+        const response = await fetch('/api/hello', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            language,
+            codeValue,
+            input: tc.input || '',
+          }),
+        });
+
+        const data = await response.json();
+        if (data.run) {
+          const actualOutput = (data.run.output || '').trim();
+          const expectedOutput = (tc.output || '').trim();
+
+          if (actualOutput === expectedOutput) {
+            results.push({ status: 'Accepted' });
+          } else {
+            results.push({ status: 'Wrong Answer' });
+            allPassed = false;
+          }
+        } else {
+          results.push({ status: 'Runtime Error' });
+          allPassed = false;
+        }
+      }
+
+      setSubmissionResult({
+        status: allPassed ? 'Accepted' : 'Rejected',
+        message: allPassed ? 'All test cases passed!' : 'Some test cases failed.',
+        results
       });
 
-      toast.success('Solution submitted successfully!');
+      if (allPassed) {
+        toast.success('All test cases passed! 🚀 Use "Verify on CF" to get points.');
 
-      const potdId = await getPOTD();
-      // Points and streak are now handled strictly by the Verify Codeforces button.
-      // Removed automatic markAsSolved() call here for Codeforces problems.
+        // Save local history record (0 coins)
+        const submissionsRef = collection(db, 'contest_submissions');
+        await addDoc(submissionsRef, {
+          userId: auth.currentUser.uid,
+          contestId: 'practice',
+          problemId: id,
+          problemName: ques.title,
+          platform: 'CanonForces',
+          language,
+          code: codeValue,
+          submittedAt: serverTimestamp(),
+          coinsEarned: 0,
+        });
+      } else {
+        toast.error('Some test cases failed. Check the Test Cases tab.');
+      }
     } catch (error: any) {
       console.error('Submission error:', error);
       toast.error(error.message || 'Failed to submit solution.');
