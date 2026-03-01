@@ -52,7 +52,7 @@ const Output: React.FC<Props> = ({
   isFetchingHint,
   onGetHint,
 }) => {
-  const [activeTab, setActiveTab] = useState('output'); // 'output', 'testcases', or 'hints'
+  const [activeTab, setActiveTab] = useState('output'); // 'output' or 'testcases'
 
   const renderContent = () => {
     if (isRunning) {
@@ -148,64 +148,6 @@ const Output: React.FC<Props> = ({
       );
     }
 
-    if (activeTab === 'hints') {
-      return (
-        <div className={styles.outputContent} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0, color: '#fcd34d' }}>🤖 AI Assistance</h3>
-
-            {hintLevel < 3 && (
-              <button
-                className={styles.aiHintButton}
-                onClick={onGetHint}
-                disabled={isFetchingHint}
-                style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
-              >
-                {isFetchingHint ? 'Thinking...' : "Reveal Hint " + (hintLevel + 1) + " (10 Coins) ✨"}
-              </button>
-            )}
-          </div>
-
-          <p style={{ color: '#9ca3af', fontSize: '0.9em' }}>Hints reveal progressively: Top (1), Error Approach (2), Solution (3).</p>
-
-          {hintLevel === 0 && !isFetchingHint && (
-            <div style={{ padding: '20px', textAlign: 'center', border: '1px dashed #4b5563', borderRadius: '8px', color: '#9ca3af' }}>
-              Click the button above to spend 10 coins and get your first AI hint!
-            </div>
-          )}
-
-          {isFetchingHint && hintLevel === 0 && (
-            <div className={styles.skeletonHint} style={{ padding: '20px', textAlign: 'center', borderRadius: '8px', background: '#374151', animation: 'pulse 1.5s infinite' }}>
-              Analyzing your code...
-            </div>
-          )}
-
-          {aiHints && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {hintLevel >= 1 && (
-                <div style={{ background: '#1e293b', border: '1px solid #334155', padding: '16px', borderRadius: '8px' }}>
-                  <h4 style={{ color: '#38bdf8', marginTop: 0 }}>Hint 1: Topic</h4>
-                  <div style={{ color: '#e2e8f0', whiteSpace: 'pre-wrap' }}>{aiHints[0]}</div>
-                </div>
-              )}
-              {hintLevel >= 2 && (
-                <div style={{ background: '#1e293b', border: '1px solid #334155', padding: '16px', borderRadius: '8px' }}>
-                  <h4 style={{ color: '#f472b6', marginTop: 0 }}>Hint 2: Error Approach</h4>
-                  <div style={{ color: '#e2e8f0', whiteSpace: 'pre-wrap' }}>{aiHints[1]}</div>
-                </div>
-              )}
-              {hintLevel >= 3 && (
-                <div style={{ background: '#1e293b', border: '1px solid #334155', padding: '16px', borderRadius: '8px' }}>
-                  <h4 style={{ color: '#4ade80', marginTop: 0 }}>Hint 3: Full Solution</h4>
-                  <div style={{ color: '#e2e8f0', whiteSpace: 'pre-wrap' }}>{aiHints[2]}</div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      );
-    }
-
     return null;
   };
 
@@ -225,14 +167,6 @@ const Output: React.FC<Props> = ({
           onClick={() => setActiveTab('testcases')}
         >
           Test Cases
-        </button>
-        <button
-          className={`${styles.terminalTab} ${activeTab === 'hints' ? styles.active : ''
-            }`}
-          onClick={() => setActiveTab('hints')}
-          style={{ color: activeTab === 'hints' ? '#fcd34d' : '#9ca3af' }}
-        >
-          AI Hints ✨
         </button>
         <div className={styles.headerActions}>
           <button

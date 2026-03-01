@@ -3,7 +3,7 @@ import { Editor } from '@monaco-editor/react';
 import Language from './Language';
 import Output from './Output';
 import styles from './Editor.module.css';
-
+import ReactMarkdown from 'react-markdown';
 // Define types for better type safety
 type TestCase = {
   input: string;
@@ -61,6 +61,7 @@ const CodeEditor = ({
   onGetHint,
 }: Props) => {
   const [isFullscreen, setIsFullscreen] = React.useState(false);
+  const [isAiSidebarOpen, setIsAiSidebarOpen] = React.useState(false);
   const editorRef = useRef(null);
 
   const toggleFullscreen = () => {
@@ -72,10 +73,6 @@ const CodeEditor = ({
   };
 
   const resetCode = () => {
-    // This is now complex, as state is in the parent.
-    // For the Hacktoberfest issue, we can leave this as-is
-    // or call a prop `onResetCode` if we added one.
-    // Let's just log it for now.
     console.log('Reset button clicked - state is in parent.');
   };
 
@@ -120,6 +117,20 @@ const CodeEditor = ({
               <path d="M3 3v5h5" />
             </svg>
           </button>
+
+          <button
+            className={styles.iconButton}
+            onClick={() => setIsAiSidebarOpen(!isAiSidebarOpen)}
+            title="Toggle AI Hints"
+            style={{ color: isAiSidebarOpen ? '#fcd34d' : '#ccc', display: 'flex', alignItems: 'center', gap: '4px', paddingLeft: '8px', paddingRight: '8px' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+              <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
+            </svg>
+            <span style={{ fontSize: '12px', fontWeight: 600 }}>AI Help ✨</span>
+          </button>
+
           <button
             className={styles.iconButton}
             onClick={toggleFullscreen}
@@ -152,69 +163,133 @@ const CodeEditor = ({
         </div>
       </div>
 
-      {/* This is the main content area with the split layout */}
       <div className={styles.mainContent}>
-        {/* Editor Pane */}
-        <div className={styles.editorSection}>
-          <Editor
-            onMount={handleEditorMount}
-            options={{
-              minimap: { enabled: false },
-              fontSize: 14,
-              lineHeight: 1.6,
-              padding: { top: 16, bottom: 16 },
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-              tabSize: 2,
-              insertSpaces: true,
-              wordWrap: 'on',
-              cursorStyle: 'line',
-              cursorBlinking: 'smooth',
-              renderLineHighlight: 'all',
-              selectOnLineNumbers: true,
-              roundedSelection: false,
-              readOnly: false,
-              cursorSurroundingLines: 0,
-              cursorSurroundingLinesStyle: 'default',
-              scrollbar: {
-                vertical: 'auto',
-                horizontal: 'auto',
-                verticalScrollbarSize: 12,
-                horizontalScrollbarSize: 12,
-              },
-              overviewRulerBorder: false,
-              hideCursorInOverviewRuler: true,
-            }}
-            height="100%"
-            theme="vs-dark"
-            // --- USE PROPS FOR LANGUAGE, VALUE, ONCHANGE ---
-            language={language}
-            value={codeValue}
-            onChange={onCodeChange}
-          />
+        <div className={styles.editorStack}>
+          <div className={styles.editorSection}>
+            <Editor
+              onMount={handleEditorMount}
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                lineHeight: 1.6,
+                padding: { top: 16, bottom: 16 },
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                tabSize: 2,
+                insertSpaces: true,
+                wordWrap: 'on',
+                cursorStyle: 'line',
+                cursorBlinking: 'smooth',
+                renderLineHighlight: 'all',
+                selectOnLineNumbers: true,
+                roundedSelection: false,
+                readOnly: false,
+                cursorSurroundingLines: 0,
+                cursorSurroundingLinesStyle: 'default',
+                scrollbar: {
+                  vertical: 'auto',
+                  horizontal: 'auto',
+                  verticalScrollbarSize: 12,
+                  horizontalScrollbarSize: 12,
+                },
+                overviewRulerBorder: false,
+                hideCursorInOverviewRuler: true,
+              }}
+              height="100%"
+              theme="vs-dark"
+              language={language}
+              value={codeValue}
+              onChange={onCodeChange}
+            />
+          </div>
+
+          <div className={styles.outputSection}>
+            <Output
+              output={output}
+              isRunning={isRunning}
+              submissionResult={submissionResult}
+              testCases={testCases}
+              id={id}
+              language={language}
+              value={codeValue}
+              problemData={problemData}
+              onRun={onRun}
+              onSubmit={onSubmit}
+              onVerify={onVerify}
+              isVerifying={isVerifying}
+              aiHints={aiHints}
+              hintLevel={hintLevel}
+              isFetchingHint={isFetchingHint}
+              onGetHint={onGetHint}
+            />
+          </div>
         </div>
 
-        {/* Output Pane */}
-        <div className={styles.outputSection}>
-          {/* --- PASS PROPS DOWN TO OUTPUT --- */}
-          <Output
-            output={output}
-            isRunning={isRunning}
-            submissionResult={submissionResult}
-            testCases={testCases}
-            id={id}
-            language={language}
-            value={codeValue}
-            problemData={problemData}
-            onRun={onRun}
-            onSubmit={onSubmit}
-            onVerify={onVerify}
-            isVerifying={isVerifying}
-            aiHints={aiHints}
-            hintLevel={hintLevel}
-            isFetchingHint={isFetchingHint}
-            onGetHint={onGetHint}
-          />
+        {/* AI Sidebar */}
+        <div className={isAiSidebarOpen ? styles.aiSidebar : styles.aiSidebarHidden}>
+          <div className={styles.aiSidebarHeader}>
+            <h3 className={styles.aiSidebarTitle}>🤖 AI Assistance</h3>
+            <button className={styles.aiSidebarClose} onClick={() => setIsAiSidebarOpen(false)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {hintLevel !== undefined && hintLevel < 3 && (
+              <button
+                onClick={onGetHint}
+                disabled={isFetchingHint}
+                style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, width: '100%' }}
+              >
+                {isFetchingHint ? 'Thinking...' : "Reveal Hint " + (hintLevel + 1) + " (Reduces Reward) ✨"}
+              </button>
+            )}
+
+            <p style={{ color: '#9ca3af', fontSize: '0.85em', marginTop: '0' }}>Hints reveal progressively.</p>
+
+            {hintLevel === 0 && !isFetchingHint && (
+              <div style={{ padding: '20px', textAlign: 'center', border: '1px dashed #4b5563', borderRadius: '8px', color: '#9ca3af', fontSize: '0.9em' }}>
+                Click the button above to get your first AI hint! (Note: Using hints will reduce the coins earned when submitting)
+              </div>
+            )}
+
+            {isFetchingHint && hintLevel === 0 && (
+              <div style={{ padding: '20px', textAlign: 'center', borderRadius: '8px', background: '#374151', animation: 'pulse 1.5s infinite', color: '#9ca3af' }}>
+                Analyzing your code...
+              </div>
+            )}
+
+            {aiHints && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {hintLevel !== undefined && hintLevel >= 1 && (
+                  <div className={styles.aiHintBox}>
+                    <h4 style={{ color: '#38bdf8' }}>Hint 1: Topic</h4>
+                    <div className={styles.aiHintText}>
+                      <ReactMarkdown>{aiHints[0]}</ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+                {hintLevel !== undefined && hintLevel >= 2 && (
+                  <div className={styles.aiHintBox}>
+                    <h4 style={{ color: '#f472b6' }}>Hint 2: Error Approach</h4>
+                    <div className={styles.aiHintText}>
+                      <ReactMarkdown>{aiHints[1]}</ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+                {hintLevel !== undefined && hintLevel >= 3 && (
+                  <div className={styles.aiHintBox}>
+                    <h4 style={{ color: '#4ade80' }}>Hint 3: Full Solution</h4>
+                    <div className={styles.aiHintText}>
+                      <ReactMarkdown>{aiHints[2]}</ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

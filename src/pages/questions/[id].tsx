@@ -151,6 +151,16 @@ const QuestionBar = () => {
     }
   };
 
+  const getRewardCoins = (level: number) => {
+    switch (level) {
+      case 0: return 50;
+      case 1: return 45;
+      case 2: return 35;
+      case 3: return 20;
+      default: return 50;
+    }
+  };
+
   const handleGetHint = async () => {
     if (!auth.currentUser || !ques) {
       toast.error('You must be logged in to get AI hints.');
@@ -165,26 +175,9 @@ const QuestionBar = () => {
     setIsFetchingHint(true);
 
     try {
-      const userRef = doc(db, "users", auth.currentUser.uid);
-
-      // Step 1: Transaction to deduct coins FIRST safely
-      await runTransaction(db, async (transaction) => {
-        const userDoc = await transaction.get(userRef);
-        if (!userDoc.exists()) throw new Error("User not found");
-
-        const currentCoins = userDoc.data().coins || 0;
-        if (currentCoins < HINT_COST) {
-          throw new Error(`Not enough coins! You need ${HINT_COST} coins for a hint.`);
-        }
-
-        transaction.update(userRef, {
-          coins: increment(-HINT_COST)
-        });
-      });
-
       // Step 2: If we are at level 0, we need to actually fetch from the API
       if (hintLevel === 0) {
-        toast.info("Generating AI Hints... (This costs 10 coins)");
+        toast.info("Generating AI Hints...");
         const response = await fetch('/api/ai-hint', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -205,11 +198,12 @@ const QuestionBar = () => {
         const data = await response.json();
         setAiHints(data.hints);
         setHintLevel(1);
-        toast.success(`10 coins deducted. Topic Hint Revealed!`);
+        toast.success(`Topic Hint Revealed! Reward reduced to 45 coins.`);
       } else {
         // Step 3: If we already have the hints, just increment the level
         setHintLevel(prev => prev + 1);
-        toast.success(`10 coins deducted. Hint ${hintLevel + 1} Revealed!`);
+        const nextReward = getRewardCoins(hintLevel + 1);
+        toast.success(`Hint ${hintLevel + 1} Revealed! Reward reduced to ${nextReward} coins.`);
       }
 
     } catch (error: any) {
@@ -327,9 +321,10 @@ const QuestionBar = () => {
         } else if (currentUserData.lastSolvedDate === todayDate) {
           return;
         }
+        const reward = getRewardCoins(hintLevel);
 
         transaction.update(userRef, {
-          coins: increment(5),
+          coins: increment(reward),
           streak: newStreak,
           lastSolvedDate: todayDate
         });
@@ -345,7 +340,8 @@ const QuestionBar = () => {
           }
         }, { merge: true });
       });
-      toast.success("Streak updated! +5 coins awarded.");
+      const rewardMsg = getRewardCoins(hintLevel);
+      toast.success(`Streak updated! +${rewardMsg} coins awarded.`);
     } catch (error) {
       console.error('Streak update failed:', error);
     }
@@ -391,6 +387,8 @@ const QuestionBar = () => {
       console.log("checkCodeforcesSubmission returned:", hasSolved);
 
       if (hasSolved) {
+        console.log("Checking POTD status...");
+        const potdId = await getPOTD();
         console.log("Recording submission in Firestore...");
         // Add the submission record to track completion in CanonForces
         const submissionsRef = collection(db, 'contest_submissions');
@@ -403,7 +401,7 @@ const QuestionBar = () => {
           language: 'Verified',
           code: 'Verified via Codeforces API connection.',
           submittedAt: serverTimestamp(),
-          coinsEarned: 5,
+          coinsEarned: potdId === id ? getRewardCoins(hintLevel) : 5,
         });
 
         console.log("Updating user solvedQuestions array...");
@@ -424,9 +422,7 @@ const QuestionBar = () => {
           });
         }
 
-        console.log("Checking POTD status...");
         // Award the POTD streak if this happens to be the POTD
-        const potdId = await getPOTD();
         if (potdId === id) {
           await markAsSolved();
         }

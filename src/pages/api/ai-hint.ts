@@ -41,9 +41,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       Please analyze their code and provide exactly 3 hints formatted as a JSON array of strings. 
       Do NOT include markdown formatting outside the JSON array, just return the raw JSON array.
       
-      Hint 1 (Topic): Tell them the core algorithm, mathematical concept, or data structure required to solve this problem. Do not give away the solution yet.
-      Hint 2 (Approach): Point out specifically what is wrong with their current code or the error they received. Tell them how their logic fails on edge cases, or what the next logical step is.
-      Hint 3 (Solution): Give a detailed explanation of the optimal solution and provide the correct logical approach to get an Accepted verdict.
+      Hint 1 (Topic): Tell them the core algorithm, mathematical concept, or data structure required to solve this problem. Do not give away the solution yet. Please use markdown bullet points for readability.
+      Hint 2 (Approach): Point out specifically what is wrong with their current code or the error they received. Tell them how their logic fails on edge cases, or what the next logical step is. Please use markdown bullet points for readability.
+      Hint 3 (Solution): Give a detailed explanation of the optimal solution and provide the correct logical approach to get an Accepted verdict. Please use markdown bullet points for readability.
 
       Output Format exactly like this:
       [
