@@ -27,6 +27,14 @@ type Props = {
   language: string;
   value: string;
   problemData?: any;
+  onRun?: () => void;
+  onSubmit?: () => void;
+  onVerify?: () => void;
+  isVerifying?: boolean;
+  aiHints?: [string, string, string] | null;
+  hintLevel?: number;
+  isFetchingHint?: boolean;
+  onGetHint?: () => void;
 };
 
 const Output: React.FC<Props> = ({
@@ -34,6 +42,15 @@ const Output: React.FC<Props> = ({
   testCases = [], // Defaulting here
   isRunning,
   submissionResult,
+  onRun,
+  onSubmit,
+  onVerify,
+  isVerifying,
+  problemData,
+  aiHints,
+  hintLevel = 0,
+  isFetchingHint,
+  onGetHint,
 }) => {
   const [activeTab, setActiveTab] = useState('output'); // 'output' or 'testcases'
 
@@ -130,6 +147,7 @@ const Output: React.FC<Props> = ({
         </div>
       );
     }
+
     return null;
   };
 
@@ -137,21 +155,45 @@ const Output: React.FC<Props> = ({
     <div className={styles.ideTerminal}>
       <div className={styles.terminalHeader}>
         <button
-          className={`${styles.terminalTab} ${
-            activeTab === 'output' ? styles.active : ''
-          }`}
+          className={`${styles.terminalTab} ${activeTab === 'output' ? styles.active : ''
+            }`}
           onClick={() => setActiveTab('output')}
         >
           Output
         </button>
         <button
-          className={`${styles.terminalTab} ${
-            activeTab === 'testcases' ? styles.active : ''
-          }`}
+          className={`${styles.terminalTab} ${activeTab === 'testcases' ? styles.active : ''
+            }`}
           onClick={() => setActiveTab('testcases')}
         >
           Test Cases
         </button>
+        <div className={styles.headerActions}>
+          <button
+            className={styles.runButton}
+            onClick={onRun}
+            disabled={isRunning}
+          >
+            {isRunning ? 'Running...' : 'Run'}
+          </button>
+          <button
+            className={styles.submitButton}
+            onClick={onSubmit}
+            disabled={isRunning || isVerifying}
+          >
+            Submit
+          </button>
+          {problemData?.problemUrl && onVerify && (
+            <button
+              className={styles.submitButton}
+              onClick={onVerify}
+              disabled={isRunning || isVerifying}
+              style={{ backgroundColor: '#10b981', marginLeft: '8px' }}
+            >
+              {isVerifying ? 'Verifying...' : 'Verify on CF'}
+            </button>
+          )}
+        </div>
       </div>
       <div className={styles.terminalBody}>{renderContent()}</div>
     </div>
