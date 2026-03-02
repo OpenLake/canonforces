@@ -5,19 +5,19 @@ It controls the main split-screen layout.
 
 .container {
   display: flex;
-  height: 100vh; /* Make the container fill the entire viewport height */
+  height: 100vh;
+  /* Make the container fill the entire viewport height */
   width: 100%;
   overflow: hidden;
-  background-color: #0f111a; /* Dark background for the whole page */
+  background-color: #0f111a;
+  /* Dark background for the whole page */
   color: #c9d1d9;
 }
 
-/* --- Left Panel (Problem) --- */
-
 .leftPane {
   width: 50%;
-  height: 100%; /* Fill vertical height */
-  overflow-y: auto; /* Allow problem to scroll */
+  height: 100%;
+  overflow-y: auto;
   background-color: #161b22;
   border-right: 1px solid #30363d;
   transition: width 0.3s ease;
@@ -29,14 +29,12 @@ It controls the main split-screen layout.
   overflow: hidden;
 }
 
-/* --- Right Panel (Editor) --- */
-
 .rightPane {
   width: 50%;
-  flex-grow: 1; /* Allow this panel to grow */
-  height: 100%; /* Make the editor panel fill the full height */
-  display: flex; /* CRITICAL: Use Flexbox */
-  flex-direction: column; /* CRITICAL: Stack header and editor vertically */
+  flex-grow: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   transition: width 0.3s ease;
 }
@@ -45,8 +43,6 @@ It controls the main split-screen layout.
   width: 100%;
 }
 
-/* --- Editor Header (Run/Submit) --- */
-
 .editorHeader {
   display: flex;
   justify-content: space-between;
@@ -54,7 +50,7 @@ It controls the main split-screen layout.
   padding: 10px 16px;
   background-color: #161b22;
   border-bottom: 1px solid #30363d;
-  flex-shrink: 0; /* Prevent this header from shrinking */
+  flex-shrink: 0;
 }
 
 .editorActions {
@@ -76,6 +72,7 @@ It controls the main split-screen layout.
   background-color: #238636;
   color: white;
 }
+
 .actionBtn.primary:hover {
   background-color: #2ea043;
 }
@@ -84,6 +81,7 @@ It controls the main split-screen layout.
   background-color: #30363d;
   color: #c9d1d9;
 }
+
 .actionBtn.secondary:hover {
   background-color: #484f58;
 }
@@ -97,15 +95,11 @@ It controls the main split-screen layout.
   border: 1px solid #484f58;
 }
 
-/* --- Editor Container (This holds your component) --- */
-
 .editorContainer {
-  flex-grow: 1; /* CRITICAL: Make the container fill all remaining space */
-  height: 100%; /* Fix for flex layout */
-  overflow: hidden; /* Prevent double scrollbars */
+  flex-grow: 1;
+  height: 100%;
+  overflow: hidden;
 }
-
-/* --- Problem Description Styles (Copied from screenshot) --- */
 
 .panelHeader {
   display: flex;
@@ -125,6 +119,7 @@ It controls the main split-screen layout.
   cursor: pointer;
   font-size: 1.2em;
 }
+
 .backBtn:hover,
 .collapseBtn:hover,
 .expandBtn:hover {
@@ -204,7 +199,6 @@ It controls the main split-screen layout.
   border: 1px solid #30363d;
 }
 
-/* --- Loading / Error States --- */
 .loadingContainer,
 .errorContainer {
   display: flex;
@@ -233,3 +227,17 @@ It controls the main split-screen layout.
   }
 }
 
+.resizeHandle {
+  width: 6px;
+  background-color: transparent;
+  cursor: col-resize;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  border-left: 1px solid #30363d;
+}
+
+.resizeHandle:hover,
+.resizeHandle[data-resize-handle-active] {
+  background-color: #58a6ff;
+  border-left-color: transparent;
+}
