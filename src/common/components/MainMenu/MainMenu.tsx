@@ -8,7 +8,7 @@ import useUser from "../../../hooks/use-user";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { getPOTD } from "../../../services/potd_fetch";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 
 const CACHE_KEY = "user_stats_cache";
@@ -43,6 +43,19 @@ export default function MainMenu() {
 
   const [potd, setPotd] = useState<any>(null);
   const user = useUser();
+  const [streak, setStreak] = useState(0);
+
+  useEffect(() => {
+    if (!user.user?.docId) return;
+    const userRef = doc(db, "users", user.user.docId);
+    const unsubscribe = onSnapshot(userRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setStreak(data.streak || 0);
+      }
+    });
+    return () => unsubscribe();
+  }, [user.user]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -116,6 +129,9 @@ export default function MainMenu() {
                 <div className={styles.questions}>
                   <span className={styles.number}> {isMounted ? (userData?.solved ?? "0") : "..."} </span>  <span>Problems Solved </span>
                   <span className={styles.number}>{isMounted ? (userData?.attempt ?? "0") : "..."} </span>  <span>Submissions </span>
+                </div>
+                <div className={styles.questions} style={{ marginTop: '0.5rem' }}>
+                  <span className={styles.number}>🔥 {streak}</span>  <span>Day Streak</span>
                 </div>
               </div>
               <div className={styles.stats2}>
