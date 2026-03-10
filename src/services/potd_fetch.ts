@@ -1,11 +1,32 @@
-// services/potd_fetch.js
+// services/potd_fetch.ts
 
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 export async function getPOTD() {
   console.log("--- Starting getPOTD ---");
   try {
+    // Check if there is a manual schedule for today
+    let scheduledProblemId = null;
+    try {
+      const todayDate = new Date().toISOString().split("T")[0];
+      const scheduleRef = doc(db, 'potd_schedule', todayDate);
+      const scheduleSnap = await getDoc(scheduleRef);
+      if (scheduleSnap.exists()) {
+        const scheduledData = scheduleSnap.data();
+        if (scheduledData && scheduledData.problemId) {
+          scheduledProblemId = scheduledData.problemId;
+        }
+      }
+    } catch (schedErr) {
+      console.warn("Failed to fetch potd_schedule, falling back to random:", schedErr);
+    }
+
+    if (scheduledProblemId) {
+      console.log(`--- Returning scheduled final ID: ${scheduledProblemId} ---`);
+      return scheduledProblemId;
+    }
+
     const snapshot = await getDocs(collection(db, 'problems'));
     console.log(`Firestore returned ${snapshot.docs.length} documents.`);
 
@@ -19,7 +40,7 @@ export async function getPOTD() {
       .sort((a, b) => a.id.localeCompare(b.id));
     console.log("Mapped and sorted problems array:", problems);
 
-    const referenceDate = new Date('2025-06-17'); 
+    const referenceDate = new Date('2025-06-17');
     const today = new Date();
     const dayDiff = Math.floor(
       (today.getTime() - referenceDate.getTime()) / (1000 * 60 * 60 * 24)

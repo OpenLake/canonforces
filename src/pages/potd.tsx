@@ -27,16 +27,29 @@ interface Problem {
 }
 
 interface UserData {
+  uid?: string;
   coins: number;
+  totalCoins?: number;
   streak: number;
+  weeklyPotdSolves?: number;
+  lastWeeklyResetDate?: string;
   lastSolvedDate?: string;
   username?: string;
 }
+
+const getStartOfWeek = (d: Date) => {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  date.setDate(diff);
+  return date.toISOString().split("T")[0];
+};
 
 const POTDPage: React.FC = () => {
   const [problem, setProblem] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [topWeeklySolvers, setTopWeeklySolvers] = useState<UserData[]>([]);
   const [dailySolvers, setDailySolvers] = useState<Solver[]>([]);
   const [userSolved, setUserSolved] = useState(false);
   const [userData, setUserData] = useState<UserData>({ coins: 0, streak: 0 });
@@ -64,12 +77,34 @@ const POTDPage: React.FC = () => {
         const snapshot = await getDoc(ref);
         if (!snapshot.exists()) throw new Error("Problem not found");
         const data = snapshot.data();
-        setProblem({ 
+        setProblem({
           id, title: data.title, description: data.description, rating: data.rating, tags: data.tags, problemUrl: data.problemUrl
         });
       } catch (err: any) { setError(err.message || "Error fetching POTD"); } finally { setLoading(false); }
     }
     fetchPOTD();
+
+    async function fetchTopWeekly() {
+      try {
+        const { collection, query, where, getDocs } = await import("firebase/firestore");
+        const currentStartOfWeek = getStartOfWeek(new Date());
+
+        const q = query(
+          collection(db, "users"),
+          where("lastWeeklyResetDate", "==", currentStartOfWeek)
+        );
+
+        const snap = await getDocs(q);
+        let solvers = snap.docs.map(doc => ({ ...doc.data(), uid: doc.id } as UserData));
+
+        // Sort manually descending by weeklyPotdSolves in JavaScript
+        solvers.sort((a, b) => (b.weeklyPotdSolves || 0) - (a.weeklyPotdSolves || 0));
+
+        // Take the top 15 results
+        setTopWeeklySolvers(solvers.slice(0, 15));
+      } catch (err) { console.error("Error fetching top weekly solvers", err); }
+    }
+    fetchTopWeekly();
   }, []);
 
   useEffect(() => {
@@ -82,8 +117,10 @@ const POTDPage: React.FC = () => {
         const solversArray: Solver[] = Object.entries(data?.solvers || {}).map(([uid, value]: [string, any]) => ({
           uid, username: value.username, solvedAt: value.solvedAt, codeforcesUsername: value.codeforcesUsername
         }));
+
         solversArray.sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
         setDailySolvers(solversArray);
+
         setUserSolved(auth.currentUser ? solversArray.some((s) => s.uid === auth.currentUser?.uid) : false);
       } else {
         setDoc(submissionRef, { problemId: problem?.id || "", solvers: {} }, { merge: true });
@@ -105,43 +142,54 @@ const POTDPage: React.FC = () => {
     return () => unsubscribe();
   }, [auth.currentUser]);
 
-  // ... [Keep handleCheckCFSubmission and markAsSolved SAME as before] ...
   const handleCheckCFSubmission = useCallback(async () => {
-      // ... logic from previous response ...
-      if (!auth.currentUser || !problem || userSolved || isCheckingCF) return;
-      if (!cfUsername) { toast.error("Please set your Codeforces username in settings"); return; }
-      setIsCheckingCF(true);
-      try {
-        const urlMatch = problem.problemUrl?.match(/codeforces\.com\/problemset\/problem\/(\d+)\/([A-Z]\d?)/);
-        if (!urlMatch) { toast.error("Invalid Codeforces problem URL"); return; }
-        const [, contestId, problemIndex] = urlMatch;
-        const hasSolved = await checkCodeforcesSubmission(cfUsername, contestId, problemIndex);
-        if (hasSolved) { await markAsSolved(); toast.success("🎉 Verified! Solution found!"); } 
-        else { toast.error("No accepted submission found today."); }
-      } catch (error: any) { toast.error(error.message); } finally { setIsCheckingCF(false); }
+    if (!auth.currentUser || !problem || userSolved || isCheckingCF) return;
+    if (!cfUsername) { toast.error("Please set your Codeforces username in settings"); return; }
+    setIsCheckingCF(true);
+    try {
+      const urlMatch = problem.problemUrl?.match(/codeforces\.com\/problemset\/problem\/(\d+)\/([A-Z]\d?)/);
+      if (!urlMatch) { toast.error("Invalid Codeforces problem URL"); return; }
+      const [, contestId, problemIndex] = urlMatch;
+      const hasSolved = await checkCodeforcesSubmission(cfUsername, contestId, problemIndex);
+      if (hasSolved) { await markAsSolved(); toast.success("🎉 Verified! Solution found!"); }
+      else { toast.error("No accepted submission found today."); }
+    } catch (error: any) { toast.error(error.message); } finally { setIsCheckingCF(false); }
   }, [auth.currentUser, problem, cfUsername, userSolved, isCheckingCF]);
 
   const markAsSolved = async () => {
-      // ... logic from previous response ...
-      if (!auth.currentUser || !problem || userSolved) return;
-      try {
-        const submissionRef = doc(db, "potd_submissions", todayDate);
-        const userRef = doc(db, "users", auth.currentUser.uid);
-        await runTransaction(db, async (transaction) => {
-          const userDoc = await transaction.get(userRef);
-          const currentUserData = userDoc.exists() ? userDoc.data() as UserData : { coins: 0, streak: 0 };
-          const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayStr = yesterday.toISOString().split("T")[0];
-          let newStreak = 1;
-          if (currentUserData.lastSolvedDate === yesterdayStr) newStreak = (currentUserData.streak || 0) + 1;
-          else if (currentUserData.lastSolvedDate === todayDate) return; 
-          transaction.update(userRef, { coins: increment(5), streak: newStreak, lastSolvedDate: todayDate });
-          transaction.set(submissionRef, {
-            problemId: problem.id,
-            solvers: { [auth.currentUser!.uid]: { uid: auth.currentUser!.uid, username: auth.currentUser!.displayName || "User", solvedAt: new Date().toISOString() } }
-          }, { merge: true });
+    if (!auth.currentUser || !problem || userSolved) return;
+    try {
+      const submissionRef = doc(db, "potd_submissions", todayDate);
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      await runTransaction(db, async (transaction) => {
+        const userDoc = await transaction.get(userRef);
+        const currentUserData = userDoc.exists() ? userDoc.data() as UserData : { coins: 0, totalCoins: 0, streak: 0 };
+        const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split("T")[0];
+        let newStreak = 1;
+        if (currentUserData.lastSolvedDate === yesterdayStr) newStreak = (currentUserData.streak || 0) + 1;
+        else if (currentUserData.lastSolvedDate === todayDate) return;
+
+        const currentStartOfWeek = getStartOfWeek(new Date());
+        let newWeeklySolves = 1;
+        if (currentUserData.lastWeeklyResetDate === currentStartOfWeek) {
+          newWeeklySolves = (currentUserData.weeklyPotdSolves || 0) + 1;
+        }
+
+        transaction.update(userRef, {
+          coins: increment(50),
+          totalCoins: increment(50),
+          streak: newStreak,
+          lastSolvedDate: todayDate,
+          weeklyPotdSolves: newWeeklySolves,
+          lastWeeklyResetDate: currentStartOfWeek
         });
-      } catch (error) { toast.error('Failed to save progress.'); }
+        transaction.set(submissionRef, {
+          problemId: problem.id,
+          solvers: { [auth.currentUser!.uid]: { uid: auth.currentUser!.uid, username: auth.currentUser!.displayName || "User", solvedAt: new Date().toISOString() } }
+        }, { merge: true });
+      });
+    } catch (error) { toast.error('Failed to save progress.'); }
   };
 
   const getDifficulty = (rating?: number) => {
@@ -151,8 +199,8 @@ const POTDPage: React.FC = () => {
     return "Hard";
   };
 
-  if (loading) return <div style={{padding:'4rem', textAlign:'center'}}>Loading...</div>;
-  if (error || !problem) return <div style={{padding:'4rem', textAlign:'center', color:'red'}}>{error || "Problem not found"}</div>;
+  if (loading) return <div style={{ padding: '4rem', textAlign: 'center' }}>Loading...</div>;
+  if (error || !problem) return <div style={{ padding: '4rem', textAlign: 'center', color: 'red' }}>{error || "Problem not found"}</div>;
 
   const difficulty = getDifficulty(problem.rating);
   const truncatedDesc = truncateDescription(problem.description || "", 300);
@@ -160,34 +208,34 @@ const POTDPage: React.FC = () => {
   return (
     <div className={styles.pageContainer}>
       <div className={styles.contentWrapper}>
-        
+
         {/* --- Hero Section (Matches Practice Arena) --- */}
         <div className={styles.heroSection}>
           <div className={styles.heroContent}>
             <div className={styles.titleRow}>
               {/* 3D Icon matching your book style */}
-              <span className={styles.titleIcon}>📅</span> 
+              <span className={styles.titleIcon}>📅</span>
               <h1 className={styles.heroTitle}>Problem of the Day</h1>
             </div>
-            
+
             {/* Subtitle matching "Master algorithmic..." */}
             <h2 className={styles.heroSubtitle}>
               {displayDate} — Keep your streak alive!
             </h2>
-            
+
             {/* Description matching "Choose your difficulty..." */}
             <p className={styles.heroText}>
-              Solve today's carefully curated challenge designed to enhance your coding skills. 
+              Solve today's carefully curated challenge designed to enhance your coding skills.
               Compete with peers and climb the daily leaderboard.
             </p>
           </div>
 
           {/* Independent Image */}
-          <Image 
-            src="/images/think.png" 
-            alt="Mascot" 
-            width={150} 
-            height={150} 
+          <Image
+            src="/images/think.png"
+            alt="Mascot"
+            width={150}
+            height={150}
             priority
             className={styles.mascotImage}
           />
@@ -229,17 +277,17 @@ const POTDPage: React.FC = () => {
             {auth.currentUser && (
               <div className={styles.verificationCard}>
                 <div className={styles.userStatsRow}>
-                   <div className={styles.userStat}>
-                     <span style={{fontSize:'2rem'}}>💰</span>
-                     <div><div className={styles.statValue}>{userData.coins}</div><div className={styles.statLabel}>Coins</div></div>
-                   </div>
-                   <div className={styles.userStat}>
-                     <span style={{fontSize:'2rem'}}>🔥</span>
-                     <div><div className={styles.statValue}>{userData.streak}</div><div className={styles.statLabel}>Day Streak</div></div>
-                   </div>
+                  <div className={styles.userStat}>
+                    <span style={{ fontSize: '2rem' }}>💰</span>
+                    <div><div className={styles.statValue}>{userData.coins}</div><div className={styles.statLabel}>Coins</div></div>
+                  </div>
+                  <div className={styles.userStat}>
+                    <span style={{ fontSize: '2rem' }}>🔥</span>
+                    <div><div className={styles.statValue}>{userData.streak}</div><div className={styles.statLabel}>Day Streak</div></div>
+                  </div>
                 </div>
                 {userSolved ? (
-                  <div style={{background:'#f0fdf4', color:'#166534', padding:'1rem', borderRadius:'8px', display:'flex', alignItems:'center', gap:'0.5rem', fontWeight:'600'}}>
+                  <div style={{ background: '#f0fdf4', color: '#166534', padding: '1rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '600' }}>
                     <FiCheck /> Solved!
                   </div>
                 ) : (
@@ -253,26 +301,51 @@ const POTDPage: React.FC = () => {
 
           {/* Right Column */}
           <div className={styles.rightColumn}>
-            <div className={styles.leaderboardCard}>
+            {/* Top Solvers */}
+            <div className={styles.leaderboardCard} style={{ marginBottom: '1.5rem' }}>
               <div className={styles.leaderboardHeader}>
                 <h3 className={styles.leaderboardTitle}><FiAward className={styles.awardIcon} /> Top Solvers</h3>
-                <span style={{background:'#f1f5f9', padding:'2px 8px', borderRadius:'12px', fontSize:'0.8rem', fontWeight:'600'}}>{dailySolvers.length}</span>
+                <span style={{ background: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '600' }}>{dailySolvers.length}</span>
               </div>
               <div className={styles.solversListContainer}>
                 {dailySolvers.length > 0 ? (
-                   <ul style={{listStyle:'none', padding:0, display:'flex', flexDirection:'column', gap:'0.5rem'}}>
-                     {dailySolvers.map((s, i) => (
-                       <li key={s.uid} style={{padding:'0.5rem', background:'#f8fafc', borderRadius:'8px', display:'flex', justifyContent:'space-between', fontSize:'0.9rem'}}>
-                         <span>#{i+1} <b>{s.username}</b></span>
-                         <span style={{color:'#94a3b8', fontSize:'0.8rem'}}>{new Date(s.solvedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                       </li>
-                     ))}
-                   </ul>
+                  <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {dailySolvers.map((s, i) => (
+                      <li key={s.uid} style={{ padding: '0.5rem', background: '#f8fafc', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                        <span>#{i + 1} <b>{s.username}</b></span>
+                        <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{new Date(s.solvedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      </li>
+                    ))}
+                  </ul>
                 ) : (
-                  <div style={{textAlign:'center', padding:'2rem', color:'#94a3b8'}}>
-                    <Image src="/images/nosolver.png" alt="Empty" width={400} height={40
-                      } style={{marginBottom:'1rem', objectFit:'contain'}} />
-                    <p style={{margin:0}}>No one has solved it yet.<br/>Be the first!</p>
+                  <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                    <Image src="/images/nosolver.png" alt="Empty" width={400} height={40} style={{ marginBottom: '1rem', objectFit: 'contain' }} />
+                    <p style={{ margin: 0 }}>No one has solved it yet.<br />Be the first!</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.leaderboardCard}>
+              <div className={styles.leaderboardHeader}>
+                <h3 className={styles.leaderboardTitle}><FiClock className={styles.awardIcon} style={{ color: '#8b5cf6' }} /> Top This Week</h3>
+                <span style={{ background: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '600' }}>{topWeeklySolvers.length}</span>
+              </div>
+              <div className={styles.solversListContainer}>
+                {topWeeklySolvers.length > 0 ? (
+                  <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {topWeeklySolvers.map((s, i) => (
+                      <li key={s.uid} style={{ padding: '0.5rem', background: '#f8fafc', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                        <span>#{i + 1} <b>{s.username || "User"}</b></span>
+                        <span style={{ color: '#f59e0b', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                          ✨ {s.weeklyPotdSolves} {s.weeklyPotdSolves === 1 ? 'Day' : 'Days'}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                    <p style={{ margin: 0 }}>No solvers this week.<br />Be the first!</p>
                   </div>
                 )}
               </div>
