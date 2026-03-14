@@ -1,3 +1,9 @@
+jest.mock('../../src/lib/firebase', () => ({
+  auth: {},
+  db: {},
+  provider: {}
+}));
+
 import { getSolvedCount } from "../../src/services/firebase";
 import mockData from "../fixtures/cfUserStatus.json";
 

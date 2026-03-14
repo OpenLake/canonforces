@@ -1,3 +1,7 @@
+jest.mock('../../src/lib/firebase_admin', () => ({
+  adminDb: require('../mocks/firebaseAdminMock').adminDb
+}));
+
 import handler from '../../src/pages/api/submit-solution'
 import { createMocks } from 'node-mocks-http';
 
