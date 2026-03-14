@@ -177,7 +177,7 @@ const POTDPage: React.FC = () => {
             
             {/* Description matching "Choose your difficulty..." */}
             <p className={styles.heroText}>
-              Solve today's carefully curated challenge designed to enhance your coding skills. 
+              Solve today&apos;s carefully curated challenge designed to enhance your coding skills. 
               Compete with peers and climb the daily leaderboard.
             </p>
           </div>
