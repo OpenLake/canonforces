@@ -14,7 +14,7 @@
     "typeRoots": [
       "./node_modules/@types"
     ],
-    "types": [],
+    "types": ["jest", "node"],
     "allowJs": true,
     "noEmit": true,
     "incremental": true,
