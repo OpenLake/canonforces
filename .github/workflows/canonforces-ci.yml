@@ -78,3 +78,10 @@ jobs:
 
       - run: npm install
       - run: npm run build
+        env:
+          NEXT_PUBLIC_FIREBASE_API_KEY: test-key
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: test.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: test-project
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: test.appspot.com
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "123456"
+          NEXT_PUBLIC_FIREBASE_APP_ID: test-app
