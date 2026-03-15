@@ -130,9 +130,7 @@ export default function MainMenu() {
                   <span className={styles.number}> {isMounted ? (userData?.solved ?? "0") : "..."} </span>  <span>Problems Solved </span>
                   <span className={styles.number}>{isMounted ? (userData?.attempt ?? "0") : "..."} </span>  <span>Submissions </span>
                 </div>
-                <div className={styles.questions} style={{ marginTop: '0.5rem' }}>
-                  <span className={styles.number}>🔥 {streak}</span>  <span>Day Streak</span>
-                </div>
+
               </div>
               <div className={styles.stats2}>
                 <div className={styles.ranking}>

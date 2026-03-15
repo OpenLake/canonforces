@@ -12,7 +12,17 @@ interface LeaderboardUser {
     totalCoins: number;
     solved: number;
     streak: number;
+    lastSolvedDate?: string;
     photoURL?: string;
+}
+
+function isStreakActive(lastSolvedDate?: string): boolean {
+    if (!lastSolvedDate) return false;
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    const fmt = (d: Date) => d.toISOString().split('T')[0];
+    return lastSolvedDate === fmt(today) || lastSolvedDate === fmt(yesterday);
 }
 
 type TabType = "earners" | "solvers";
@@ -52,26 +62,27 @@ export default function LeaderboardPage() {
                         totalCoins: data.totalCoins || data.coins || 0,
                         solved: data.cachedStats?.solved || 0,
                         streak: data.streak || 0,
+                        lastSolvedDate: data.lastSolvedDate || "",
                         photoURL: data.photoURL
                     };
                 });
 
-                // Manual sort and limit to top 50 
+                // Manual sort and limit to top 25 
                 if (activeTab === "earners") {
                     fetchedUsers.sort((a, b) => b.totalCoins - a.totalCoins);
                 } else {
                     fetchedUsers.sort((a, b) => b.solved - a.solved);
                 }
 
-                const top50 = fetchedUsers.slice(0, 50);
+                const top25 = fetchedUsers.slice(0, 25);
 
-                setUsers(top50);
+                setUsers(top25);
 
-                // Check if the current user is in the top 50
+                // Check if the current user is in the top 25
                 if (currentUser) {
-                    const inTop50 = fetchedUsers.findIndex(u => u.uid === currentUser.uid);
-                    // If they are not in the top 50, fetch their personal document to display "My Rank"
-                    if (inTop50 === -1) {
+                    const inTop25 = fetchedUsers.findIndex(u => u.uid === currentUser.uid);
+                    // If they are not in the top 25, fetch their personal document to display "My Rank"
+                    if (inTop25 === -1) {
                         const myDocRef = doc(db, "users", currentUser.uid);
                         const myDocSnap = await getDoc(myDocRef);
                         if (myDocSnap.exists()) {
@@ -82,9 +93,10 @@ export default function LeaderboardPage() {
                                 totalCoins: myData.totalCoins || myData.coins || 0,
                                 solved: myData.cachedStats?.solved || 0,
                                 streak: myData.streak || 0,
+                                lastSolvedDate: myData.lastSolvedDate || "",
                                 photoURL: myData.photoURL || currentUser.photoURL
                             };
-                            setMyRank({ rank: 50, data: myStats }); // We just show > 50 for rank
+                            setMyRank({ rank: 25, data: myStats }); // We just show > 25 for rank
                         }
                     }
                 }
@@ -138,11 +150,13 @@ export default function LeaderboardPage() {
                     {loading ? (
                         <div style={{ padding: "4rem", textAlign: "center", color: "#64748b" }}>Loading leaders...</div>
                     ) : users.length > 0 ? (
-                        users.map((user, index) => (
-                            <div key={user.uid} className={styles.listItem}>
-                                <div className={`${styles.rankBadge} ${index === 0 ? styles.rank1 : index === 1 ? styles.rank2 : index === 2 ? styles.rank3 : ""} `}>
-                                    #{index + 1}
-                                </div>
+                        users.map((user, index) => {
+                            const isMe = currentUser?.uid === user.uid;
+                            return (
+                                <div key={user.uid} className={`${styles.listItem} ${isMe ? styles.highlightUser : ""} `}>
+                                    <div className={`${styles.rankBadge} ${index === 0 ? styles.rank1 : index === 1 ? styles.rank2 : index === 2 ? styles.rank3 : ""} `}>
+                                        #{index + 1}
+                                    </div>
 
                                 <div className={styles.userInfo}>
                                     <div className={styles.avatar}>
@@ -152,7 +166,9 @@ export default function LeaderboardPage() {
                                             user.username.charAt(0).toUpperCase()
                                         )}
                                     </div>
-                                    <span className={styles.username}>{user.username}</span>
+                                    <span className={styles.username}>
+                                        {user.username} {isMe && <span style={{ color: "#2563eb", marginLeft: "0.5rem", fontSize: "0.8rem" }}>(You)</span>}
+                                    </span>
                                 </div>
 
                                 <div className={styles.metricValue}>
@@ -164,10 +180,11 @@ export default function LeaderboardPage() {
                                 </div>
 
                                 <div className={styles.streakValue}>
-                                    {user.streak > 0 ? <><FaFire /> {user.streak}</> : <span style={{ color: "#cbd5e1" }}>-</span>}
+                                    {user.streak > 0 && isStreakActive(user.lastSolvedDate) ? <><FaFire /> {user.streak}</> : <span style={{ color: "#cbd5e1" }}>-</span>}
                                 </div>
                             </div>
-                        ))
+                        );
+                    })
                     ) : (
                         <div style={{ padding: "4rem", textAlign: "center", color: "#64748b" }}>No users found for this category.</div>
                     )}
@@ -177,11 +194,11 @@ export default function LeaderboardPage() {
                     <div className={styles.myRankBanner}>
                         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                             <div style={{ background: "rgba(255,255,255,0.2)", padding: "0.5rem 1rem", borderRadius: "8px", fontWeight: "bold" }}>
-                                &gt; Top 50
+                                &gt; Top 25
                             </div>
                             <div>
                                 <div style={{ fontWeight: 600 }}>Your Standing</div>
-                                <div style={{ fontSize: "0.9rem", opacity: 0.9 }}>Keep grinding to hit the Top 50!</div>
+                                <div style={{ fontSize: "0.9rem", opacity: 0.9 }}>Keep grinding to hit the Top 25!</div>
                             </div>
                         </div>
 
@@ -196,7 +213,7 @@ export default function LeaderboardPage() {
                             <div style={{ textAlign: "center" }}>
                                 <div style={{ fontSize: "0.8rem", opacity: 0.8, textTransform: "uppercase" }}>Streak</div>
                                 <div style={{ fontWeight: 800, fontSize: "1.2rem", display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                    🔥 {myRank.data.streak}
+                                    {myRank.data.streak > 0 && isStreakActive(myRank.data.lastSolvedDate) ? <>🔥 {myRank.data.streak}</> : <span style={{ opacity: 0.5 }}>-</span>}
                                 </div>
                             </div>
                         </div>

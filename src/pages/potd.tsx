@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { getPOTD } from "../services/potd_fetch";
-import { doc, getDoc, setDoc, onSnapshot, increment, runTransaction } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot, increment, runTransaction, collection, query, where } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import styles from "../styles/POTDpage.module.css";
 import Image from "next/image";
@@ -37,12 +37,16 @@ interface UserData {
   username?: string;
 }
 
+// Returns a date string in YYYY-MM-DD using LOCAL timezone (matches HTML date inputs)
+const getLocalDateString = (date: Date = new Date()): string =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
 const getStartOfWeek = (d: Date) => {
   const date = new Date(d);
   const day = date.getDay();
   const diff = date.getDate() - day + (day === 0 ? -6 : 1);
   date.setDate(diff);
-  return date.toISOString().split("T")[0];
+  return getLocalDateString(date);
 };
 
 const POTDPage: React.FC = () => {
@@ -56,7 +60,7 @@ const POTDPage: React.FC = () => {
   const [isCheckingCF, setIsCheckingCF] = useState(false);
   const [cfUsername, setCfUsername] = useState<string>("");
 
-  const todayDate = new Date().toISOString().split("T")[0];
+  const todayDate = getLocalDateString();
   const displayDate = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   // ... [Keep truncateDescription, fetchPOTD, etc. logic SAME as before] ...
@@ -69,6 +73,7 @@ const POTDPage: React.FC = () => {
   };
 
   useEffect(() => {
+    // Fetch today's POTD problem
     async function fetchPOTD() {
       try {
         const id = await getPOTD();
@@ -84,28 +89,21 @@ const POTDPage: React.FC = () => {
     }
     fetchPOTD();
 
-    async function fetchTopWeekly() {
-      try {
-        const { collection, query, where, getDocs } = await import("firebase/firestore");
-        const currentStartOfWeek = getStartOfWeek(new Date());
+    // Live weekly leaderboard using onSnapshot
+    const currentStartOfWeek = getStartOfWeek(new Date());
+    const weeklyQ = query(
+      collection(db, "users"),
+      where("lastWeeklyResetDate", "==", currentStartOfWeek)
+    );
+    const unsubWeekly = onSnapshot(weeklyQ, (snap: any) => {
+      let solvers = snap.docs.map((d: any) => ({ ...d.data(), uid: d.id } as UserData));
+      solvers.sort((a: UserData, b: UserData) => (b.weeklyPotdSolves || 0) - (a.weeklyPotdSolves || 0));
+      setTopWeeklySolvers(solvers.slice(0, 15));
+    }, (err: any) => console.error("Error watching weekly solvers", err));
 
-        const q = query(
-          collection(db, "users"),
-          where("lastWeeklyResetDate", "==", currentStartOfWeek)
-        );
-
-        const snap = await getDocs(q);
-        let solvers = snap.docs.map(doc => ({ ...doc.data(), uid: doc.id } as UserData));
-
-        // Sort manually descending by weeklyPotdSolves in JavaScript
-        solvers.sort((a, b) => (b.weeklyPotdSolves || 0) - (a.weeklyPotdSolves || 0));
-
-        // Take the top 15 results
-        setTopWeeklySolvers(solvers.slice(0, 15));
-      } catch (err) { console.error("Error fetching top weekly solvers", err); }
-    }
-    fetchTopWeekly();
+    return () => unsubWeekly();
   }, []);
+
 
   useEffect(() => {
     if (!problem?.id) return;
@@ -141,6 +139,8 @@ const POTDPage: React.FC = () => {
     });
     return () => unsubscribe();
   }, [auth.currentUser]);
+
+
 
   const handleCheckCFSubmission = useCallback(async () => {
     if (!auth.currentUser || !problem || userSolved || isCheckingCF) return;
@@ -186,7 +186,7 @@ const POTDPage: React.FC = () => {
         });
         transaction.set(submissionRef, {
           problemId: problem.id,
-          solvers: { [auth.currentUser!.uid]: { uid: auth.currentUser!.uid, username: auth.currentUser!.displayName || "User", solvedAt: new Date().toISOString() } }
+          solvers: { [auth.currentUser!.uid]: { uid: auth.currentUser!.uid, username: userData.username || auth.currentUser!.displayName || "User", solvedAt: new Date().toISOString() } }
         }, { merge: true });
       });
     } catch (error) { toast.error('Failed to save progress.'); }

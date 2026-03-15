@@ -69,23 +69,6 @@ export default function AdminPOTD() {
                 <Toaster position="top-center" richColors />
                 <h2>Unauthorized Access</h2>
                 <p>You do not have permission to view the Admin POTD schedule.</p>
-                {user && (
-                    <button
-                        onClick={async () => {
-                            try {
-                                const userDocRef = doc(db, 'users', user.uid);
-                                await setDoc(userDocRef, { isAdmin: true }, { merge: true });
-                                toast.success("You are now an Admin! Refreshing...");
-                                setTimeout(() => window.location.reload(), 1500);
-                            } catch (error: any) {
-                                toast.error("Failed to make admin: " + error.message);
-                            }
-                        }}
-                        style={{ marginTop: '2rem', padding: '0.75rem 1.5rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-                    >
-                        Claim Admin (Temporary Backdoor)
-                    </button>
-                )}
             </div>
         );
     }
@@ -145,36 +128,7 @@ export default function AdminPOTD() {
                 </button>
             </form>
 
-            <button
-                onClick={async () => {
-                    if (window.confirm("Are you sure you want to revoke your admin access?")) {
-                        try {
-                            if (!user) return;
-                            const userDocRef = doc(db, 'users', user.uid);
-                            await setDoc(userDocRef, { isAdmin: false }, { merge: true });
-                            toast.success("Admin access revoked! Redirecting...");
-                            setTimeout(() => window.location.href = '/', 1500);
-                        } catch (error: any) {
-                            toast.error("Failed to revoke admin: " + error.message);
-                        }
-                    }
-                }}
-                style={{
-                    padding: '0.5rem 1rem',
-                    background: '#ef4444',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    fontSize: '0.875rem',
-                    marginTop: '2rem',
-                    transition: 'background 0.2s',
-                    width: '100%'
-                }}
-            >
-                Revoke Admin Access
-            </button>
+
         </div>
     );
 }

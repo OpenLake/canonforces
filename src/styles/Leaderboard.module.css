@@ -116,6 +116,11 @@
     background: #f8fafc;
 }
 
+.highlightUser {
+    background: #eff6ff !important;
+    border-left: 4px solid #2563eb;
+}
+
 .rankBadge {
     width: 30px;
     height: 30px;
