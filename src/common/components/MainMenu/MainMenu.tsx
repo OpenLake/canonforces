@@ -181,7 +181,7 @@ export default function MainMenu() {
               ) : (
                 <div className={styles.loading_state}>
                   <div className={styles.loader}></div>
-                  <p>Loading today's challenge...</p>
+                  <p>Loading today&apos;s challenge...</p>
                 </div>
               )}
             </div>

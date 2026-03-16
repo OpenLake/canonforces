@@ -1,0 +1,25 @@
+{
+  "status": "OK",
+  "result": [
+    {
+      "id": 123456789,
+      "contestId": 1881,
+      "problem": {
+        "index": "B",
+        "name": "Test Problem",
+        "tags": ["math", "implementation"]
+      },
+      "verdict": "OK"
+    },
+    {
+      "id": 123456790,
+      "contestId": 1882,
+      "problem": {
+        "index": "A",
+        "name": "Another Problem",
+        "tags": ["greedy"]
+      },
+      "verdict": "WRONG_ANSWER"
+    }
+  ]
+}
