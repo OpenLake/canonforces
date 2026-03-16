@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize the Google Generative AI SDK
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(400).json({ error: 'Missing problem details' });
         }
 
-        if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+        if (!process.env.GEMINI_API_KEY) {
             return res.status(500).json({ error: 'Gemini API key not configured' });
         }
 
@@ -39,17 +39,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ${errorOutput ? `Student's Recent Error/Failed Output:\n${errorOutput}\n` : ''}
 
       Please analyze their code and provide exactly 3 hints formatted as a JSON array of strings. 
+      Important: Every hint must be extremely concise, strictly limited to 1 or 2 short lines. Do not exceed 2 lines per hint.
       Do NOT include markdown formatting outside the JSON array, just return the raw JSON array.
       
-      Hint 1 (Topic): Tell them the core algorithm, mathematical concept, or data structure required to solve this problem. Do not give away the solution yet. Please use markdown bullet points for readability.
-      Hint 2 (Approach): Point out specifically what is wrong with their current code or the error they received. Tell them how their logic fails on edge cases, or what the next logical step is. Please use markdown bullet points for readability.
-      Hint 3 (Solution): Give a detailed explanation of the optimal solution and provide the correct logical approach to get an Accepted verdict. Please use markdown bullet points for readability.
+      Hint 1 (Topic): Tell them the core algorithm, mathematical concept, or data structure required to solve this problem. Keep it brief (1-2 lines). Please use markdown bullet points for readability.
+      Hint 2 (Approach): Point out specifically what is wrong with their current code or what the next logical step is. Keep it brief (1-2 lines). Please use markdown bullet points for readability.
+      Hint 3 (Solution): Give a concise explanation of the correct logical approach to get an Accepted verdict. Keep it brief (1-2 lines). Please use markdown bullet points for readability.
 
       Output Format exactly like this:
       [
-        "Your first hint here...",
-        "Your second hint here...",
-        "Your final solution hint here..."
+        "Your first short hint here...",
+        "Your second short hint here...",
+        "Your final short solution hint here..."
       ]
     `;
 

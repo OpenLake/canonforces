@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Question } from '../../../types/quiz';
 
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY as string;
+const apiKey = process.env.GEMINI_API_KEY as string;
 if (!apiKey) {
   throw new Error("Missing Gemini API key.");
 }
