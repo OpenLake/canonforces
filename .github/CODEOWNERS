@@ -3,49 +3,49 @@
 # Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
 # Global owners - these users will be requested for review on every PR
-* @aviralsaxena16 @Jagath-P
+* @aviralsaxena16
 
 # Frontend components and pages
-/src/pages/ @aviralsaxena16 @Jagath-P
-/src/common/ @aviralsaxena16 @Jagath-P
-/src/components/ @aviralsaxena16 @Jagath-P
+/src/pages/ @aviralsaxena16 
+/src/common/ @aviralsaxena16
+/src/components/ @aviralsaxena16 
 
 # Styling and UI
-/src/styles/ @aviralsaxena16 @Jagath-P
-/src/common/*.css @aviralsaxena16 @Jagath-P
-tailwind.config.js @aviralsaxena16 @Jagath-P
-postcss.config.js @aviralsaxena16 @Jagath-P
+/src/styles/ @aviralsaxena16 
+/src/common/*.css @aviralsaxena16 
+tailwind.config.js @aviralsaxena16 
+postcss.config.js @aviralsaxena16 
 
 # Configuration files
-package.json @aviralsaxena16 @Jagath-P
-package-lock.json @aviralsaxena16 @Jagath-P
-next.config.js @aviralsaxena16 @Jagath-P
-tsconfig.json @aviralsaxena16 @Jagath-P
-.eslintrc.json @aviralsaxena16 @Jagath-P
+package.json @aviralsaxena16
+package-lock.json @aviralsaxena16 
+next.config.js @aviralsaxena16
+tsconfig.json @aviralsaxena16 
+.eslintrc.json @aviralsaxena16
 
 # Documentation
-README.md @aviralsaxena16 @Jagath-P
-CONTRIBUTING.md @aviralsaxena16 @Jagath-P
-*.md @aviralsaxena16 @Jagath-P
+README.md @aviralsaxena16 
+CONTRIBUTING.md @aviralsaxena16 
+*.md @aviralsaxena16 
 
 # GitHub templates and workflows
-/.github/ @aviralsaxena16 @Jagath-P
+/.github/ @aviralsaxena16 
 
 # Firebase configuration
-/.firebaserc @aviralsaxena16 @Jagath-P
-firebase.json @aviralsaxena16 @Jagath-P
+/.firebaserc @aviralsaxena16 
+firebase.json @aviralsaxena16 
 
 # Public assets
-/public/ @aviralsaxena16 @Jagath-P
+/public/ @aviralsaxena16
 
 # Services and API
-/src/services/ @aviralsaxena16 @Jagath-P
-/src/lib/ @aviralsaxena16 @Jagath-P
+/src/services/ @aviralsaxena16 
+/src/lib/ @aviralsaxena16 
 
 # Types and constants
-/src/types/ @aviralsaxena16 @Jagath-P
-/src/constants/ @aviralsaxena16 @Jagath-P
+/src/types/ @aviralsaxena16
+/src/constants/ @aviralsaxena16 
 
 # Hooks and context
-/src/hooks/ @aviralsaxena16 @Jagath-P
-/src/context/ @aviralsaxena16 @Jagath-P
+/src/hooks/ @aviralsaxena16 
+/src/context/ @aviralsaxena16 
