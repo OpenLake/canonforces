@@ -12,6 +12,7 @@ ENV NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=test.appspot.com
 ENV NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456
 ENV NEXT_PUBLIC_FIREBASE_APP_ID=test-app
 ENV NEXT_PUBLIC_GEMINI_API_KEY=test-key
+ENV GEMINI_API_KEY=test-key
 
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
