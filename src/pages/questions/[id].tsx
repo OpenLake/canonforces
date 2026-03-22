@@ -9,6 +9,7 @@ import { increment, runTransaction, setDoc, addDoc, collection, serverTimestamp,
 import { checkCodeforcesSubmission } from '../../services/codeforces_api';
 import { toast } from 'sonner';
 import { getPOTD } from '../../services/potd_fetch';
+import { runPipeline } from '../../lib/pipeline';
 
 import {
   CODE_SNIPPETS,
@@ -215,87 +216,63 @@ const QuestionBar = () => {
   };
 
   const handleSubmit = async () => {
-    if (!auth.currentUser) {
-      toast.error('Please login to submit your solution.');
-      return;
-    }
+  if (!auth.currentUser) {
+    toast.error("Login required");
+    return;
+  }
 
-    if (!ques || !id) return;
-    if (!testCases || testCases.length === 0) {
-      toast.error("No test cases to run against.");
-      return;
-    }
+  setIsRunning(true);
+  setSubmissionResult(null);
 
-    setIsRunning(true);
-    setSubmissionResult(null);
-    setOutput(null);
+  try {
+    toast.info("Running Validation...");
+    const result = await runPipeline({
+      code: codeValue,
+      language,
+      testCases,
+    });
 
-    try {
-      let allPassed = true;
-      const results = [];
-
-      for (let i = 0; i < testCases.length; i++) {
-        const tc = testCases[i];
-        const response = await fetch('/api/hello', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            language,
-            codeValue,
-            input: tc.input || '',
-          }),
-        });
-
-        const data = await response.json();
-        if (data.run) {
-          const actualOutput = (data.run.output || '').trim();
-          const expectedOutput = (tc.output || '').trim();
-
-          if (actualOutput === expectedOutput) {
-            results.push({ status: 'Accepted' });
-          } else {
-            results.push({ status: 'Wrong Answer' });
-            allPassed = false;
-          }
-        } else {
-          results.push({ status: 'Runtime Error' });
-          allPassed = false;
-        }
-      }
-
+    if (result.stage === "validation") {
+      toast.error(result.error);
       setSubmissionResult({
-        status: allPassed ? 'Accepted' : 'Rejected',
-        message: allPassed ? 'All test cases passed!' : 'Some test cases failed.',
-        results
+        status: "Validation Error",
+        message: result.error,
       });
-
-      if (allPassed) {
-        toast.success('All test cases passed! 🚀 Use "Verify on CF" to get points.');
-
-        // Save local history record (0 coins)
-        const submissionsRef = collection(db, 'contest_submissions');
-        await addDoc(submissionsRef, {
-          userId: auth.currentUser.uid,
-          contestId: 'practice',
-          problemId: id,
-          problemName: ques.title,
-          platform: 'CanonForces',
-          language,
-          code: codeValue,
-          submittedAt: serverTimestamp(),
-          coinsEarned: 0,
-        });
-      } else {
-        toast.error('Some test cases failed. Check the Test Cases tab.');
-      }
-    } catch (error: any) {
-      console.error('Submission error:', error);
-      toast.error(error.message || 'Failed to submit solution.');
-    } finally {
-      setIsRunning(false);
+      return;
     }
-  };
 
+    toast.info("Running Execution...");
+    
+    if (result.stage === "execution") {
+      toast.error(result.error);
+      return;
+    }
+
+    toast.success("Scoring submission...");
+
+    const scoreData = result.data;
+    if (!scoreData) {
+      toast.error("Failed to compute score data");
+      setSubmissionResult({
+        status: "Error",
+        message: "Invalid score data received",
+      });
+      return;
+    }
+
+    setSubmissionResult({
+      status:
+        scoreData.passed === scoreData.total ? "Accepted" : "Rejected",
+      message: `Passed ${scoreData.passed}/${scoreData.total}`,
+      results: scoreData.results,
+    });
+
+  } catch (err: any) {
+    toast.error(err.message);
+  } finally {
+    setIsRunning(false);
+  }
+};
   const markAsSolved = async () => {
     if (!auth.currentUser || !id) return;
 
