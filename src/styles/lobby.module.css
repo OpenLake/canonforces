@@ -110,9 +110,111 @@
   box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
 }
 
-.start-battle-button:disabled {
-  background: #aaa;
-  box-shadow: none;
-  cursor: not-allowed;
-  transform: none;
+.waiting-status {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.radar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.radar {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+  border-radius: 50%;
+  border: 4px solid #333;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0, 123, 255, 0.15);
+}
+
+.sweep {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(from 0deg, rgba(0, 123, 255, 0.5) 0deg, transparent 90deg);
+  transform-origin: 0% 0%;
+  animation: sweep 3s linear infinite;
+}
+
+@keyframes sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(0, 123, 255, 0.2);
+  border-radius: 50%;
+}
+
+.circle:nth-child(2) { width: 66%; height: 66%; }
+.circle:nth-child(3) { width: 33%; height: 33%; }
+.circle:nth-child(4) { width: 6px; height: 6px; background: #007bff; border: none; box-shadow: 0 0 10px #007bff; }
+
+.blip {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #28a745;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #28a745;
+  opacity: 0;
+}
+
+.blip-1 { top: 30%; left: 40%; animation: blink 3s linear infinite 0.5s; }
+.blip-2 { bottom: 25%; right: 35%; animation: blink 3s linear infinite 1.8s; }
+
+@keyframes blink {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  35% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+.status-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #555;
+  margin: 0;
+}
+
+.countdown-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.countdown-number {
+  font-size: 6rem;
+  font-weight: 900;
+  color: #007bff;
+  text-shadow: 0 0 20px rgba(0, 123, 255, 0.3);
+  line-height: 1;
+  animation: pulse 1s ease infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }

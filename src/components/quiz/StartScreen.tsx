@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import styles from '../../styles/Quiz.module.css';
 import { useSocket } from '../../context/SocketContext';
@@ -31,7 +31,7 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
   const [totalQuestions, setTotalQuestions] = useState(5);
   const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [selectedTopic, setSelectedTopic] = useState(topics[0].value);
-  
+
   const [isMatchmaking, setIsMatchmaking] = useState(false);
 
   const router = useRouter();
@@ -54,6 +54,20 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
     }
   };
 
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleMatchFound = (roomId: string) => {
+      router.push(`/quiz/battle/${roomId}`);
+    };
+
+    socket.on('match_found', handleMatchFound);
+
+    return () => {
+      socket.off('match_found', handleMatchFound);
+    };
+  }, [socket, router]);
+
   const handleFindMatch = () => {
     if (!socket || !isConnected || !user) {
       console.error('Socket not connected or user not logged in.');
@@ -61,11 +75,7 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
     }
 
     setIsMatchmaking(true);
-    socket.emit('join_random_queue', user.uid);
-
-    socket.on('match_found', (roomId: string) => {
-      router.push(`/quiz/battle/${roomId}`);
-    });
+    socket.emit('join_queue', user.uid);
   };
 
   if (isMatchmaking) {
@@ -79,9 +89,9 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
           <h3 className={styles['config-title']}>1. Select a Topic</h3>
           <div className={styles['card-options-grid']}>
             {topics.map(topic => (
-              <button 
-                key={topic.id} 
-                onClick={() => setSelectedTopic(topic.value)} 
+              <button
+                key={topic.id}
+                onClick={() => setSelectedTopic(topic.value)}
                 className={`${styles['option-card']} ${selectedTopic === topic.value ? styles.active : ''}`}
               >
                 {topic.name}
@@ -94,9 +104,9 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
           <h3 className={styles['config-title']}>2. Choose Difficulty</h3>
           <div className={styles['difficulty-options']}>
             {difficulties.map(d => (
-              <button 
-                key={d} 
-                onClick={() => setSelectedDifficulty(d)} 
+              <button
+                key={d}
+                onClick={() => setSelectedDifficulty(d)}
                 className={`${styles['difficulty-button']} ${selectedDifficulty === d ? styles.active : ''} ${styles[d]}`}
               >
                 {d.charAt(0).toUpperCase() + d.slice(1)}
@@ -104,7 +114,7 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
             ))}
           </div>
         </div>
-        
+
         <div className={styles['config-section']}>
           <h3 className={styles['config-title']}>3. Set Number of Questions</h3>
           <div className={styles['slider-wrapper']}>
@@ -125,17 +135,17 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
           <button className={styles['start-button-large']} onClick={handleStartSolo}>
             Generate Solo Quiz
           </button>
-          
-          <button 
-            className={`${styles['start-button-secondary']} ${styles.blue}`} 
+
+          <button
+            className={`${styles['start-button-secondary']} ${styles.blue}`}
             onClick={handleFindMatch}
             disabled={!isConnected}
           >
             Find a Match (1v1)
           </button>
-          
-          <button 
-            className={`${styles['start-button-secondary']} ${styles.green}`} 
+
+          <button
+            className={`${styles['start-button-secondary']} ${styles.green}`}
             onClick={handleCreatePrivateBattle}
             disabled={!isConnected}
           >

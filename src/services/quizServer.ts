@@ -1,4 +1,5 @@
-import { adminDb } from "../lib/firebase_admin";
+import { db } from "../lib/firebase";
+import { collection, query, where, getDocs, writeBatch, doc } from "firebase/firestore";
 import { Question } from "../types/quiz";
 import { nanoid } from 'nanoid';
 // We use the same client-side function, but it's okay
@@ -12,12 +13,12 @@ async function generateAndSaveQuestions(
 ): Promise<Question[]> {
   const questions = await fetchQuizQuestions(topic, difficulty, count);
   
-  const bankCollection = adminDb.collection('quiz_bank');
-  const batch = adminDb.batch();
+  const bankCollection = collection(db,'quiz_bank');
+  const batch = writeBatch(db);;
 
   questions.forEach(q => {
     const docId = nanoid(10); 
-    const docRef = bankCollection.doc(docId);
+    const docRef = doc(bankCollection,nanoid(10));
     batch.set(docRef, { ...q, topic, difficulty });
   });
   
@@ -33,12 +34,14 @@ export async function getBankedQuestions(
   count: number
 ): Promise<Question[]> {
   
-  const bankRef = adminDb.collection('quiz_bank')
-    .where('topic', '==', topic)
-    .where('difficulty', '==', difficulty);
+  const bankRef = query(
+    collection(db,'quiz_bank'),
+    where('topic', '==', topic),
+    where('difficulty', '==', difficulty)
+  );
 
   try {
-    const snapshot = await bankRef.get();
+    const snapshot = await getDocs(bankRef);
     
     if (snapshot.empty) {
       return generateAndSaveQuestions(topic, difficulty, count);
