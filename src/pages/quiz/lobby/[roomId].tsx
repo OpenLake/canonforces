@@ -3,10 +3,11 @@ import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useSocket } from '../../../context/SocketContext';
 import UserContext from '../../../context/user';
 import styles from '../../../styles/lobby.module.css';
+import quizStyles from '../../../styles/Quiz.module.css';
 
 const LobbyPage = () => {
   const router = useRouter();
-  const { roomId } = router.query;
+  const { roomId, host } = router.query;
   const { socket, isConnected } = useSocket();
   const user = useContext(UserContext);
 
@@ -17,45 +18,52 @@ const LobbyPage = () => {
   const hasJoinedRef = useRef(false);
   const [waiting, setWaiting] = useState(true);
   const [countdown, setCountdown] = useState(5);
+  const [error, setError] = useState('');
+
+  // Separate effect for invite link to ensure it's always correct
+  useEffect(() => {
+    if (typeof window !== 'undefined' && roomId) {
+      setInviteLink(`${window.location.origin}/quiz/lobby/${roomId}`);
+    }
+  }, [roomId]);
 
   useEffect(() => {
-    // Generate the invite link once the page loads
-    setInviteLink(`${window.location.origin}/quiz/lobby/${roomId}`);
+    if (!socket || !isConnected || !user || !roomId) return;
 
-    // We must have a socket and user to proceed
-    if (!socket || !isConnected || !user || !roomId || hasJoinedRef.current) return;
+    const currentRoomId = String(roomId);
+    console.log("[LOBBY] Attempting to join room:", currentRoomId);
+    socket.emit('join_private_room', currentRoomId);
 
-    // Emit an event to join the room
-    socket.emit('join_private_room', roomId);
-    hasJoinedRef.current = true;
-
-    // We'll assume the first person to join is the host
-    // A more robust way is to pass host info, but this is simpler
-    if (players.length === 0) {
+    if (host === 'true') {
       setIsHost(true);
     }
-    setPlayers(prev => [...prev, user.username || user.uid]); // Add self to list
 
     // --- Socket Event Listeners ---
-
-    // Listen for another player joining
-    socket.on('player_joined', (playerSocketId: string) => {
-      console.log('Another player joined:', playerSocketId);
-      // In a real app, you'd get their username, but for now, we'll just add a placeholder
-      setPlayers(prev => [...prev, `Opponent (${playerSocketId.substring(0, 4)})`]);
+    socket.on('room_update', (data: { players: string[]; roomConfig?: any }) => {
+      console.log('[LOBBY] Room Update Received:', data.players);
+      setPlayers(data.players);
+      if (data.players.length >= 2) {
+        setWaiting(false);
+      }
     });
 
-    // Listen for the "battle_starting" event from the host
     socket.on('battle_starting', (battleRoomId: string) => {
+      console.log('[LOBBY] Battle starting in:', battleRoomId);
       router.push(`/quiz/battle/${battleRoomId}`);
     });
 
-    // Clean up listeners
+    socket.on('error', (msg: string) => {
+      console.error('[LOBBY] Error received:', msg);
+      setError(msg);
+    });
+
     return () => {
-      socket.off('player_joined');
+      console.log("[LOBBY] Cleaning up listeners for:", currentRoomId);
+      socket.off('room_update');
       socket.off('battle_starting');
+      socket.off('error');
     };
-  }, [socket, isConnected, roomId, user]);
+  }, [socket, isConnected, roomId, user, host, router]);
 
   useEffect(() => {
     if (players.length >= 2 && waiting) {
@@ -64,13 +72,13 @@ const LobbyPage = () => {
   }, [players.length, waiting]);
 
   useEffect(() => {
-    if (!waiting && countdown > 0) {
+    if (!waiting && countdown > 0 && !error) {
       const timer = setTimeout(() => setCountdown(prev => prev - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (!waiting && countdown === 0 && isHost) {
+    } else if (!waiting && countdown === 0 && isHost && !error) {
       socket?.emit('start_private_battle', roomId);
     }
-  }, [waiting, countdown, isHost, socket, roomId]);
+  }, [waiting, countdown, isHost, socket, roomId, error]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(inviteLink).then(() => {
@@ -81,47 +89,60 @@ const LobbyPage = () => {
     });
   };
 
-  const startBattle = () => {
-    if (socket && isHost) {
-      // Tell the server to start the battle for everyone in this room
-      socket.emit('start_private_battle', roomId);
-    }
-  };
+  if (error) {
+    return (
+      <div className={styles['lobby-container']}>
+        <div className={styles['lobby-card']}>
+          <div className={styles['error-state']}>
+            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⚠️</div>
+            <h2>Failed to start battle</h2>
+            <p>{error}</p>
+            <button onClick={() => router.push('/quiz')} className={styles['start-battle-button']}>
+              Back to Quiz
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={styles['lobby-container']}>
-      <div className={styles['lobby-card']}>
-        <h2>Private Battle Lobby</h2>
-        <p>Share this link with your friend to invite them.</p>
-
-        <div className={styles['invite-link-wrapper']}>
-          <input type="text" value={inviteLink} readOnly />
-          <button onClick={copyToClipboard} className={styles['copy-button']}>
-            {copySuccess || 'Copy'}
-          </button>
-        </div>
-
-        <div className={styles['waiting-status']}>
-          {waiting ? (
-            <div className={styles['radar-container']}>
-              <div className={styles['radar']}>
-                <div className={styles['sweep']} />
-                <div className={styles['circle']} />
-                <div className={styles['circle']} />
-                <div className={styles['circle']} />
-                {/* Blips to represent "finding" someone */}
-                <div className={`${styles['blip']} ${styles['blip-1']}`} />
-                <div className={`${styles['blip']} ${styles['blip-2']}`} />
-              </div>
-              <p className={styles['status-text']}>Searching for opponent...</p>
+    <div className={quizStyles['centerScreen']}>
+      <div className={quizStyles['matchmaking-loader']}>
+        {waiting ? (
+          <>
+            <div className={quizStyles['spinner']}></div>
+            <h3>Waiting for host...</h3>
+            <p>The battle will start once both players are ready.</p>
+            <div className={quizStyles['player-count']}>
+              Players: {players.length}/2
             </div>
-          ) : (
-            <div className={styles['countdown-container']}>
-              <p className={styles['status-text']}>Opponent joined! Starting in...</p>
-              <div className={styles['countdown-number']}>{countdown}</div>
+          </>
+        ) : (
+          <div className={styles['countdown-container']}>
+            <p className={quizStyles['status-text'] || styles['status-text']}>Opponent joined! Starting in...</p>
+            <div className={styles['countdown-number']}>
+              {countdown}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Subtle invite link just in case the guest wants to share it too */}
+        {waiting && (
+          <div className={quizStyles['invite-link-section']} style={{ marginTop: '2rem', opacity: 0.7 }}>
+            <p style={{ fontSize: '0.8rem' }}>Invite another friend?</p>
+            <div className={quizStyles['invite-input-group']}>
+              <input type="text" value={inviteLink} readOnly style={{ fontSize: '0.8rem' }} />
+              <button
+                className={`${quizStyles['copy-btn']} ${copySuccess ? quizStyles.success : ''}`}
+                onClick={copyToClipboard}
+                style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}
+              >
+                {copySuccess || 'Copy'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

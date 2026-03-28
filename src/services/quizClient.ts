@@ -1,13 +1,13 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Question } from "../types/quiz";
 
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY as string;
+const apiKey = (process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY) as string;
 if (!apiKey) {
-  throw new Error("Missing Gemini API key in .env.local");
+  throw new Error("Missing Gemini API key in .env.local or .env");
 }
 
 const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // This function is for CLIENT-SIDE use
 export async function fetchQuizQuestions(
@@ -17,7 +17,13 @@ export async function fetchQuizQuestions(
 ): Promise<Question[]> {
   try {
     const prompt = `
-      Generate ${count} questions about ${topic} with ${difficulty} difficulty.
+      Topic: ${topic}
+      Difficulty: ${difficulty}
+      Count: ${count}
+      
+      Generate ${count} unique, diverse, and challenging multiple-choice questions. 
+      Avoid common or repeatably generated questions. Focus on a wide variety of sub-topics within ${topic}.
+      
       Follow this JSON format strictly: 
       [
         {"question": "Question text", "optionA": "A", "optionB": "B", "optionC": "C", "optionD": "D", "answer": "optionA"}
@@ -32,7 +38,7 @@ export async function fetchQuizQuestions(
     if (!Array.isArray(parsedResponse)) {
       throw new Error("AI did not return a valid array.");
     }
-    
+
     return parsedResponse;
   } catch (err) {
     console.error("Error fetching quiz questions:", err);

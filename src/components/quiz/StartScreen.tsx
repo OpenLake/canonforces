@@ -18,12 +18,59 @@ const topics = [
 const difficulties = ['easy', 'medium', 'hard'] as const;
 
 // A new component to show while matchmaking
-const MatchmakingLoader = () => (
+const MatchmakingLoader = ({
+  inviteLink,
+  playerCount,
+  onCopy,
+  copySuccess,
+  error
+}: {
+  inviteLink?: string;
+  playerCount?: number;
+  onCopy?: () => void;
+  copySuccess?: string;
+  error?: string;
+}) => (
   <div className={styles['matchmaking-loader']}>
-    <div className={styles['spinner']}></div>
-    <h3>Finding an opponent...</h3>
-    <p>This may take a moment. Don&apos;t close this window.</p>
-    {/* We can add a "Cancel" button here later */}
+    {error ? (
+      <div className={styles['error-state']}>
+        <div className={styles['error-icon']}>⚠️</div>
+        <h3>Oops! Something went wrong</h3>
+        <p className={styles['error-message']}>{error}</p>
+        <button
+          className={styles['start-button-large']}
+          onClick={() => window.location.reload()}
+        >
+          Try Again
+        </button>
+      </div>
+    ) : (
+      <>
+        <div className={styles['spinner']}></div>
+        <h3>{inviteLink ? 'Waiting for friend...' : 'Finding an opponent...'}</h3>
+        <p>This may take a moment. Don&apos;t close this window.</p>
+
+        {inviteLink && (
+          <div className={styles['invite-link-section']}>
+            <p>Share this link to invite a friend:</p>
+            <div className={styles['invite-input-group']}>
+              <input type="text" value={inviteLink} readOnly />
+              <button
+                className={`${styles['copy-btn']} ${copySuccess ? styles.success : ''}`}
+                onClick={onCopy}
+              >
+                {copySuccess || 'Copy Link'}
+              </button>
+            </div>
+            {playerCount !== undefined && (
+              <div className={styles['player-count']}>
+                Players joined: {playerCount}/2
+              </div>
+            )}
+          </div>
+        )}
+      </>
+    )}
   </div>
 );
 
@@ -33,6 +80,11 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
   const [selectedTopic, setSelectedTopic] = useState(topics[0].value);
 
   const [isMatchmaking, setIsMatchmaking] = useState(false);
+  const [inviteLink, setInviteLink] = useState('');
+  const [inviteRoomId, setInviteRoomId] = useState('');
+  const [playerCount, setPlayerCount] = useState(0);
+  const [copySuccess, setCopySuccess] = useState('');
+  const [errorStatus, setErrorStatus] = useState('');
 
   const router = useRouter();
   const { socket, isConnected } = useSocket();
@@ -46,9 +98,26 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
     try {
       const response = await fetch('/api/quiz/battle/create', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topic: selectedTopic,
+          difficulty: selectedDifficulty,
+          count: totalQuestions,
+        }),
       });
       const { roomId } = await response.json();
-      router.push(`/quiz/lobby/${roomId}`);
+      // Instead of redirecting to lobby, we stay here and show the link
+      const link = `${window.location.origin}/quiz/lobby/${roomId}`;
+      setInviteLink(link);
+      setInviteRoomId(roomId);
+      setIsMatchmaking(true);
+
+      if (socket && isConnected) {
+        console.log("[START_SCREEN] Joining private room for invite:", roomId);
+        socket.emit('join_private_room', roomId);
+      }
     } catch (error) {
       console.error('Failed to create private battle:', error);
     }
@@ -63,23 +132,77 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
 
     socket.on('match_found', handleMatchFound);
 
+    // Private battle event listeners
+    socket.on('room_update', (data: { players: string[] }) => {
+      console.log('[START_SCREEN] Private Room Update:', data.players);
+      setPlayerCount(data.players.length);
+
+      // Auto-start if 2 players are in (for improved UX)
+      if (data.players.length >= 2 && socket && inviteRoomId) {
+        console.log("[START_SCREEN] 2 players joined. Starting battle...");
+        socket.emit('start_private_battle', inviteRoomId);
+      }
+    });
+
+    socket.on('battle_starting', (battleRoomId: string) => {
+      console.log('[START_SCREEN] Battle starting in room:', battleRoomId);
+      router.push(`/quiz/battle/${battleRoomId}`);
+    });
+
+    socket.on('error', (msg: string) => {
+      console.error('[START_SCREEN] Socket Error:', msg);
+      setErrorStatus(msg);
+    });
+
     return () => {
       socket.off('match_found', handleMatchFound);
+      socket.off('room_update');
+      socket.off('battle_starting');
+      socket.off('error');
     };
-  }, [socket, router]);
+  }, [socket, router, inviteRoomId]);
+
+  // Re-join queue if socket reconnects while searching
+  useEffect(() => {
+    if (isMatchmaking && isConnected && socket && user) {
+      console.log("Socket reconnected/changed while matchmaking. Re-emitting join_queue.");
+      socket.emit('join_queue', user.uid);
+    }
+  }, [isMatchmaking, isConnected, socket, user]);
 
   const handleFindMatch = () => {
+    console.log("Find Match clicked. State:", { socket: !!socket, isConnected, user: user?.uid });
     if (!socket || !isConnected || !user) {
       console.error('Socket not connected or user not logged in.');
       return;
     }
 
     setIsMatchmaking(true);
-    socket.emit('join_queue', user.uid);
+    console.log("Emitting join_queue for user:", user.uid, { topic: selectedTopic, difficulty: selectedDifficulty });
+    socket.emit('join_queue', {
+      userId: user.uid,
+      topic: selectedTopic,
+      difficulty: selectedDifficulty
+    });
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(inviteLink).then(() => {
+      setCopySuccess('Copied!');
+      setTimeout(() => setCopySuccess(''), 2000);
+    });
   };
 
   if (isMatchmaking) {
-    return <MatchmakingLoader />;
+    return (
+      <MatchmakingLoader
+        inviteLink={inviteLink}
+        playerCount={playerCount}
+        onCopy={handleCopyLink}
+        copySuccess={copySuccess}
+        error={errorStatus}
+      />
+    );
   }
 
   return (
