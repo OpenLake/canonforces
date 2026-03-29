@@ -27,51 +27,79 @@ async function generateAndSaveQuestions(
 }
 
 // This is the main function our server will use
+const TOPIC_MAP: Record<string, string> = {
+  "Data Structures and Algorithms": "DSA",
+  "Computer Science Fundamentals": "CS Fundamentals",
+  "System Design": "System Design",
+  "JavaScript": "JavaScript"
+};
+
 export async function getBankedQuestions(
   topic: string,
   difficulty: "easy" | "medium" | "hard",
   count: number
 ): Promise<Question[]> {
 
-  const bankRef = query(
-    collection(db, 'quiz_bank'),
-    where('topic', '==', topic),
-    where('difficulty', '==', difficulty)
-  );
-
   try {
-    console.log(`[QUIZ_SERVER] Requesting ${count} questions for ${topic}/${difficulty}`);
+    console.log(`[QUIZ_SERVER] --- Starting Quiz Retrieval ---`);
+    console.log(`[QUIZ_SERVER] Topic: "${topic}", Difficulty: "${difficulty}", Requested Count: ${count}`);
 
-    // Call the AI directly
-    const questions = await generateAndSaveQuestions(topic, difficulty, count);
-
-    if (questions && questions.length > 0) {
-      console.log(`[QUIZ_SERVER] SUCCESS: Generated ${questions.length} AI questions.`);
-      return questions;
+    if (!db) {
+      console.error("[QUIZ_SERVER] ERROR: Firestore 'db' object is undefined.");
     }
 
-    console.warn(`[QUIZ_SERVER] AI returned empty array. This happens if the prompt is rejected.`);
-    throw new Error("AI returned no questions");
+    // List of topics to try from the bank
+    const topicsToTry = [topic];
+    // Add legacy full names if short name is passed, or vice versa
+    if (topic === 'DSA') topicsToTry.push('Data Structures and Algorithms');
+    if (topic === 'Data Structures and Algorithms') topicsToTry.push('DSA');
 
-  } catch (err) {
-    console.error(`[QUIZ_SERVER] AI Generation failed:`, err instanceof Error ? err.message : err);
-    console.log(`[QUIZ_SERVER] Falling back to database bank for ${topic}/${difficulty}...`);
+    for (const t of Array.from(new Set(topicsToTry))) {
+      console.log(`[QUIZ_SERVER] Checking bank for topic: "${t}"`);
+      const bankRef = query(
+        collection(db, 'quiz_bank'),
+        where('topic', '==', t),
+        where('difficulty', '==', difficulty)
+      );
 
-    try {
       const snapshot = await getDocs(bankRef);
       const bankedQuestions = snapshot.docs.map(doc => doc.data() as Question);
-
-      if (bankedQuestions.length === 0) {
-        console.error(`[QUIZ_SERVER] DATABASE ALSO EMPTY for ${topic}/${difficulty}.`);
-        return [];
+      
+      if (bankedQuestions.length >= count) {
+        console.log(`[QUIZ_SERVER] SUCCESS: Found sufficient questions in bank for "${t}" (${bankedQuestions.length}).`);
+        const shuffled = [...bankedQuestions].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count);
       }
-
-      console.log(`[QUIZ_SERVER] SUCCESS: Fetched ${bankedQuestions.length} from bank. Shuffling...`);
-      const shuffled = [...bankedQuestions].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, count);
-    } catch (fallbackErr) {
-      console.error("[QUIZ_SERVER] Full failure (AI + Bank):", fallbackErr);
-      return [];
     }
+
+    // 2. If not enough questions in any bank variant, call the AI
+    console.log(`[QUIZ_SERVER] Insufficient bank. Calling AI for "${topic}"...`);
+    try {
+      const questions = await generateAndSaveQuestions(topic, difficulty, count);
+      if (questions && questions.length > 0) {
+        console.log(`[QUIZ_SERVER] SUCCESS: Generated ${questions.length} AI questions.`);
+        return questions;
+      }
+    } catch (aiErr) {
+      console.error(`[QUIZ_SERVER] AI GENERATION FAILED:`, aiErr);
+    }
+
+    // 3. Last chance fallback to anything we found in the bank
+    for (const t of topicsToTry) {
+        const bankRef = query(collection(db, 'quiz_bank'), where('topic', '==', t), where('difficulty', '==', difficulty));
+        const snap = await getDocs(bankRef);
+        if (snap.docs.length > 0) {
+            console.log(`[QUIZ_SERVER] Falling back to partial bank (${snap.docs.length}) for "${t}".`);
+            const banked = snap.docs.map(doc => doc.data() as Question);
+            const shuffled = [...banked].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, Math.min(banked.length, count));
+        }
+    }
+
+    throw new Error(`Everything failed for ${topic}/${difficulty}`);
+
+  } catch (err) {
+    console.error(`[QUIZ_SERVER] TOP-LEVEL FAILURE:`, err);
+    return [];
   }
 }

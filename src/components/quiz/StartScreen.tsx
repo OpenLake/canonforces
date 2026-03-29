@@ -9,7 +9,7 @@ interface Props {
 }
 
 const topics = [
-  { id: 'dsa', name: 'DSA', value: 'Data Structures and Algorithms' },
+  { id: 'dsa', name: 'DSA', value: 'DSA' },
   { id: 'cs_fundamentals', name: 'CS Fundamentals', value: 'Computer Science Fundamentals' },
   { id: 'system_design', name: 'System Design', value: 'System Design' },
   { id: 'javascript', name: 'JavaScript', value: 'JavaScript' },
@@ -108,11 +108,7 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
         }),
       });
       const { roomId } = await response.json();
-      // Instead of redirecting to lobby, we stay here and show the link
-      const link = `${window.location.origin}/quiz/lobby/${roomId}`;
-      setInviteLink(link);
-      setInviteRoomId(roomId);
-      setIsMatchmaking(true);
+      router.push(`/quiz/lobby/${roomId}?host=true`);
 
       if (socket && isConnected) {
         console.log("[START_SCREEN] Joining private room for invite:", roomId);
@@ -136,12 +132,6 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
     socket.on('room_update', (data: { players: string[] }) => {
       console.log('[START_SCREEN] Private Room Update:', data.players);
       setPlayerCount(data.players.length);
-
-      // Auto-start if 2 players are in (for improved UX)
-      if (data.players.length >= 2 && socket && inviteRoomId) {
-        console.log("[START_SCREEN] 2 players joined. Starting battle...");
-        socket.emit('start_private_battle', inviteRoomId);
-      }
     });
 
     socket.on('battle_starting', (battleRoomId: string) => {

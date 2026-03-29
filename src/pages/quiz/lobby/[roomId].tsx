@@ -13,9 +13,9 @@ const LobbyPage = () => {
 
   const [players, setPlayers] = useState<string[]>([]);
   const [isHost, setIsHost] = useState(false);
+  const [roomConfig, setRoomConfig] = useState<{ topic: string, difficulty: string, count: number } | null>(null);
   const [inviteLink, setInviteLink] = useState('');
   const [copySuccess, setCopySuccess] = useState('');
-  const hasJoinedRef = useRef(false);
   const [waiting, setWaiting] = useState(true);
   const [countdown, setCountdown] = useState(5);
   const [error, setError] = useState('');
@@ -40,8 +40,11 @@ const LobbyPage = () => {
 
     // --- Socket Event Listeners ---
     socket.on('room_update', (data: { players: string[]; roomConfig?: any }) => {
-      console.log('[LOBBY] Room Update Received:', data.players);
+      console.log('[LOBBY] Room Update Received:', data.players, data.roomConfig);
       setPlayers(data.players);
+      if (data.roomConfig) {
+        setRoomConfig(data.roomConfig);
+      }
       if (data.players.length >= 2) {
         setWaiting(false);
       }
@@ -112,35 +115,40 @@ const LobbyPage = () => {
         {waiting ? (
           <>
             <div className={quizStyles['spinner']}></div>
-            <h3>Waiting for host...</h3>
+            <h3>{isHost ? 'Waiting for opponent...' : 'Waiting for host...'}</h3>
             <p>The battle will start once both players are ready.</p>
             <div className={quizStyles['player-count']}>
               Players: {players.length}/2
             </div>
+
+            {isHost && (
+              <div className={styles['invite-link-section']} style={{ marginTop: '2rem' }}>
+                <p>Share this link with your friend:</p>
+                <div className={styles['invite-input-group']}>
+                  <input type="text" value={inviteLink} readOnly />
+                  <button
+                    className={`${styles['copy-btn']} ${copySuccess ? styles.success : ''}`}
+                    onClick={copyToClipboard}
+                  >
+                    {copySuccess || 'Copy Link'}
+                  </button>
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <div className={styles['countdown-container']}>
-            <p className={quizStyles['status-text'] || styles['status-text']}>Opponent joined! Starting in...</p>
+            <p className={styles['status-text']}>Opponent joined! Starting in...</p>
             <div className={styles['countdown-number']}>
               {countdown}
             </div>
           </div>
         )}
 
-        {/* Subtle invite link just in case the guest wants to share it too */}
-        {waiting && (
-          <div className={quizStyles['invite-link-section']} style={{ marginTop: '2rem', opacity: 0.7 }}>
-            <p style={{ fontSize: '0.8rem' }}>Invite another friend?</p>
-            <div className={quizStyles['invite-input-group']}>
-              <input type="text" value={inviteLink} readOnly style={{ fontSize: '0.8rem' }} />
-              <button
-                className={`${quizStyles['copy-btn']} ${copySuccess ? quizStyles.success : ''}`}
-                onClick={copyToClipboard}
-                style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}
-              >
-                {copySuccess || 'Copy'}
-              </button>
-            </div>
+        {roomConfig && (
+          <div className={styles['room-config-display']} style={{ marginTop: '2rem' }}>
+            <p><strong>Topic:</strong> {roomConfig.topic}</p>
+            <p><strong>Difficulty:</strong> {roomConfig.difficulty} | <strong>Questions:</strong> {roomConfig.count}</p>
           </div>
         )}
       </div>
@@ -149,3 +157,4 @@ const LobbyPage = () => {
 };
 
 export default LobbyPage;
+

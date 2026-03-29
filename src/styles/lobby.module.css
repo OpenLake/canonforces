@@ -184,19 +184,83 @@
   100% { opacity: 0; }
 }
 
-.status-text {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #555;
-  margin: 0;
-}
-
 .countdown-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
   animation: fadeIn 0.5s ease;
+  padding: 3rem;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.status-text {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2d3436;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.room-config-display {
+  background: #f1f3f5;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border-left: 4px solid #007bff;
+  text-align: left;
+}
+
+.room-config-display p {
+  margin: 0.25rem 0;
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+.invite-link-section {
+  width: 100%;
+  margin-top: 2rem;
+  animation: fadeIn 0.8s ease;
+}
+
+.invite-input-group {
+  display: flex;
+  margin-top: 0.75rem;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.invite-input-group input {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: none;
+  font-size: 0.9rem;
+  color: #495057;
+  background: transparent;
+  width: 100%;
+}
+
+.copy-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover {
+  background: #0056b3;
+}
+
+.copy-btn.success {
+  background: #28a745;
 }
 
 @keyframes fadeIn {
