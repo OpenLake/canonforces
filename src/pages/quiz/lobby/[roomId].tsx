@@ -11,7 +11,7 @@ const LobbyPage = () => {
   const { socket, isConnected } = useSocket();
   const user = useContext(UserContext);
 
-  const [players, setPlayers] = useState<string[]>([]);
+  const [players, setPlayers] = useState<{ id: string; username: string }[]>([]);
   const [isHost, setIsHost] = useState(false);
   const [roomConfig, setRoomConfig] = useState<{ topic: string, difficulty: string, count: number } | null>(null);
   const [inviteLink, setInviteLink] = useState('');
@@ -30,16 +30,8 @@ const LobbyPage = () => {
   useEffect(() => {
     if (!socket || !isConnected || !user || !roomId) return;
 
-    const currentRoomId = String(roomId);
-    console.log("[LOBBY] Attempting to join room:", currentRoomId);
-    socket.emit('join_private_room', currentRoomId);
-
-    if (host === 'true') {
-      setIsHost(true);
-    }
-
-    // --- Socket Event Listeners ---
-    socket.on('room_update', (data: { players: string[]; roomConfig?: any }) => {
+    // --- Socket Event Listeners (Register BEFORE emitting) ---
+    socket.on('room_update', (data: { players: { id: string; username: string }[]; roomConfig?: any }) => {
       console.log('[LOBBY] Room Update Received:', data.players, data.roomConfig);
       setPlayers(data.players);
       if (data.roomConfig) {
@@ -59,6 +51,14 @@ const LobbyPage = () => {
       console.error('[LOBBY] Error received:', msg);
       setError(msg);
     });
+
+    const currentRoomId = String(roomId);
+    console.log("[LOBBY] Attempting to join room:", currentRoomId);
+    socket.emit('join_private_room', { roomId: currentRoomId, username: 'Opponent' });
+
+    if (host === 'true') {
+      setIsHost(true);
+    }
 
     return () => {
       console.log("[LOBBY] Cleaning up listeners for:", currentRoomId);

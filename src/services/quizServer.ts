@@ -34,6 +34,16 @@ const TOPIC_MAP: Record<string, string> = {
   "JavaScript": "JavaScript"
 };
 
+function shuffleArray<T>(arr: T[]): T[] {
+  // Fisher-Yates shuffle (avoids the bias/inconsistency of `sort(() => Math.random() - 0.5)`)
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export async function getBankedQuestions(
   topic: string,
   difficulty: "easy" | "medium" | "hard",
@@ -67,7 +77,19 @@ export async function getBankedQuestions(
       
       if (bankedQuestions.length >= count) {
         console.log(`[QUIZ_SERVER] SUCCESS: Found sufficient questions in bank for "${t}" (${bankedQuestions.length}).`);
-        const shuffled = [...bankedQuestions].sort(() => 0.5 - Math.random());
+        // If the bank barely covers the request, proactively generate more so 1v1 sets don't repeat.
+        if (bankedQuestions.length === count) {
+          try {
+            const extra = await generateAndSaveQuestions(topic, difficulty, count);
+            const combined = [...bankedQuestions, ...(extra ?? [])];
+            return shuffleArray(combined).slice(0, count);
+          } catch {
+            const shuffled = shuffleArray(bankedQuestions);
+            return shuffled.slice(0, count);
+          }
+        }
+
+        const shuffled = shuffleArray(bankedQuestions);
         return shuffled.slice(0, count);
       }
     }
@@ -91,7 +113,7 @@ export async function getBankedQuestions(
         if (snap.docs.length > 0) {
             console.log(`[QUIZ_SERVER] Falling back to partial bank (${snap.docs.length}) for "${t}".`);
             const banked = snap.docs.map(doc => doc.data() as Question);
-            const shuffled = [...banked].sort(() => 0.5 - Math.random());
+            const shuffled = shuffleArray(banked);
             return shuffled.slice(0, Math.min(banked.length, count));
         }
     }

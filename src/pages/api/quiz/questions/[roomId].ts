@@ -3,16 +3,19 @@ import { redis } from '../../../../lib/redis';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { roomId } = req.query;
+    const ROOM_KEY = `quiz:room:${roomId}`;
+    const STATE_KEY = `quiz:state:${roomId}`;
 
     // Long polling: wait for up to 60 seconds for the questions to appear
     let attempts = 0;
     while (attempts < 120) {
         try {
-            const data = await redis.get(`quiz:room:${roomId}`);
+            const data = await redis.get(ROOM_KEY);
             if (data) {
-                console.log(`[QUESTIONS_API] Success for room ${roomId} on attempt ${attempts}`);
                 const questions = typeof data === 'string' ? JSON.parse(data) : data;
-                return res.status(200).json({ questions });
+                const stateRaw = await redis.get(STATE_KEY);
+                const state = stateRaw ? (typeof stateRaw === 'string' ? JSON.parse(stateRaw) : stateRaw) : null;
+                return res.status(200).json({ questions, state });
             }
         } catch (error) {
             console.error("[QUESTIONS_API] Redis fetch error:", error);

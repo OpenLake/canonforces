@@ -31,15 +31,33 @@ export async function fetchQuizQuestions(
       Do not include any markdown code fences or explanatory text.
     `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    let parsedResponse: Question[] = JSON.parse(responseText);
+    const generateOnce = async (temperature: number): Promise<Question[]> => {
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature,
+          topP: 0.95,
+          topK: 40,
+          responseMimeType: "application/json"
+        }
+      });
 
-    if (!Array.isArray(parsedResponse)) {
-      throw new Error("AI did not return a valid array.");
+      const responseText = result.response.text();
+      const parsedResponse = JSON.parse(responseText);
+
+      if (!Array.isArray(parsedResponse)) {
+        throw new Error("AI did not return a valid array.");
+      }
+
+      return parsedResponse as Question[];
+    };
+
+    try {
+      return await generateOnce(0.7);
+    } catch (firstErr) {
+      console.warn("AI JSON parse failed (retrying):", firstErr);
+      return await generateOnce(0.9);
     }
-
-    return parsedResponse;
   } catch (err) {
     console.error("Error fetching quiz questions:", err);
     throw new Error("Could not retrieve quiz data.");

@@ -110,10 +110,6 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
       const { roomId } = await response.json();
       router.push(`/quiz/lobby/${roomId}?host=true`);
 
-      if (socket && isConnected) {
-        console.log("[START_SCREEN] Joining private room for invite:", roomId);
-        socket.emit('join_private_room', roomId);
-      }
     } catch (error) {
       console.error('Failed to create private battle:', error);
     }
@@ -122,14 +118,18 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
   useEffect(() => {
     if (!socket) return;
 
-    const handleMatchFound = (roomId: string) => {
-      router.push(`/quiz/battle/${roomId}`);
+    const handleMatchFound = (data: string | { roomId: string; opponentName: string }) => {
+      const targetRoomId = typeof data === 'string' ? data : data.roomId;
+      const targetOpponentName = typeof data === 'string' ? '' : data.opponentName;
+      
+      console.log(`[START_SCREEN] Match found! Room: ${targetRoomId}, Opponent: ${targetOpponentName}`);
+      router.push(`/quiz/battle/${targetRoomId}?opponentName=${encodeURIComponent(targetOpponentName)}`);
     };
 
     socket.on('match_found', handleMatchFound);
 
     // Private battle event listeners
-    socket.on('room_update', (data: { players: string[] }) => {
+    socket.on('room_update', (data: { players: { id: string; username: string }[] }) => {
       console.log('[START_SCREEN] Private Room Update:', data.players);
       setPlayerCount(data.players.length);
     });
@@ -168,9 +168,9 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
     }
 
     setIsMatchmaking(true);
-    console.log("Emitting join_queue for user:", user.uid, { topic: selectedTopic, difficulty: selectedDifficulty });
     socket.emit('join_queue', {
       userId: user.uid,
+      username: 'Opponent', 
       topic: selectedTopic,
       difficulty: selectedDifficulty
     });
