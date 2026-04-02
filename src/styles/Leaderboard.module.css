@@ -1,0 +1,217 @@
+.pageContainer {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8fafc;
+}
+
+.contentWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.heroSection {
+    background: white;
+    border-radius: 16px;
+    padding: 3rem;
+    color: #1e293b;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.heroTitle {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #0f172a;
+}
+
+.heroSubtitle {
+    color: #cbd5e1;
+    font-size: 1.1rem;
+}
+
+.heroImage {
+    position: absolute;
+    right: 2rem;
+    bottom: -1rem;
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3));
+}
+
+.tabsContainer {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.tab {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.tab:hover {
+    background: #f1f5f9;
+}
+
+.tabActive {
+    background: #eff6ff;
+    color: #2563eb;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+}
+
+.leaderboardCard {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.listHeader {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px 100px;
+    padding: 1rem 2rem;
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.listItem {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px 100px;
+    padding: 1rem 2rem;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.2s ease;
+}
+
+.listItem:hover {
+    background: #f8fafc;
+}
+
+.highlightUser {
+    background: #eff6ff !important;
+    border-left: 4px solid #2563eb;
+}
+
+.rankBadge {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    color: #475569;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.rank1 {
+    background: #fef08a;
+    color: #854d0e;
+}
+
+.rank2 {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.rank3 {
+    background: #fed7aa;
+    color: #9a3412;
+}
+
+.userInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #64748b;
+    overflow: hidden;
+}
+
+.username {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.metricValue {
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.streakValue {
+    color: #f59e0b;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    justify-content: flex-end;
+}
+
+.myRankBanner {
+    position: sticky;
+    bottom: 2rem;
+    margin-top: 2rem;
+    background: linear-gradient(to right, #2563eb, #3b82f6);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
