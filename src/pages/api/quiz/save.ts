@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { adminDb } from '../../../lib/firebase_admin';
 import { Question } from '../../../types/quiz';
 import admin from 'firebase-admin';
-import { nanoid } from 'nanoid'; // 👈 ADDED import
+import { nanoid } from 'nanoid';
 
 type RequestData = {
   userId: string;
@@ -10,10 +10,14 @@ type RequestData = {
   totalQuestions: number;
   questions: Question[];
   userAnswers: (string | null)[];
+  topic?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
 };
 
-// 👇 ADDED helper function to save questions
-const saveQuestionsToBank = async (questions: Question[]) => {
+const saveQuestionsToBank = async (
+  questions: Question[],
+  meta: { topic: string; difficulty: 'easy' | 'medium' | 'hard' }
+) => {
   const bankCollection = adminDb.collection('quiz_bank');
   const batch = adminDb.batch();
 
@@ -22,7 +26,16 @@ const saveQuestionsToBank = async (questions: Question[]) => {
     const docId = nanoid(10); // Simple unique ID
     const docRef = bankCollection.doc(docId);
     // We use { merge: true } just in case, to avoid overwriting identical questions
-    batch.set(docRef, { ...q, topic: 'DSA', difficulty: 'medium' }, { merge: true }); 
+    batch.set(
+      docRef,
+      {
+        ...q,
+        topic: meta.topic,
+        difficulty: meta.difficulty,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
   });
 
   try {
@@ -39,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { userId, score, totalQuestions, questions, userAnswers }: RequestData = req.body;
+  const { userId, score, totalQuestions, questions, userAnswers, topic, difficulty }: RequestData = req.body;
 
   if (!userId || score === undefined || !questions) {
     return res.status(400).json({ message: 'Missing required fields' });
@@ -70,10 +83,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     });
 
-    // 👇 ADDED: Save questions to the bank *after* responding to the user
-    // This makes the API feel faster
     if (questions && questions.length > 0) {
-      saveQuestionsToBank(questions).catch(console.error);
+      const safeTopic = typeof topic === 'string' && topic.trim() ? topic.trim() : 'DSA';
+      const safeDifficulty: 'easy' | 'medium' | 'hard' =
+        difficulty === 'easy' || difficulty === 'hard' || difficulty === 'medium' ? difficulty : 'medium';
+
+      saveQuestionsToBank(questions, { topic: safeTopic, difficulty: safeDifficulty }).catch(console.error);
     }
     
     res.status(200).json({ 

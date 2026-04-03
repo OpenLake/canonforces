@@ -5,6 +5,7 @@ import { getUserByUserId } from "../services/firebase";
 
 interface User {
   docId: string;
+  userId: string;
   username?: string;
   fullname?: string;
   contestPlayed?: number;

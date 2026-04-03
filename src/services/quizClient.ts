@@ -1,13 +1,13 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Question } from "../types/quiz";
 
-const apiKey = process.env.GEMINI_API_KEY as string;
+const apiKey = (process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY) as string;
 if (!apiKey) {
-  throw new Error("Missing Gemini API key in .env.local");
+  throw new Error("Missing Gemini API key in .env.local or .env");
 }
 
 const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
 // This function is for CLIENT-SIDE use
 export async function fetchQuizQuestions(
@@ -17,7 +17,13 @@ export async function fetchQuizQuestions(
 ): Promise<Question[]> {
   try {
     const prompt = `
-      Generate ${count} questions about ${topic} with ${difficulty} difficulty.
+      Topic: ${topic}
+      Difficulty: ${difficulty}
+      Count: ${count}
+      
+      Generate ${count} unique, diverse, and challenging multiple-choice questions. 
+      Avoid common or repeatably generated questions. Focus on a wide variety of sub-topics within ${topic}.
+      
       Follow this JSON format strictly: 
       [
         {"question": "Question text", "optionA": "A", "optionB": "B", "optionC": "C", "optionD": "D", "answer": "optionA"}
@@ -25,15 +31,33 @@ export async function fetchQuizQuestions(
       Do not include any markdown code fences or explanatory text.
     `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    let parsedResponse: Question[] = JSON.parse(responseText);
+    const generateOnce = async (temperature: number): Promise<Question[]> => {
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature,
+          topP: 0.95,
+          topK: 40,
+          responseMimeType: "application/json"
+        }
+      });
 
-    if (!Array.isArray(parsedResponse)) {
-      throw new Error("AI did not return a valid array.");
+      const responseText = result.response.text();
+      const parsedResponse = JSON.parse(responseText);
+
+      if (!Array.isArray(parsedResponse)) {
+        throw new Error("AI did not return a valid array.");
+      }
+
+      return parsedResponse as Question[];
+    };
+
+    try {
+      return await generateOnce(0.7);
+    } catch (firstErr) {
+      console.warn("AI JSON parse failed (retrying):", firstErr);
+      return await generateOnce(0.9);
     }
-
-    return parsedResponse;
   } catch (err) {
     console.error("Error fetching quiz questions:", err);
     throw new Error("Could not retrieve quiz data.");

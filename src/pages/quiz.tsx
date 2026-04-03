@@ -6,7 +6,7 @@ import UserContext from '../context/user';
 import StartScreen from '../components/quiz/StartScreen';
 import QuestionDisplay from '../components/quiz/QuestionDisplay';
 import ResultsScreen from '../components/quiz/ResultsScreen';
-import Image from 'next/image'; // ✅ FIX: import Image
+import Image from 'next/image';
 
 const initialState: QuizState = {
   status: 'ready',
@@ -62,7 +62,14 @@ function reducer(state: QuizState, action: QuizAction): QuizState {
 
 async function saveQuizResult(
   userId: string,
-  result: { score: number; totalQuestions: number; questions: Question[]; userAnswers: (string | null)[] }
+  result: {
+    score: number;
+    totalQuestions: number;
+    questions: Question[];
+    userAnswers: (string | null)[];
+    topic: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+  }
 ): Promise<number> {
   try {
     const response = await fetch('/api/quiz/save', {
@@ -103,13 +110,15 @@ const QuizPage: React.FC = () => {
           score,
           totalQuestions,
           questions,
-          userAnswers
+          userAnswers,
+          topic: state.topic,
+          difficulty: state.difficulty,
         });
         setCoinsEarned(coins);
       };
       saveAndSetCoins();
     }
-  }, [status, user, questions, userAnswers, score, totalQuestions]);
+  }, [status, user, questions, userAnswers, score, totalQuestions, state.topic, state.difficulty]);
 
   return (
     <div className={`${styles['quiz-page-wrapper']} ${status === 'active' ? styles['fullscreen-mode'] : ''}`}>
@@ -121,7 +130,6 @@ const QuizPage: React.FC = () => {
             <p className={styles["subtitle"]}>Test your knowledge with an AI-generated quiz</p>
           </div>
 
-          {/* ✅ FIXED <img> → <Image /> */}
           <div className={styles["header-image"]}>
             <Image
               src="/images/study.png"
