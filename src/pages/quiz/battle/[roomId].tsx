@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useSocket } from '../../../context/SocketContext';
 import UserContext from '../../../context/user';
+import useUser from '../../../hooks/use-user';
 import { db } from '../../../lib/firebase';
 import { doc, updateDoc, increment, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import {
@@ -22,7 +23,8 @@ const BattlePage = () => {
     const router = useRouter();
     const { roomId } = router.query;
     const { socket, isConnected } = useSocket();
-    const user = useContext(UserContext);
+    const authUser = useContext(UserContext);
+    const { user: activeUser } = useUser();
 
     const [questions, setQuestions] = useState<Question[]>([]);
     const [index, setIndex] = useState(0);
@@ -99,24 +101,26 @@ const BattlePage = () => {
     useEffect(() => {
         if (!roomId || !socket || !isConnected) return;
 
-        console.log("Joining battle room:", roomId);
-        socket.emit('join_battle', roomId as string);
+        console.log("Joining battle room:", roomId, "as", activeUser?.username || 'Guest', "(ID:", authUser?.uid, ")");
+        socket.emit('join_battle', { 
+            roomId: roomId as string, 
+            username: activeUser?.username || 'Guest',
+            userId: authUser?.uid
+        });
 
         const syncFromBattleState = (state: any) => {
-            if (!state) return;
-            const myId = socket.id;
-            if (typeof myId !== 'string') return;
+            if (!state || !authUser) return;
+            const myUid = authUser.uid;
             const players = state.players || {};
             const finishedElapsedSeconds =
                 typeof state.finishedElapsedSeconds === 'number' ? state.finishedElapsedSeconds : null;
-            const myPlayer = players[myId] || { score: 0, totalTime: 0, progress: state.currentIndex ?? 0 };
-            const opponentId = Object.keys(players).find(id => id !== myId);
-            const opponentPlayer = opponentId
-                ? players[opponentId]
+
+            const myPlayer = players[myUid] || { score: 0, totalTime: 0, progress: state.currentIndex ?? 0 };
+            const opponentUid = Object.keys(players).find(uid => uid !== myUid);
+            const opponentPlayer = opponentUid
+                ? players[opponentUid]
                 : {
                     score: 0,
-                    // If opponent hasn't joined yet, we still want both sides' results to display
-                    // the authoritative match elapsed time once `finishedElapsedSeconds` is known.
                     totalTime: state.finished && finishedElapsedSeconds !== null ? finishedElapsedSeconds : 0,
                     progress: state.currentIndex ?? 0
                 };
@@ -206,8 +210,8 @@ const BattlePage = () => {
                         label: "Accept",
                         type: 'primary',
                         onClick: () => {
-                            if (!user) return;
-                            socket.emit('request_rematch', roomId, user.uid);
+                            if (!authUser) return;
+                            socket.emit('request_rematch', roomId, authUser.uid);
                             setRematchRequested(true);
                         }
                     },
@@ -257,7 +261,7 @@ const BattlePage = () => {
             socket.off('rematch_start');
             socket.off('disconnect');
         };
-    }, [roomId, socket, isConnected]);
+    }, [roomId, socket, isConnected, activeUser?.username]);
 
     useEffect(() => {
         questionStartTime.current = Date.now();
@@ -306,7 +310,7 @@ const BattlePage = () => {
 
     // Save result and credit coins
     useEffect(() => {
-        if (isFinished && user && questions.length > 0 && !hasSavedRef.current) {
+        if (isFinished && authUser && questions.length > 0 && !hasSavedRef.current) {
             // Record final time if not already set by an answer
             const battleStartedAtMs = battleStartedAtMsRef.current;
             const fallbackFinalTime = battleStartedAtMs ? Math.floor((Date.now() - battleStartedAtMs) / 1000) : 0;
@@ -320,7 +324,7 @@ const BattlePage = () => {
             setIsSaving(true);
             const saveResult = async () => {
                 try {
-                    const userRef = doc(db, 'users', user.uid);
+                    const userRef = doc(db, 'users', authUser.uid);
                     const quizHistoryRef = collection(userRef, 'past_quizzes');
                     const earned = myScore * 5;
 
@@ -351,7 +355,7 @@ const BattlePage = () => {
             };
             saveResult();
         }
-    }, [isFinished, user, questions, myScore, myTotalTime]);
+    }, [isFinished, authUser, questions, myScore, myTotalTime]);
 
     // --- Render States ---
 
@@ -362,9 +366,9 @@ const BattlePage = () => {
     }, [router.query.opponentName]);
 
     const handleRematchRequest = () => {
-        if (!socket || !roomId || !user) return;
-        console.log("Rematch requested - room:", roomId, "user:", user.uid);
-        socket.emit('request_rematch', roomId, user.uid);
+        if (!socket || !roomId || !authUser) return;
+        console.log("Rematch requested - room:", roomId, "user:", authUser.uid);
+        socket.emit('request_rematch', roomId, authUser.uid);
         setRematchRequested(true);
     };
 
@@ -392,12 +396,12 @@ const BattlePage = () => {
                 <div className={styles['live-leaderboard']}>
                     <div className={`${styles['leaderboard-item']} ${myScore >= opponentScore ? styles['leading'] : ''}`}>
                         <span className={styles['rank']}>{myScore >= opponentScore ? '1st' : '2nd'}</span>
-                        <span className={styles['name']}>You (You)</span>
+                        <span className={styles['name']}>You</span>
                         <span className={styles['score']}>{myScore}</span>
                     </div>
                     <div className={`${styles['leaderboard-item']} ${opponentScore > myScore ? styles['leading'] : ''}`}>
                         <span className={styles['rank']}>{opponentScore > myScore ? '1st' : '2nd'}</span>
-                        <span className={styles['name']}>Opponent</span>
+                        <span className={styles['name']}>{opponentName}</span>
                         <span className={styles['score']}>{opponentScore}</span>
                     </div>
                 </div>
@@ -467,7 +471,7 @@ const BattlePage = () => {
                 handleRematch={handleRematchRequest}
                 totalQuestions={questions.length}
                 isSaving={isSaving}
-                myUsername={myUsername}
+                myUsername="You"
                 opponentUsername={opponentName}
             />
         )}

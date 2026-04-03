@@ -56,13 +56,18 @@ const SocketHandler = (req: any, res: any) => {
                     const difficulty = data?.difficulty || 'medium';
 
                     console.log(`[MATCHMAKING] User ${userId} (${username}) (${socket.id}) joined ${topic}/${difficulty}`);
-
-                    (socket as any).matchmakingData = { topic, difficulty, userId, username };
+                    (socket as any).userId = userId;
+                    (socket as any).username = username;
+                    (socket as any).topic = topic;
+                    (socket as any).difficulty = difficulty;
                     const SPECIFIC_QUEUE_KEY = `${QUEUE_KEY}:${topic}:${difficulty}`;
 
                     try {
-                        const members = await redis.smembers<string[]>(SPECIFIC_QUEUE_KEY);
-                        
+                        const members = await redis.smembers<string[]>(SPECIFIC_QUEUE_KEY).catch(e => {
+                            console.error(`[REDIS] smembers failed for ${SPECIFIC_QUEUE_KEY}:`, e);
+                            throw e;
+                        });
+
                         let foundOpponent = null;
                         for (const member of members) {
                             const [oppSocketId, oppUserId, oppUsername] = member.split(':');
@@ -87,11 +92,11 @@ const SocketHandler = (req: any, res: any) => {
 
                                 await redis.set(`${ROOM_PREFIX}:${roomId}`, JSON.stringify(questions), { ex: 3600 });
                                 await redis.set(`quiz:lobby:${roomId}`, JSON.stringify({ topic, difficulty, count: 5 }), { ex: 3600 });
-                                
+
                                 // Store handles for both players in the room state
                                 const state = await initBattleState(roomId, questions.length);
-                                state.players[socket.id] = { score: 0, totalTime: 0, progress: 0, username };
-                                state.players[oppSocketId] = { score: 0, totalTime: 0, progress: 0, username: oppUsername };
+                                state.players[userId] = { score: 0, totalTime: 0, progress: 0, username };
+                                state.players[oppUserId] = { score: 0, totalTime: 0, progress: 0, username: oppUsername };
                                 await redis.set(getStateKey(roomId), JSON.stringify(state), { ex: 3600 });
 
                                 io.to(socket.id).emit('match_found', { roomId, opponentName: oppUsername });
@@ -114,7 +119,7 @@ const SocketHandler = (req: any, res: any) => {
 
                     const sockets = await io.in(roomId).fetchSockets();
                     let players = sockets.map(s => ({ id: s.id, username: (s as any).username || 'Guest' }));
-                    
+
                     // Fallback: If for some reason the current socket isn't in the list yet, add it manually
                     if (!players.find(p => p.id === socket.id)) {
                         players.push({ id: socket.id, username });
@@ -149,18 +154,18 @@ const SocketHandler = (req: any, res: any) => {
 
                         await redis.set(`${ROOM_PREFIX}:${roomId}`, JSON.stringify(questions), { ex: 3600 });
                         const state = await initBattleState(roomId, questions.length);
-                        
+
                         // Populate players from current room sockets
                         const sockets = await io.in(roomId).fetchSockets();
                         sockets.forEach(s => {
-                            state.players[s.id] = { 
-                                score: 0, 
-                                totalTime: 0, 
-                                progress: 0, 
-                                username: (s as any).username || 'Guest' 
+                            state.players[s.id] = {
+                                score: 0,
+                                totalTime: 0,
+                                progress: 0,
+                                username: (s as any).username || 'Guest'
                             };
                         });
-                        
+
                         await redis.set(getStateKey(roomId), JSON.stringify(state), { ex: 3600 });
                         io.to(roomId).emit('battle_starting', roomId);
                     } catch (err) {
@@ -169,10 +174,13 @@ const SocketHandler = (req: any, res: any) => {
                     }
                 });
 
-                socket.on('join_battle', async (rawRoomId: any) => {
-                    const roomId = String(rawRoomId);
+                socket.on('join_battle', async (data: any) => {
+                    const roomId = typeof data === 'object' ? String(data.roomId) : String(data);
+                    const username = typeof data === 'object' ? data.username : 'Guest';
+                    const userId = typeof data === 'object' ? data.userId : null;
+                    if (userId) (socket as any).userId = userId;
                     socket.join(roomId);
-                    console.log(`[BATTLE] ${socket.id} joined ${roomId}`);
+                    console.log(`[BATTLE] ${socket.id} (${username}/${userId}) joined ${roomId}`);
 
                     try {
                         const stateKey = getStateKey(roomId);
@@ -187,17 +195,28 @@ const SocketHandler = (req: any, res: any) => {
                         }
 
                         if (!state.players) state.players = {};
-                        if (!state.players[socket.id]) {
-                            const lateJoinTime =
-                                typeof state.finishedElapsedSeconds === 'number'
-                                    ? state.finishedElapsedSeconds
-                                    : 0;
-                            state.players[socket.id] = {
-                                score: 0,
-                                totalTime: lateJoinTime,
-                                progress: state.currentIndex ?? 0
-                            };
-                        }
+                        
+                        // Always update/set the username to ensure consistency via userId
+                        const playerKey = userId || socket.id;
+                        const existingPlayer = state.players[playerKey];
+                        
+                        // Avoid overwriting a real username with "Guest"
+                        const finalUsername = (username === 'Guest' && existingPlayer?.username && existingPlayer.username !== 'Guest')
+                            ? existingPlayer.username
+                            : username;
+
+                        const lateJoinTime =
+                            typeof state.finishedElapsedSeconds === 'number'
+                                ? state.finishedElapsedSeconds
+                                : 0;
+                        
+                        state.players[playerKey] = {
+                            score: state.players[playerKey]?.score ?? 0,
+                            totalTime: state.players[playerKey]?.totalTime ?? lateJoinTime,
+                            progress: state.players[playerKey]?.progress ?? (state.currentIndex ?? 0),
+                            username: finalUsername,
+                            userId: userId
+                        };
 
                         await redis.set(stateKey, JSON.stringify(state), { ex: 3600 });
                         io.to(roomId).emit('battle_state', state);
@@ -205,6 +224,7 @@ const SocketHandler = (req: any, res: any) => {
                         console.error('[BATTLE] Failed to send battle_state to joining client:', e);
                     }
                 });
+
 
                 socket.on('submit_answer', async (rawRoomId: any, data: any) => {
                     const roomId = String(rawRoomId);
@@ -215,6 +235,11 @@ const SocketHandler = (req: any, res: any) => {
 
                         const state: any = typeof stateRaw === 'string' ? JSON.parse(stateRaw) : stateRaw;
                         if (state.finished) return;
+
+                        const userId = (socket as any).userId || socket.id;
+                        const player = state.players?.[userId];
+                        // If we can't find the player by userId, fallback to identifying them by current progress
+                        // but ideally they should be in state.players already.
 
                         const questionIndex =
                             typeof data?.questionIndex === 'number'
@@ -234,10 +259,11 @@ const SocketHandler = (req: any, res: any) => {
                         if (!isAnsweringCurrent && !isAnsweringPrevious) return;
 
                         if (!state.players) state.players = {};
-                        state.players[socket.id] = {
-                            score: typeof data?.score === 'number' ? data.score : (state.players[socket.id]?.score ?? 0),
-                            totalTime: typeof data?.totalTime === 'number' ? data.totalTime : (state.players[socket.id]?.totalTime ?? 0),
-                            progress
+                        state.players[userId] = {
+                            score: typeof data?.score === 'number' ? data.score : (state.players[userId]?.score ?? 0),
+                            totalTime: typeof data?.totalTime === 'number' ? data.totalTime : (state.players[userId]?.totalTime ?? 0),
+                            progress,
+                            username: state.players[userId]?.username || (socket as any).username || 'Guest'
                         };
 
                         if (isAnsweringCurrent) {
@@ -256,9 +282,9 @@ const SocketHandler = (req: any, res: any) => {
 
                         // Backward-compatible event for older clients
                         socket.to(roomId).emit('opponent_update', {
-                            score: state.players[socket.id].score,
-                            totalTime: state.players[socket.id].totalTime,
-                            progress: state.players[socket.id].progress
+                            score: state.players[userId].score,
+                            totalTime: state.players[userId].totalTime,
+                            progress: state.players[userId].progress
                         });
                     } catch (error) {
                         console.error('[SUBMIT_ANSWER] Error:', error);
@@ -266,7 +292,11 @@ const SocketHandler = (req: any, res: any) => {
                 });
 
                 socket.on('disconnect', () => {
-                    const { topic, difficulty, userId, username } = (socket as any).matchmakingData || {};
+                    const topic = (socket as any).topic;
+                    const difficulty = (socket as any).difficulty;
+                    const userId = (socket as any).userId;
+                    const username = (socket as any).username;
+
                     if (topic && difficulty && userId && username) {
                         redis.srem(`${QUEUE_KEY}:${topic}:${difficulty}`, `${socket.id}:${userId}:${username}`);
                     }

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import styles from '../../styles/Quiz.module.css';
 import { useSocket } from '../../context/SocketContext';
 import UserContext from '../../context/user';
+import useUser from '../../hooks/use-user';
 
 interface Props {
   onStart: (topic: string, difficulty: 'easy' | 'medium' | 'hard', count: number) => void;
@@ -88,7 +89,8 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
 
   const router = useRouter();
   const { socket, isConnected } = useSocket();
-  const user = useContext(UserContext);
+  const authUser = useContext(UserContext);
+  const { user: activeUser } = useUser();
 
   const handleStartSolo = () => {
     onStart(selectedTopic, selectedDifficulty, totalQuestions);
@@ -152,25 +154,30 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
     };
   }, [socket, router, inviteRoomId]);
 
-  // Re-join queue if socket reconnects while searching
+  // Re-join queue ONLY if socket reconnects while searching
   useEffect(() => {
-    if (isMatchmaking && isConnected && socket && user) {
+    if (isMatchmaking && isConnected && socket && authUser) {
       console.log("Socket reconnected/changed while matchmaking. Re-emitting join_queue.");
-      socket.emit('join_queue', user.uid);
+      socket.emit('join_queue', {
+        userId: authUser.uid,
+        username: activeUser?.username || 'Guest',
+        topic: selectedTopic,
+        difficulty: selectedDifficulty
+      });
     }
-  }, [isMatchmaking, isConnected, socket, user]);
+  }, [isConnected]); // Only trigger on connection state changes
 
   const handleFindMatch = () => {
-    console.log("Find Match clicked. State:", { socket: !!socket, isConnected, user: user?.uid });
-    if (!socket || !isConnected || !user) {
+    console.log("Find Match clicked. State:", { socket: !!socket, isConnected, user: authUser?.uid });
+    if (!socket || !isConnected || !authUser) {
       console.error('Socket not connected or user not logged in.');
       return;
     }
 
     setIsMatchmaking(true);
     socket.emit('join_queue', {
-      userId: user.uid,
-      username: 'Opponent', 
+      userId: authUser.uid,
+      username: activeUser?.username || 'Guest', 
       topic: selectedTopic,
       difficulty: selectedDifficulty
     });
@@ -252,17 +259,19 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
           <button
             className={`${styles['start-button-secondary']} ${styles.blue}`}
             onClick={handleFindMatch}
-            disabled={!isConnected}
+            disabled={!isConnected || !activeUser}
+            title={!activeUser ? "Loading profile..." : ""}
           >
-            Find a Match (1v1)
+            {activeUser ? "Find a Match (1v1)" : "Loading Profile..."}
           </button>
 
           <button
             className={`${styles['start-button-secondary']} ${styles.green}`}
             onClick={handleCreatePrivateBattle}
-            disabled={!isConnected}
+            disabled={!isConnected || !activeUser}
+            title={!activeUser ? "Loading profile..." : ""}
           >
-            Invite a Friend
+            {activeUser ? "Invite a Friend" : "Loading..."}
           </button>
         </div>
 

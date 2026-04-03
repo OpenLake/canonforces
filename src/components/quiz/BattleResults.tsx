@@ -71,9 +71,7 @@ const BattleResults: React.FC<BattleResultsProps> = ({
     }, []);
 
     const localWinner = myScore > opponentScore ? 'me' :
-        myScore < opponentScore ? 'opponent' :
-            myTotalTime < opponentTotalTime ? 'me' :
-                myTotalTime > opponentTotalTime ? 'opponent' : 'draw';
+        myScore < opponentScore ? 'opponent' : 'draw';
 
     const resultTitle = localWinner === 'me' ? 'WINNER!' : localWinner === 'opponent' ? 'DEFEATED' : 'DRAW';
     const accuracy = Math.round((myScore / totalQuestions) * 100);
@@ -123,10 +121,6 @@ const BattleResults: React.FC<BattleResultsProps> = ({
                             <span className={styles['stat-label']}>Accuracy</span>
                             <span className={styles['stat-value']}>{accuracy}%</span>
                         </div>
-                        <div className={styles['stat-row']}>
-                            <span className={styles['stat-label']}>Time</span>
-                            <span className={styles['stat-value']}>{myTotalTime.toFixed(1)}s</span>
-                        </div>
                     </div>
 
                     <div className={styles['vs-divider']}>VS</div>
@@ -135,7 +129,7 @@ const BattleResults: React.FC<BattleResultsProps> = ({
                     <div className={`${styles['player-card']} ${localWinner === 'opponent' ? styles.winner : ''}`}>
                         <div className={styles['player-info']}>
                             <div className={styles['player-avatar']} style={{ background: '#f43f5e' }}>👾</div>
-                            <span className={styles['player-name']}>Opponent</span>
+                            <span className={styles['player-name']}>{opponentUsername}</span>
                         </div>
                         <div className={styles['stat-row']}>
                             <span className={styles['stat-label']}>Points</span>
@@ -146,10 +140,6 @@ const BattleResults: React.FC<BattleResultsProps> = ({
                         <div className={styles['stat-row']}>
                             <span className={styles['stat-label']}>Accuracy</span>
                             <span className={styles['stat-value']}>{opponentAccuracy}%</span>
-                        </div>
-                        <div className={styles['stat-row']}>
-                            <span className={styles['stat-label']}>Time</span>
-                            <span className={styles['stat-value']}>{opponentTotalTime.toFixed(1)}s</span>
                         </div>
                     </div>
                 </div>
@@ -172,7 +162,7 @@ const BattleResults: React.FC<BattleResultsProps> = ({
                     >
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                             <BsArrowCounterclockwise />
-                            {rematchRequested ? 'Waiting...' : opponentWantsRematch ? 'Accept Rematch' : 'Rematch'}
+                            {rematchRequested ? 'Waiting...' : 'Rematch'}
                         </div>
                     </button>
                     <button
