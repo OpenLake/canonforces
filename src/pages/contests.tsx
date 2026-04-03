@@ -24,9 +24,9 @@ const Contests = () => {
   src="/images/study.png" 
   alt="Practice Arena" 
   className={styles["practice-image"]} 
-  width={400} // <-- add width
-  height={400} // <-- add height
-  priority   // optional: ensures it loads fast for above-the-fold images
+  width={400} 
+  height={400} 
+  priority  
 />
         </div>
       </div>

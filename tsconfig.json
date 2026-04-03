@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "target": "es6",
-    "module": "commonjs",
+    "module": "esnext",
     "lib": [
-      "es6",
-      "dom"
+      "dom",
+      "dom.iterable",
+      "esnext"
     ],
     "strict": true,
     "esModuleInterop": true,
@@ -25,8 +26,9 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "jest.config.js"  ],
+    "**/*.tsx",
+    "jest.config.js"
+  ],
   "exclude": [
     "node_modules"
   ]

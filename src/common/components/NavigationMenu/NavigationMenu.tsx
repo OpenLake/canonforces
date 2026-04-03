@@ -85,7 +85,7 @@ export default function NavigationMenu() {
             </li>
             <li className={isActive(ROUTES.STATS) ? styles.active : ''}>
               <Link href={ROUTES.STATS}>
-                <FaChartBar size={"1.5em"} /> <span>Stats</span>
+                <FaChartBar size={"1.5em"} /> <span>Compare</span>
               </Link>
             </li>
             <li className={isActive(ROUTES.LEADERBOARD) ? styles.active : ''}>

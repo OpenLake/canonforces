@@ -3,7 +3,6 @@
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem;
 }
 
 /* Tabs */
@@ -33,13 +32,13 @@
 }
 
 .activeTab {
-    background: #1e293b;
+    background: #096bff;
     color: white;
-    border-color: #1e293b;
+    border-color: #096bff;
 }
 
 .activeTab:hover {
-    background: #0f172a;
+    background: #0056b3;
     color: white;
 }
 
@@ -175,21 +174,23 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    padding: 0.75rem 0;
+    background: #096bff;
     color: white;
     border-radius: 8px;
     font-weight: 500;
     text-decoration: none;
     transition: all 0.2s;
     margin-top: auto;
-    border: none;
+    border: 2px solid #096bff; /* Same width as outline button */
     cursor: pointer;
     flex: 1;
+    box-sizing: border-box;
+    font-size: 0.9rem;
 }
 
 .cardButton:hover {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: #0056b3;
     transform: scale(1.02);
 }
 
@@ -204,22 +205,24 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
+    padding: 0.75rem 0;
     background: white;
-    color: #6366f1;
-    border: 2px solid #6366f1;
+    color: #096bff;
+    border: 2px solid #096bff;
     border-radius: 8px;
     font-weight: 500;
     text-decoration: none;
     transition: all 0.2s;
     cursor: pointer;
     flex: 1;
+    box-sizing: border-box;
+    font-size: 0.9rem;
 }
 
 .cardButtonSecondary:hover {
-    background: #eef2ff;
-    border-color: #4f46e5;
-    color: #4f46e5;
+    background: #f0f9ff;
+    border-color: #096bff;
+    color: #096bff;
     transform: scale(1.02);
 }
 

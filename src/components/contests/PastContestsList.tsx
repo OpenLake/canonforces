@@ -150,19 +150,19 @@ const PastContestsList = () => {
                                         rel="noopener noreferrer"
                                         className={styles.cardButtonSecondary}
                                     >
-                                        View Contest
+                                        Contest
                                     </a>
                                     <button
                                         onClick={() => handleViewProblems(contest)}
                                         className={styles.cardButton}
                                     >
-                                        View Problems <BsCodeSlash />
+                                        Problems <BsCodeSlash />
                                     </button>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className={styles.emptyState}>No past contests found for this platform.</div>
+                        <div className={styles.emptyState}>No past contests found.</div>
                     )}
                 </div>
             </div>
