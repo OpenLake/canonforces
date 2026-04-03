@@ -1,7 +1,3 @@
-/* Keep your existing .main, .container, .header styles... */
-
-/* --- ADD THESE NEW CLASSES --- */
-
 .platformLogoWrapper {
   width: 40px;
   height: 40px;
@@ -11,66 +7,299 @@
   background: #f8fafc;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
-  padding: 4px; /* Internal spacing so logo doesn't touch edges */
+  padding: 4px;
+  /* Internal spacing so logo doesn't touch edges */
 }
 
 .logoImage {
-  object-fit: contain; /* Ensures logo isn't squashed */
+  object-fit: contain;
   width: 100%;
   height: 100%;
 }
-
-/* --- UPDATE THESE EXISTING CLASSES --- */
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.25rem; /* Increased slightly for visual balance */
+  margin-bottom: 1.25rem;
 }
 
-/* Rest of your CSS remains the same... */
-.main { flex: 1; padding: 2rem; background-color: #f8fafc; min-height: 100vh; }
-.container { max-width: 1200px; margin: 0 auto; }
-.header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 20px; padding: 3rem 2.5rem; margin-bottom: 2.5rem; color: white; box-shadow: 0 10px 30px -10px rgba(79, 70, 229, 0.4); position: relative; overflow: hidden; }
-.header::after { content: ''; position: absolute; top: -50%; right: -10%; width: 300px; height: 300px; background: rgba(255,255,255,0.1); border-radius: 50%; filter: blur(40px); }
-.headerContent { display: flex; align-items: center; gap: 1.5rem; position: relative; z-index: 2; }
-.headerIconWrapper { background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 16px; backdrop-filter: blur(10px); }
-.title { font-size: 2.5rem; font-weight: 800; margin: 0; letter-spacing: -0.02em; }
-.subtitle { font-size: 1.1rem; opacity: 0.9; margin-top: 0.5rem; font-weight: 300; }
-.tabsContainer { display: flex; gap: 1rem; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 0.5rem; }
-.tab { padding: 0.6rem 1.5rem; border-radius: 999px; border: 1px solid #e2e8f0; background: white; color: #64748b; font-weight: 600; cursor: pointer; transition: all 0.2s ease; font-size: 0.9rem; }
-.tab:hover { background: #f1f5f9; }
-.activeTab { background: #1e293b; color: white; border-color: #1e293b; }
-.activeTab:hover { background: #0f172a; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-.card { background: white; border-radius: 16px; padding: 1.5rem; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
-.card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.1); border-color: #e2e8f0; }
-.badge { font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-.codeforces { background: #fee2e2; color: #dc2626; }
-.leetcode { background: #ffedd5; color: #ea580c; }
-.codechef { background: #fce7f3; color: #831843; }
-.cardTitle { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0 0 1rem 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 3rem; }
-.metaInfo { display: flex; gap: 1rem; color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }
-.metaItem { display: flex; align-items: center; gap: 0.4rem; }
-.cardButton { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 0.75rem; border-radius: 10px; background: #f8fafc; color: #0f172a; font-weight: 600; border: 1px solid #e2e8f0; transition: all 0.2s; text-decoration: none; }
-.cardButton:hover { background: #1e293b; color: white; border-color: #1e293b; }
-.skeletonCard { height: 220px; background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 16px; }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-@media (max-width: 768px) { .main { padding: 1rem; } .header { padding: 2rem; text-align: center; } .headerContent { flex-direction: column; } .grid { grid-template-columns: 1fr; } }
-.section { margin-bottom: 3rem; }
-.sectionTitle { font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
-.solutionsPlaceholder { background: white; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 3rem; text-align: center; color: #64748b; }
+.main {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f7f8fa;
+  min-height: 100vh;
+}
 
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
 
-/* Add these to your existing CSS file under the other badge classes */
+.header {
+  position: relative;
+  margin-bottom: 2.25rem;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 120px;
+  /* Base height for the text area */
+}
+
+.headerText {
+  padding-right: 420px;
+}
+
+.headerImage {
+  position: absolute;
+  right: 0;
+  top: -20px;
+  flex-shrink: 0;
+}
+
+.mascotImage {
+  max-height: 375px;
+  width: auto;
+  object-fit: contain;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.02em;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.description {
+  font-size: 1rem;
+  color: #64748b;
+  margin-top: 1rem;
+  line-height: 1.6;
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.tab {
+  padding: 0.6rem 1.5rem;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.tab:hover {
+  background: #f1f5f9;
+}
+
+.activeTab {
+  background: #096bff;
+  color: white;
+  border-color: #096bff;
+}
+
+.activeTab:hover {
+  background: #0056b3;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.1);
+  border-color: #e2e8f0;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.codeforces {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.leetcode {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.codechef {
+  background: #f0fdf4;
+  color: #166534;
+}
 
 .atcoder {
-  background: #000000;
-  color: #ffffff;
+  background: #ede9fe;
+  color: #5b21b6;
 }
 
 .hackerearth {
-  background: #2c3e50; /* Dark Blue */
-  color: #ffffff;
+  background: #dbeafe;
+  color: #1e40af;
 }
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 3rem;
+}
+
+.metaInfo {
+  display: flex;
+  gap: 1rem;
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cardButton {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.cardButton:hover {
+  background: #096bff;
+  color: white;
+  border-color: #096bff;
+}
+
+.skeletonCard {
+  height: 220px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 16px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 1rem;
+  }
+
+  .header {
+    padding: 0;
+    text-align: left;
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+  }
+
+  .headerText {
+    padding-right: 0;
+  }
+
+  .headerImage {
+    position: static;
+    margin-top: 1rem;
+    order: -1;
+  }
+
+  .mascotImage {
+    max-height: 180px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.solutionsPlaceholder {
+  background: white;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 3rem;
+  text-align: center;
+  color: #64748b;
+}
+

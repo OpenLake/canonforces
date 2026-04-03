@@ -87,21 +87,30 @@ const ContestsList = () => {
   const tabs = ["all", "codeforces", "leetcode", "codechef", "atcoder", "hackerearth"];
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-[#f7f8fa]">
       <NavigationMenu />
       <main className={styles.main}>
         <div className={styles.container}>
 
           {/* Header */}
           <div className={styles.header}>
-            <div className={styles.headerContent}>
-              <div className={styles.headerIconWrapper}>
-                <BsTrophy size="2rem" color="white" />
-              </div>
-              <div className={styles.headerText}>
-                <h1 className={styles.title}>CanonForces Contests</h1>
-                <p className={styles.subtitle}>Track upcoming competitive programming events.</p>
-              </div>
+            <div className={styles.headerText}>
+              <h1 className={styles.title}>💻 Contests</h1>
+              <p className={styles.subtitle}>Track upcoming competitive programming events.</p>
+              <p className={styles.description}>
+                Stay ahead of the game! Monitor upcoming contests from Codeforces, LeetCode, CodeChef, and more. 
+                Plan your schedule and never miss an opportunity to compete and improve your skills.
+              </p>
+            </div>
+            <div className={styles.headerImage}>
+              <Image 
+                src="/images/bright_contests.png" 
+                alt="Contests Mascot" 
+                width={400} 
+                height={400} 
+                priority
+                className={styles.mascotImage}
+              />
             </div>
           </div>
 
@@ -120,9 +129,9 @@ const ContestsList = () => {
             <button
               onClick={() => setView("upcoming")}
               className={`
-                px-6 py-2 rounded-md font-medium transition-all duration-200
+                px-6 py-2 min-w-[200px] rounded-md font-medium transition-all duration-200
                 ${view === "upcoming"
-                  ? "bg-white text-indigo-600 shadow"
+                  ? "bg-white text-blue-600 shadow"
                   : "text-gray-600 hover:text-gray-900"}
               `}
             >
@@ -132,9 +141,9 @@ const ContestsList = () => {
             <button
               onClick={() => setView("past")}
               className={`
-                px-6 py-2 rounded-md font-medium transition-all duration-200
+                px-6 py-2 min-w-[200px] rounded-md font-medium transition-all duration-200
                 ${view === "past"
-                  ? "bg-white text-indigo-600 shadow"
+                  ? "bg-white text-blue-600 shadow"
                   : "text-gray-600 hover:text-gray-900"}
               `}
             >
@@ -144,7 +153,6 @@ const ContestsList = () => {
           </div>
 
 
-          {/* Tabs - Only show for upcoming contests */}
           {view === "upcoming" && (
             <div className={styles.tabsContainer}>
               {tabs.map((f) => (
@@ -215,7 +223,7 @@ const ContestsList = () => {
                     </div>
                   ))
                 ) : (
-                  <div className={styles.emptyState}>No contests found for this platform.</div>
+                  <div className={styles.emptyState}>No contests found.</div>
                 )}
               </div>
             </div>
@@ -228,7 +236,7 @@ const ContestsList = () => {
           {view === "upcoming" && (
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>
-                <BsBook className="text-indigo-500" /> Editorials
+                <BsBook className="text-blue-500" /> Editorials
               </h2>
               <div className={styles.solutionsPlaceholder}>
                 <p>💡 Solutions and editorials will appear here after contests conclude.</p>
