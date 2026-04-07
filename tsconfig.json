@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "target": "es6",
     "module": "esnext",
     "lib": [
@@ -15,7 +15,10 @@
     "typeRoots": [
       "./node_modules/@types"
     ],
-    "types": ["jest", "node"],
+    "types": [
+      "jest",
+      "node"
+    ],
     "allowJs": true,
     "noEmit": true,
     "incremental": true,

@@ -27,29 +27,31 @@ export default function Home() {
       <DynamicHeader />
       <hr className="flex w-9/12 h-px fc-hr border-0" />
       <main className="flex flex-col w-full items-center p-0">
-        <h1 className={`f-100 font-bold fc-black ${styles.fs_big} tracking-tight`}>
-          LEARN & CODE
+        <h1 className={`f-100 font-bold fc-black ${styles.fs_big} tracking-tight uppercase`}>
+          CANONFORCES
         </h1>
         <hr className="flex w-9/12 h-px fc-hr border-0" />
 
         {/* Hero Section with Black Box and Image */}
         <div className="flex flex-col lg:flex-row w-9/12 justify-center items-center gap-8 mt-8">
-          {/* Black Box Side Text */}
-          <div className="flex flex-col items-start bg-black bg-opacity-95 rounded-xl border border-gray-800 shadow-lg px-8 py-7 max-w-xl w-full mb-4 lg:mb-0">
-            <p className="text-white text-lg leading-relaxed mb-6">
-              A <span className="font-medium text-blue-300">coding platform</span> where you can compete with
+          {/* Integrated Info Card */}
+          <div className="flex flex-col items-start bg-white rounded-3xl border border-gray-200 shadow-[0_20px_50px_rgba(0,0,0,0.06)] px-10 py-10 max-w-2xl w-full mb-4 lg:mb-0 transition-transform duration-300 hover:shadow-[0_30px_60px_rgba(0,0,0,0.08)]">
+            <p className="text-gray-700 text-xl leading-relaxed mb-8">
+              A <span className="font text-blue-600">coding platform</span> where you can compete with
               fellow coders, friends and random people to learn and improve your coding skills.
               You can showcase your Codeforces profile in an amazing dashboard powered by
-              <span className="font-medium text-yellow-300"> canonforces</span>.
+              <span className="font text-blue-600"> CanonForces</span>.
             </p>
-            <div className="flex flex-row gap-4 w-full">
-              {/* Explore Button (Blue) */}
-             <button className={`${styles.button_blue}`}>Explore</button>  
+            <div className="flex flex-row gap-5 w-full">
+              {/* Explore Button*/}
+              <button className={`${styles.button_blue} px-8 py-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-105`}>
+                Explore
+              </button>
 
-              {/* Dashboard Button (Black) */}
-              <button className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition-all duration-200 hover:scale-105 flex items-center gap-2 w-1/2">
+              {/* Dashboard Button*/}
+              <button className="bg-white hover:bg-gray-50 text-gray-900 border-gray-100 font-bold px-8 py-3 rounded-xl shadow-sm transition-all duration-200 hover:scale-105 flex items-center justify-center gap-3 w-1/2">
                 Dashboard
-                <BsArrowRightCircle size={"1.3em"} className="transition-transform duration-200 hover:translate-x-1" />
+                <BsArrowRightCircle size={"1.3em"} className="transition-transform duration-200 group-hover:translate-x-1" />
               </button>
             </div>
           </div>
@@ -58,8 +60,8 @@ export default function Home() {
             <Image
               className="w-85 h-85 object-contain transition-transform duration-300 hover:scale-105"
               src="/images/image.png"
-              width={420}
-              height={420}
+              width={480}
+              height={480}
               alt="CanonForces Platform"
               priority
             />
@@ -149,10 +151,10 @@ export default function Home() {
       <div className="w-full flex justify-center py-8 bg-white">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Start Competing Now Button (Blue) */}
-           <button className={`${styles.button_blue} hover:bg-blue-700 text-white font-semibold px-5 py-3 rounded-lg shadow transition-all duration-200 hover:scale-105`}>
+          <button className={`${styles.button_blue} hover:bg-blue-700 text-white font-semibold px-5 py-3 rounded-lg shadow transition-all duration-200 hover:scale-105`}>
             Start Competing Now
           </button>
-          {/* View Demo Button (Black) */}
+          {/* View Demo Button*/}
           <button className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-3 rounded-lg shadow transition-all duration-200 hover:scale-105 flex items-center gap-2">
             View Demo
             <BsArrowRightCircle size={"1.3em"} />

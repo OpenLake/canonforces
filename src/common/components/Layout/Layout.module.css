@@ -17,7 +17,8 @@
 
 
 .main {
-  margin-left: 15rem;      /* Same as sidebar width */
+  margin-left: 15rem;
+  /* Same as sidebar width */
   height: 100vh;
   overflow-y: auto;
   background: #f7f9fb;
