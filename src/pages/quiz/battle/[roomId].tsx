@@ -102,8 +102,8 @@ const BattlePage = () => {
         if (!roomId || !socket || !isConnected) return;
 
         console.log("Joining battle room:", roomId, "as", activeUser?.username || 'Guest', "(ID:", authUser?.uid, ")");
-        socket.emit('join_battle', { 
-            roomId: roomId as string, 
+        socket.emit('join_battle', {
+            roomId: roomId as string,
             username: activeUser?.username || 'Guest',
             userId: authUser?.uid
         });
@@ -130,7 +130,7 @@ const BattlePage = () => {
             setOpponentScore(opponentPlayer.score ?? 0);
             setOpponentTotalTime(opponentPlayer.totalTime ?? 0);
             setOpponentProgress(state.currentIndex ?? 0);
-            
+
             if (opponentPlayer.username) setOpponentName(opponentPlayer.username);
             if (myPlayer.username) setMyUsername(myPlayer.username);
 
@@ -182,9 +182,9 @@ const BattlePage = () => {
 
         socket.on('match_found', (data: string | { roomId: string; opponentName: string }) => {
             const targetRoomId = typeof data === 'string' ? data : data.roomId;
-            
+
             console.log(`[BATTLE] Match found! Room: ${targetRoomId}`);
-            
+
             setToasts(prev => [...prev, {
                 id: `match-${Date.now()}`,
                 title: "Match Found!",
@@ -390,92 +390,92 @@ const BattlePage = () => {
 
     return (
         <>
-        <div className={styles['battle-container']} style={{ filter: isFinished ? 'blur(2px) grayscale(0.3)' : 'none', opacity: isFinished ? 0.7 : 1 }}>
-            <div className={styles['battle-header']}>
-                {/* Live Leaderboard */}
-                <div className={styles['live-leaderboard']}>
-                    <div className={`${styles['leaderboard-item']} ${myScore >= opponentScore ? styles['leading'] : ''}`}>
-                        <span className={styles['rank']}>{myScore >= opponentScore ? '1st' : '2nd'}</span>
-                        <span className={styles['name']}>You</span>
-                        <span className={styles['score']}>{myScore}</span>
+            <div className={styles['battle-container']} style={{ filter: isFinished ? 'blur(2px) grayscale(0.3)' : 'none', opacity: isFinished ? 0.7 : 1 }}>
+                <div className={styles['battle-header']}>
+                    {/* Live Leaderboard */}
+                    <div className={styles['live-leaderboard']}>
+                        <div className={`${styles['leaderboard-item']} ${myScore >= opponentScore ? styles['leading'] : ''}`}>
+                            <span className={styles['rank']}>{myScore >= opponentScore ? '1st' : '2nd'}</span>
+                            <span className={styles['name']}>You</span>
+                            <span className={styles['score']}>{myScore}</span>
+                        </div>
+                        <div className={`${styles['leaderboard-item']} ${opponentScore > myScore ? styles['leading'] : ''}`}>
+                            <span className={styles['rank']}>{opponentScore > myScore ? '1st' : '2nd'}</span>
+                            <span className={styles['name']}>{opponentName}</span>
+                            <span className={styles['score']}>{opponentScore}</span>
+                        </div>
                     </div>
-                    <div className={`${styles['leaderboard-item']} ${opponentScore > myScore ? styles['leading'] : ''}`}>
-                        <span className={styles['rank']}>{opponentScore > myScore ? '1st' : '2nd'}</span>
-                        <span className={styles['name']}>{opponentName}</span>
-                        <span className={styles['score']}>{opponentScore}</span>
+
+                    <div className={styles['battle-progress']}>
+                        <ProgressBar current={Math.min(index + 1, questions.length)} total={questions.length} />
+                        <div className={quizStyles.timer} style={{ color: timeLeft <= 10 ? '#ef4444' : 'inherit' }}>
+                            Time Left: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
+                        </div>
                     </div>
                 </div>
 
-                <div className={styles['battle-progress']}>
-                    <ProgressBar current={Math.min(index + 1, questions.length)} total={questions.length} />
-                    <div className={quizStyles.timer} style={{ color: timeLeft <= 10 ? '#ef4444' : 'inherit' }}>
-                        Time Left: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
+                {/* Opponent Mini-Progress */}
+                <div className={styles['opponent-mini-stats']}>
+                    <p>Opponent Progress: {opponentProgress} / {questions.length}</p>
+                    <div className={quizStyles['progress-bar-container']} style={{ height: '4px' }}>
+                        <div
+                            className={quizStyles['progress-bar']}
+                            style={{ width: `${(opponentProgress / questions.length) * 100}%`, backgroundColor: '#dc3545' }}
+                        />
                     </div>
                 </div>
-            </div>
 
-            {/* Opponent Mini-Progress */}
-            <div className={styles['opponent-mini-stats']}>
-                <p>Opponent Progress: {opponentProgress} / {questions.length}</p>
-                <div className={quizStyles['progress-bar-container']} style={{ height: '4px' }}>
-                    <div
-                        className={quizStyles['progress-bar']}
-                        style={{ width: `${(opponentProgress / questions.length) * 100}%`, backgroundColor: '#dc3545' }}
-                    />
+                {/* Question Card - Using Solo Quiz Styles */}
+                <div className={quizStyles['quiz-form']}>
+                    <h2 className={quizStyles['quiz-question']}>
+                        Q{Math.min(index + 1, questions.length)}: {currentQuestion?.question || (isFinished ? 'Battle Complete!' : 'Loading question...')}
+                    </h2>
+                    <ul className={quizStyles['quiz-options']}>
+                        {(['A', 'B', 'C', 'D'] as const).map((letter) => {
+                            const optionKey = `option${letter}` as keyof Question;
+                            const optionValue = currentQuestion?.[optionKey] as string;
+
+                            let btnClass = styles['option-button'];
+                            if (selectedAnswer || isFinished) {
+                                if (optionKey === currentQuestion?.answer) btnClass += ` ${styles['correct']}`;
+                                else if (optionKey === selectedAnswer) btnClass += ` ${styles['wrong']}`;
+                                else btnClass += ` ${styles['disabled']}`;
+                            }
+
+                            return (
+                                <li key={letter} className={styles['option-item']}>
+                                    <button
+                                        className={btnClass}
+                                        onClick={() => handleAnswer(optionKey)}
+                                        disabled={!!selectedAnswer || isFinished}
+                                    >
+                                        <span className={styles['option-letter']}>{letter}</span>
+                                        {optionValue || '-'}
+                                    </button>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 </div>
             </div>
 
-            {/* Question Card - Using Solo Quiz Styles */}
-            <div className={quizStyles['quiz-form']}>
-                <h2 className={quizStyles['quiz-question']}>
-                    Q{Math.min(index + 1, questions.length)}: {currentQuestion?.question || (isFinished ? 'Battle Complete!' : 'Loading question...')}
-                </h2>
-                <ul className={quizStyles['quiz-options']}>
-                    {(['A', 'B', 'C', 'D'] as const).map((letter) => {
-                        const optionKey = `option${letter}` as keyof Question;
-                        const optionValue = currentQuestion?.[optionKey] as string;
-
-                        let btnClass = styles['option-button'];
-                        if (selectedAnswer || isFinished) {
-                            if (optionKey === currentQuestion?.answer) btnClass += ` ${styles['correct']}`;
-                            else if (optionKey === selectedAnswer) btnClass += ` ${styles['wrong']}`;
-                            else btnClass += ` ${styles['disabled']}`;
-                        }
-
-                        return (
-                            <li key={letter} className={styles['option-item']}>
-                                <button
-                                    className={btnClass}
-                                    onClick={() => handleAnswer(optionKey)}
-                                    disabled={!!selectedAnswer || isFinished}
-                                >
-                                    <span className={styles['option-letter']}>{letter}</span>
-                                    {optionValue || '-'}
-                                </button>
-                            </li>
-                        );
-                    })}
-                </ul>
-            </div>
-        </div>
-
-        {isFinished && (
-            <BattleResults 
-                myScore={myScore}
-                opponentScore={opponentScore}
-                myTotalTime={myTotalTime}
-                opponentTotalTime={opponentTotalTime}
-                coinsEarned={Math.floor(myScore * 5)}
-                rematchRequested={rematchRequested}
-                opponentWantsRematch={opponentWantsRematch}
-                handleRematch={handleRematchRequest}
-                totalQuestions={questions.length}
-                isSaving={isSaving}
-                myUsername="You"
-                opponentUsername={opponentName}
-            />
-        )}
-        <ToastContainer toasts={toasts} setToasts={setToasts} />
+            {isFinished && (
+                <BattleResults
+                    myScore={myScore}
+                    opponentScore={opponentScore}
+                    myTotalTime={myTotalTime}
+                    opponentTotalTime={opponentTotalTime}
+                    coinsEarned={Math.floor(myScore * 5)}
+                    rematchRequested={rematchRequested}
+                    opponentWantsRematch={opponentWantsRematch}
+                    handleRematch={handleRematchRequest}
+                    totalQuestions={questions.length}
+                    isSaving={isSaving}
+                    myUsername="You"
+                    opponentUsername={opponentName}
+                />
+            )}
+            <ToastContainer toasts={toasts} setToasts={setToasts} />
         </>
     );
 };

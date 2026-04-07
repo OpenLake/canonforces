@@ -127,189 +127,196 @@ export default function LeaderboardPage() {
             <NavigationMenu />
 
             <div className={styles.contentWrapper}>
-                <div className={styles.heroSection}>
-                    <div>
-                        <h1 className={styles.heroTitle}>Global Rankings</h1>
-                        <p className={styles.heroSubtitle}>
-                            Compete with the best. Climb the ladder.
-                        </p>
-                    </div>
-                </div>
-
-                <div className={styles.tabsContainer}>
-                    <button
-                        className={`${styles.tab} ${
-                            activeTab === "earners" ? styles.tabActive : ""
-                        }`}
-                        onClick={() => setActiveTab("earners")}
-                    >
-                        <FaCoins /> Top Coin Earners
-                    </button>
-
-                    <button
-                        className={`${styles.tab} ${
-                            activeTab === "solvers" ? styles.tabActive : ""
-                        }`}
-                        onClick={() => setActiveTab("solvers")}
-                    >
-                        <FaMedal /> Top Problem Solvers
-                    </button>
-                </div>
-
-                <div className={styles.leaderboardCard}>
-                    <div className={styles.listHeader}>
-                        <div>Rank</div>
-                        <div>User</div>
-                        <div>{activeTab === "earners" ? "Coins" : "Solved"}</div>
-                        <div style={{ textAlign: "right" }}>Streak</div>
-                    </div>
-
-                    {loading ? (
-                        <div style={{ padding: "4rem", textAlign: "center", color: "#64748b" }}>
-                            Loading leaders...
+                <div className={styles.mainContentRow}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <div className={styles.heroSection}>
+                            <div>
+                                <h1 className={styles.heroTitle}>Global Rankings</h1>
+                                <p className={styles.heroSubtitle}>
+                                    Compete with the best. Climb the ladder.
+                                </p>
+                            </div>
                         </div>
-                    ) : users.length > 0 ? (
-                        users.map((user, index) => {
-                            const isMe = currentUser?.uid === user.uid;
 
-                            return (
-                                <div
-                                    key={user.uid}
-                                    className={`${styles.listItem} ${
-                                        isMe ? styles.highlightUser : ""
+                        <div className={styles.tabsContainer}>
+                            <button
+                                className={`${styles.tab} ${activeTab === "earners" ? styles.tabActive : ""
                                     }`}
-                                >
+                                onClick={() => setActiveTab("earners")}
+                            >
+                                <FaCoins /> Top Coin Earners
+                            </button>
+
+                            <button
+                                className={`${styles.tab} ${activeTab === "solvers" ? styles.tabActive : ""
+                                    }`}
+                                onClick={() => setActiveTab("solvers")}
+                            >
+                                <FaMedal /> Top Problem Solvers
+                            </button>
+                        </div>
+
+                        <div className={styles.leaderboardCard}>
+                            <div className={styles.listHeader}>
+                                <div>Rank</div>
+                                <div>User</div>
+                                <div>{activeTab === "earners" ? "Coins" : "Solved"}</div>
+                                <div style={{ textAlign: "right" }}>Streak</div>
+                            </div>
+
+                            {loading ? (
+                                <div style={{ padding: "4rem", textAlign: "center", color: "#64748b" }}>
+                                    Loading leaders...
+                                </div>
+                            ) : users.length > 0 ? (
+                                users.map((user, index) => {
+                                    const isMe = currentUser?.uid === user.uid;
+
+                                    return (
+                                        <div
+                                            key={user.uid}
+                                            className={`${styles.listItem} ${isMe ? styles.highlightUser : ""
+                                                }`}
+                                        >
+                                            <div
+                                                className={`${styles.rankBadge} ${index === 0
+                                                    ? styles.rank1
+                                                    : index === 1
+                                                        ? styles.rank2
+                                                        : index === 2
+                                                            ? styles.rank3
+                                                            : ""
+                                                    }`}
+                                            >
+                                                #{index + 1}
+                                            </div>
+
+                                            <div className={styles.userInfo}>
+                                                <div className={styles.avatar}>
+                                                    {user.photoURL ? (
+                                                        <img
+                                                            src={user.photoURL}
+                                                            alt="avatar"
+                                                            style={{
+                                                                width: "100%",
+                                                                height: "100%",
+                                                                borderRadius: "50%",
+                                                                objectFit: "cover"
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        user.username.charAt(0).toUpperCase()
+                                                    )}
+                                                </div>
+
+                                                <span className={styles.username}>
+                                                    {user.username}
+                                                    {isMe && (
+                                                        <span
+                                                            style={{
+                                                                color: "#2563eb",
+                                                                marginLeft: "0.5rem",
+                                                                fontSize: "0.8rem"
+                                                            }}
+                                                        >
+                                                        </span>
+                                                    )}
+                                                </span>
+                                            </div>
+
+                                            <div className={styles.metricValue}>
+                                                {activeTab === "earners" ? (
+                                                    <>
+                                                        <span style={{ color: "#fbbf24" }}>💰</span>{" "}
+                                                        {user.totalCoins}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <FaMedal style={{ color: "#3b82f6" }} />{" "}
+                                                        {user.solved}
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            <div className={styles.streakValue}>
+                                                {user.streak > 0 &&
+                                                    isStreakActive(user.lastSolvedDate) ? (
+                                                    <>
+                                                        <FaFire /> {user.streak}
+                                                    </>
+                                                ) : (
+                                                    <span style={{ color: "#cbd5e1" }}>-</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <div style={{ padding: "4rem", textAlign: "center", color: "#64748b" }}>
+                                    No users found for this category.
+                                </div>
+                            )}
+                        </div>
+
+                        {myRank && !loading && (
+                            <div className={styles.myRankBanner}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                                     <div
-                                        className={`${styles.rankBadge} ${
-                                            index === 0
-                                                ? styles.rank1
-                                                : index === 1
-                                                ? styles.rank2
-                                                : index === 2
-                                                ? styles.rank3
-                                                : ""
-                                        }`}
+                                        style={{
+                                            background: "rgba(255,255,255,0.2)",
+                                            padding: "0.5rem 1rem",
+                                            borderRadius: "8px",
+                                            fontWeight: "bold"
+                                        }}
                                     >
-                                        #{index + 1}
+                                        #{myRank.rank}
                                     </div>
 
-                                    <div className={styles.userInfo}>
-                                        <div className={styles.avatar}>
-                                            {user.photoURL ? (
-                                                <img
-                                                    src={user.photoURL}
-                                                    alt="avatar"
-                                                    style={{
-                                                        width: "100%",
-                                                        height: "100%",
-                                                        borderRadius: "50%",
-                                                        objectFit: "cover"
-                                                    }}
-                                                />
-                                            ) : (
-                                                user.username.charAt(0).toUpperCase()
-                                            )}
+                                    <div>
+                                        <div style={{ fontWeight: 600 }}>Your Standing</div>
+                                        <div style={{ fontSize: "0.9rem", opacity: 0.9 }}>
+                                            Keep grinding to reach Top 25!
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: "flex", gap: "2rem" }}>
+                                    <div style={{ textAlign: "center" }}>
+                                        <div style={{ fontSize: "0.8rem", opacity: 0.8 }}>
+                                            {activeTab === "earners" ? "Coins" : "Solved"}
                                         </div>
 
-                                        <span className={styles.username}>
-                                            {user.username}
-                                            {isMe && (
-                                                <span
-                                                    style={{
-                                                        color: "#2563eb",
-                                                        marginLeft: "0.5rem",
-                                                        fontSize: "0.8rem"
-                                                    }}
-                                                >
-                                                </span>
-                                            )}
-                                        </span>
+                                        <div style={{ fontWeight: 800, fontSize: "1.2rem" }}>
+                                            {activeTab === "earners"
+                                                ? myRank.data.totalCoins
+                                                : myRank.data.solved}
+                                        </div>
                                     </div>
 
-                                    <div className={styles.metricValue}>
-                                        {activeTab === "earners" ? (
-                                            <>
-                                                <span style={{ color: "#fbbf24" }}>💰</span>{" "}
-                                                {user.totalCoins}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <FaMedal style={{ color: "#3b82f6" }} />{" "}
-                                                {user.solved}
-                                            </>
-                                        )}
-                                    </div>
+                                    <div style={{ textAlign: "center" }}>
+                                        <div style={{ fontSize: "0.8rem", opacity: 0.8 }}>
+                                            Streak
+                                        </div>
 
-                                    <div className={styles.streakValue}>
-                                        {user.streak > 0 &&
-                                        isStreakActive(user.lastSolvedDate) ? (
-                                            <>
-                                                <FaFire /> {user.streak}
-                                            </>
-                                        ) : (
-                                            <span style={{ color: "#cbd5e1" }}>-</span>
-                                        )}
+                                        <div style={{ fontWeight: 800, fontSize: "1.2rem" }}>
+                                            {myRank.data.streak > 0 &&
+                                                isStreakActive(myRank.data.lastSolvedDate)
+                                                ? `🔥 ${myRank.data.streak}`
+                                                : "-"}
+                                        </div>
                                     </div>
                                 </div>
-                            );
-                        })
-                    ) : (
-                        <div style={{ padding: "4rem", textAlign: "center", color: "#64748b" }}>
-                            No users found for this category.
-                        </div>
-                    )}
-                </div>
-
-                {myRank && !loading && (
-                    <div className={styles.myRankBanner}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                            <div
-                                style={{
-                                    background: "rgba(255,255,255,0.2)",
-                                    padding: "0.5rem 1rem",
-                                    borderRadius: "8px",
-                                    fontWeight: "bold"
-                                }}
-                            >
-                                #{myRank.rank}
                             </div>
-
-                            <div>
-                                <div style={{ fontWeight: 600 }}>Your Standing</div>
-                                <div style={{ fontSize: "0.9rem", opacity: 0.9 }}>
-                                    Keep grinding to reach Top 25!
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style={{ display: "flex", gap: "2rem" }}>
-                            <div style={{ textAlign: "center" }}>
-                                <div style={{ fontSize: "0.8rem", opacity: 0.8 }}>
-                                    {activeTab === "earners" ? "Coins" : "Solved"}
-                                </div>
-
-                                <div style={{ fontWeight: 800, fontSize: "1.2rem" }}>
-                                    {activeTab === "earners"
-                                        ? myRank.data.totalCoins
-                                        : myRank.data.solved}
-                                </div>
-                            </div>
-
-                            <div style={{ textAlign: "center" }}>
-                                <div style={{ fontSize: "0.8rem", opacity: 0.8 }}>
-                                    Streak
-                                </div>
-
-                                <div style={{ fontWeight: 800, fontSize: "1.2rem" }}>
-                                    {myRank.data.streak > 0 &&
-                                    isStreakActive(myRank.data.lastSolvedDate)
-                                        ? `🔥 ${myRank.data.streak}`
-                                        : "-"}
-                                </div>
-                            </div>
-                        </div>
+                        )}
                     </div>
-                )}
+
+                    <div className={styles.sideMascot}>
+                        <img
+                            src="/images/leaderboard2.png"
+                            alt="Leaderboard Mascot"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     );

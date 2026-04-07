@@ -14,9 +14,14 @@ import {
   HiOutlineUsers,
   HiArrowTrendingUp,
   HiOutlineTag,
-  HiCheckCircle
+  HiCheckCircle,
+  HiOutlineChartBarSquare,
+  HiOutlineChartPie,
+  HiOutlineArrowTrendingUp,
+  HiOutlineCalendarDays,
+  HiPencilSquare,
+  HiOutlineStar,
 } from "react-icons/hi2";
-
 
 type ProfileProps = {
   userId?: string;
@@ -41,62 +46,32 @@ export default function Profile({ userId }: ProfileProps) {
     email: '',
   });
 
-  // Image handling state
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-
-  // Local state for profile photo
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>("");
 
   const isOwnProfile = !userId || userId === loggedInUser?.docId;
-
-  const rankThresholds: Record<string, number> = {
-    newbie: 1199,
-    pupil: 1399,
-    specialist: 1599,
-    expert: 1899,
-    "candidate master": 2099,
-    master: 2299,
-    "international master": 2399,
-    grandmaster: 2599,
-    "international grandmaster": 2899,
-    "legendary grandmaster": 9999 // unreachable top
-  };
-
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         let userToSet: User | null = null;
-
         if (userId) {
           const userDocRef = doc(db, "users", userId);
           const userDocSnap = await getDoc(userDocRef);
-
           if (userDocSnap.exists()) {
-            userToSet = {
-              ...(userDocSnap.data() as User),
-              docId: userDocSnap.id
-            };
-          } else {
-            console.warn("User not found");
+            userToSet = { ...userDocSnap.data() as User, docId: userDocSnap.id };
           }
         } else {
-          // loggedInUser MUST carry docId
-          userToSet = loggedInUser
-            ? { ...loggedInUser, docId: loggedInUser.docId }
-            : null;
+          userToSet = loggedInUser ? { ...loggedInUser, docId: loggedInUser.docId } : null;
         }
-
         setUser(userToSet);
-
       } catch (err) {
         console.error("Error fetching user data:", err);
       }
     };
-
     fetchUser();
   }, [userId, loggedInUser]);
 
@@ -107,8 +82,8 @@ export default function Profile({ userId }: ProfileProps) {
           const q = query(
             collection(db, "contest_submissions"),
             where("userId", "==", user.docId),
-            orderBy("submittedAt", "desc"), 
-            limit(50)
+            orderBy("submittedAt", "desc"),
+            limit(20)
           );
 
           try {
@@ -116,11 +91,10 @@ export default function Profile({ userId }: ProfileProps) {
             const subs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContestSubmission));
             setSubmissions(subs);
           } catch (indexError: any) {
-            console.warn("Index missing, falling back to in-memory sort", indexError);
             const qFallback = query(
               collection(db, "contest_submissions"),
               where("userId", "==", user.docId),
-              limit(50) 
+              limit(50)
             );
             const querySnapshot = await getDocs(qFallback);
             const subs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContestSubmission));
@@ -129,9 +103,8 @@ export default function Profile({ userId }: ProfileProps) {
               const dateB = b.submittedAt?.toDate?.() || new Date(b.submittedAt);
               return dateB.getTime() - dateA.getTime();
             });
-            setSubmissions(subs.slice(0, 50));
+            setSubmissions(subs.slice(0, 20));
           }
-
         } catch (error) {
           console.error("Error fetching submissions:", error);
         }
@@ -157,29 +130,12 @@ export default function Profile({ userId }: ProfileProps) {
 
   useEffect(() => {
     if (user) {
-      setEditForm({
-        fullname: user.fullname || '',
-        email: user.email || '',
-      });
-      setPreviewUrl(null);
-      setImageFile(null);
-      setUploadError(null);
+      setEditForm({ fullname: user.fullname || '', email: user.email || '' });
       setProfilePhotoUrl(user.photoURL || "");
     }
   }, [user]);
 
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-    if (!isEditing && user) {
-      setEditForm({
-        fullname: user.fullname || '',
-        email: user.email || '',
-      });
-      setImageFile(null);
-      setPreviewUrl(null);
-      setUploadError(null);
-    }
-  };
+  const handleEditToggle = () => setIsEditing(!isEditing);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -189,544 +145,319 @@ export default function Profile({ userId }: ProfileProps) {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setUploadError('File size must be less than 5MB');
-        return;
-      }
-
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-      if (!validTypes.includes(file.type)) {
-        setUploadError('Please select a valid image file (JPEG, PNG, or WebP)');
-        return;
-      }
-
       setImageFile(file);
-      setUploadError(null);
-
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
   const uploadImageToCloudinary = async (file: File): Promise<string> => {
-    try {
-      const signResponse = await fetch('/api/sign-cloudinary-upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      if (!signResponse.ok) {
-        throw new Error('Failed to get upload signature');
-      }
-
-      const signData = await signResponse.json();
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", signData.upload_preset);
-
-      const uploadUrl = `https://api.cloudinary.com/v1_1/${signData.cloud_name}/image/upload`;
-      const uploadResponse = await fetch(uploadUrl, {
-        method: "POST",
-        body: formData,
-      });
-
-      const raw = await uploadResponse.text();
-      console.log("Cloudinary raw response:", raw);
-
-      if (!uploadResponse.ok) {
-        throw new Error("Failed to upload image: " + raw);
-      }
-
-      const uploadData = JSON.parse(raw);
-      return uploadData.secure_url;
-
-    } catch (error) {
-      console.error("Error uploading to Cloudinary:", error);
-      throw error;
-    }
-  };
-
-  const getProgressToNextRank = (rating: number | undefined, rank: string | undefined) => {
-    if (!rating || !rank) return 0;
-
-    const normalizedRank = rank.toLowerCase();
-    const nextThreshold = rankThresholds[normalizedRank];
-    if (!nextThreshold) return 0;
-
-    // Get previous threshold
-    const ranks = Object.keys(rankThresholds);
-    const idx = ranks.indexOf(normalizedRank);
-    const prevThreshold = idx > 0 ? rankThresholds[ranks[idx - 1]] : 0;
-
-    const progress = ((rating - prevThreshold) / (nextThreshold - prevThreshold)) * 100;
-    return Math.min(Math.max(Math.round(progress), 0), 100);
+    const signResponse = await fetch('/api/sign-cloudinary-upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const signData = await signResponse.json();
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", signData.upload_preset);
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${signData.cloud_name}/image/upload`;
+    const uploadResponse = await fetch(uploadUrl, { method: "POST", body: formData });
+    const uploadData = await uploadResponse.json();
+    return uploadData.secure_url;
   };
 
   const handleSave = async () => {
-    if (!user) {
-      setUploadError("Cannot update profile. User data is not available.");
-      return;
-    }
-
+    if (!user) return;
     setLoading(true);
-    setUploadError(null);
-
-    let photoURL = profilePhotoUrl;
-
     try {
-      if (imageFile) {
-        photoURL = await uploadImageToCloudinary(imageFile);
-        setProfilePhotoUrl(photoURL);
-      }
-
-      const updatedProfile = {
-        ...editForm,
-        photoURL: photoURL,
-      };
-
-      await updateUserProfile(user.docId, updatedProfile);
-
+      let photoURL = profilePhotoUrl;
+      if (imageFile) photoURL = await uploadImageToCloudinary(imageFile);
+      await updateUserProfile(user.docId, { ...editForm, photoURL });
       setIsEditing(false);
-      setImageFile(null);
-
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-      }
+      setProfilePhotoUrl(photoURL);
     } catch (error: any) {
-      setUploadError(error.message || "Failed to update profile. Please try again.");
+      setUploadError(error.message || "Failed to update profile.");
     } finally {
       setLoading(false);
     }
   };
 
-
-  const cfProgress = getProgressToNextRank(cfData?.rating, cfData?.rank);
-
-
-  const getRankColor = (rank: string | undefined) => {
-    const rankColors: Record<string, string> = {
-      'newbie': '#808080', 'pupil': '#008000', 'specialist': '#03A89E',
-      'expert': '#0000FF', 'candidate master': '#AA00AA', 'master': '#FF8C00',
-      'international master': '#FF8C00', 'grandmaster': '#FF0000',
-      'international grandmaster': '#FF0000', 'legendary grandmaster': '#FF0000'
-    };
-    return rank ? rankColors[rank.toLowerCase()] || '#1c1e21' : '#1c1e21';
-  };
-
-  const getRankGradient = (rank: string | undefined) => {
-    const rankGradients: Record<string, string> = {
-      'newbie': 'linear-gradient(135deg, #808080 0%, #a0a0a0 100%)',
-      'pupil': 'linear-gradient(135deg, #008000 0%, #00c000 100%)',
-      'specialist': 'linear-gradient(135deg, #03A89E 0%, #00d4ff 100%)',
-      'expert': 'linear-gradient(135deg, #0000FF 0%, #4a86e8 100%)',
-      'candidate master': 'linear-gradient(135deg, #AA00AA 0%, #ff66ff 100%)',
-      'master': 'linear-gradient(135deg, #FF8C00 0%, #ffb366 100%)',
-      'international master': 'linear-gradient(135deg, #FF8C00 0%, #ffb366 100%)',
-      'grandmaster': 'linear-gradient(135deg, #FF0000 0%, #ff6666 100%)',
-      'international grandmaster': 'linear-gradient(135deg, #FF0000 0%, #ff6666 100%)',
-      'legendary grandmaster': 'linear-gradient(135deg, #FF0000 0%, #cc0000 100%)'
-    };
-    return rank ? rankGradients[rank.toLowerCase()] || 'linear-gradient(135deg, #1c1e21 0%, #2d3748 100%)' : 'linear-gradient(135deg, #1c1e21 0%, #2d3748 100%)';
-  };
-
-  // Fixed Streak Logic
   const calculateCurrentStreak = () => {
     if (!user?.lastSolvedDate) return user?.streak || 0;
-
     const lastSolved = new Date(user.lastSolvedDate);
     const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    // Reset streak if last solved was more than 2 days ago
-    const daysSinceLastSolved = Math.floor((today.getTime() - lastSolved.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (daysSinceLastSolved > 1) {
-      return 0; // Streak broken
-    }
-
-    // If last solved was today or yesterday, maintain streak
-    const isToday = lastSolved.toDateString() === today.toDateString();
-    const isYesterday = lastSolved.toDateString() === yesterday.toDateString();
-
-    if (isToday || isYesterday) {
-      return user.streak || 0;
-    }
-
-    return 0;
+    const diff = Math.floor((today.getTime() - lastSolved.getTime()) / (1000 * 60 * 60 * 24));
+    return diff > 1 ? 0 : (user.streak || 0);
   };
 
-  // Calculate level based on solved problems and coins
   const calculateLevel = () => {
     const solved = Object.values(user?.solvedQuestions || {}).flat().length;
     const coins = user?.coins || 0;
-    const baseLevel = Math.floor(solved / 5) + Math.floor(coins / 50);
-    return Math.max(1, baseLevel);
+    return Math.max(1, Math.floor(solved / 5) + Math.floor(coins / 50));
   };
 
-  // Generate streak calendar data
-  const generateStreakCalendar = () => {
-    const streak = calculateCurrentStreak();
-    const calendarDays = [];
+  const getCalendarData = () => {
     const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const activeDates = new Set<number>();
 
-    // Generate last 7 days including today
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const isActive = i >= (6 - Math.min(streak - 1, 6));
+    submissions.forEach(sub => {
+      const date = sub.submittedAt?.toDate?.() || new Date(sub.submittedAt);
+      if (date.getFullYear() === year && date.getMonth() === month) {
+        activeDates.add(date.getDate());
+      }
+    });
 
-      calendarDays.push({
-        date: date.getDate(),
-        month: date.getMonth(),
-        isActive: isActive && streak > 0
-      });
+    if (user?.lastSolvedDate) {
+      const date = new Date(user.lastSolvedDate);
+      if (date.getFullYear() === year && date.getMonth() === month) {
+        activeDates.add(date.getDate());
+      }
     }
 
-    return calendarDays;
+    return { month, year, firstDay, daysInMonth, activeDates };
   };
 
-  // Check if streak is in danger (last solved was yesterday)
-  const isStreakInDanger = () => {
-    if (!user?.lastSolvedDate) return false;
-
-    const lastSolved = new Date(user.lastSolvedDate);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    return lastSolved.toDateString() === yesterday.toDateString();
-  };
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
-
-  if (!user) {
-    return <div className={styles.loading}>Loading Profile...</div>;
-  }
+  if (!user) return <div className={styles.loading}>Loading your profile...</div>;
 
   const currentStreak = calculateCurrentStreak();
-  const streakCalendar = generateStreakCalendar();
   const level = calculateLevel();
   const solvedCount = Object.values(user.solvedQuestions || {}).flat().length;
-  const accuracy = user.totalAnswers
-    ? Math.round(((user.correctAnswers ?? 0) / user.totalAnswers) * 100)
-    : 0;
+  const accuracy = user.totalAnswers ? Math.round(((user.correctAnswers ?? 0) / user.totalAnswers) * 100) : 0;
 
-  const streakDanger = isStreakInDanger();
+  const { month, year, firstDay, daysInMonth, activeDates } = getCalendarData();
+  const monthName = new Date(year, month).toLocaleString('default', { month: 'long' });
 
   return (
     <div className={styles.profilePage}>
       <main className={styles.mainContent}>
-        {/* Left Column - Profile Card */}
-        <div className={styles.leftColumn}>
-          {/* Profile Header with Banner */}
-          <div className={styles.profileHeader}>
-            <div className={styles.banner}></div>
-            <div className={styles.headerContent}>
-              <div className={styles.avatarContainer}>
-                <div className={styles.avatar}>
-                  <Image
-                    src={
-                      previewUrl ||
-                      profilePhotoUrl ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                        user.fullname || user.username
-                      )}&background=0D8ABC&color=fff&bold=true`
-                    }
-                    alt="Profile"
-                    width={120}
-                    height={120}
-                    className={styles.avatarImage}
-                  />
-                </div>
-                {isOwnProfile && (
-                  <button className={styles.editProfileButton} onClick={handleEditToggle}>
-                    Edit Profile
-                  </button>
-                )}
-              </div>
-
-              <div className={styles.userInfo}>
-                <div className={styles.usernameSection}>
-                  <h1 className={styles.username}>{user.username}</h1>
-                  <div className={styles.badges}>
-                    <span className={styles.levelBadge}>Level {level}</span>
-                    <span className={`${styles.streakBadge} ${streakDanger ? styles.streakDanger : ''}`}>
-                      {currentStreak} days {streakDanger && '⚠️'}
-                    </span>
-                  </div>
-                </div>
-                <p className={styles.tagline}>{user.fullname || 'Codeforces Enthusiast'}</p>
-                {streakDanger && (
-                  <div className={styles.streakWarning}>
-                    Solve a problem today to maintain your streak!
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Grid */}
-          <div className={styles.statsGrid}>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}><HiOutlinePuzzlePiece size={20} /></div>
-              <div className={styles.statContent}>
-                <div className={styles.statNumber}>{solvedCount}</div>
-                <div className={styles.statLabel}>Solved</div>
-              </div>
-            </div>
-
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}><HiOutlineCurrencyRupee size={20} /></div>
-              <div className={styles.statContent}>
-                <div className={styles.statNumber}>{user.coins || 0}</div>
-                <div className={styles.statLabel}>Coins</div>
-              </div>
-            </div>
-
-            <div className={styles.statCard}>
-              <div className={`${styles.statIcon} ${streakDanger ? styles.streakDangerIcon : ''}`}><HiOutlineFire size={20} /></div>
-              <div className={styles.statContent}>
-                <div className={styles.statNumber}>{currentStreak}</div>
-                <div className={styles.statLabel}>Streak</div>
-              </div>
-            </div>
-
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}><HiOutlineUsers size={20} /></div>
-              <div className={styles.statContent}>
-                <div className={styles.statNumber}>{user.followers?.length || 0}</div>
-                <div className={styles.statLabel}>Followers</div>
-              </div>
-            </div>
-
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}><HiArrowTrendingUp size={20} /></div>
-              <div className={styles.statContent}>
-                <div className={styles.statNumber}>{user.following?.length || 0}</div>
-                <div className={styles.statLabel}>Following</div>
-              </div>
-            </div>
-
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}><HiOutlineTag size={20} /> </div>
-              <div className={styles.statContent}>
-                <div className={styles.statNumber}>{accuracy}%</div>
-                <div className={styles.statLabel}>Accuracy</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Codeforces Integration */}
-          {cfData && (
-            <div className={styles.cfSection}>
-              <h3 className={styles.sectionTitle}>Codeforces Stats</h3>
-              <div
-                className={styles.cfRankCard}
-                style={{ background: getRankGradient(cfData.rank) }}
-              >
-                <div className={styles.cfRankInfo}>
-                  <div className={styles.cfHandle}>@{cfData.handle}</div>
-                  <div className={styles.cfRank}>{cfData.rank || 'Unrated'}</div>
-                </div>
-                <div className={styles.cfRatingInfo}>
-                  <div className={styles.ratingItem}>
-                    <span>Current Rating</span>
-                    <strong>{cfData.rating || 'N/A'}</strong>
-                  </div>
-                  <div className={styles.ratingItem}>
-                    <span>Max Rating</span>
-                    <strong>{cfData.maxRating || 'N/A'}</strong>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rating Progress Bar */}
-              <div className={styles.ratingProgress}>
-                <div className={styles.progressLabel}>
-                  <span>Progress to next rank</span>
-                  <span>{cfProgress}%</span>
-                </div>
-                <div className={styles.progressBar}>
-                  <div
-                    className={styles.progressFill}
-                    style={{
-                      width: `${cfProgress}%`,
-                      background: getRankColor(cfData?.rank)
-                    }}
-                  ></div>
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* Edit Form */}
-          {isEditing && (
-            <div className={styles.editForm}>
-              <h3 className={styles.sectionTitle}>Edit Profile</h3>
-              {uploadError && (
-                <div className={styles.errorMessage}>{uploadError}</div>
-              )}
-
-              <div className={styles.formGroup}>
-                <label htmlFor="fullname">Full Name</label>
-                <input
-                  id="fullname"
-                  type="text"
-                  name="fullname"
-                  value={editForm.fullname}
-                  onChange={handleInputChange}
-                  placeholder="Your Full Name"
-                  disabled={loading}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="email">Email Address</label>
-                <input
-                  id="email"
-                  type="email"
-                  name="email"
-                  value={editForm.email}
-                  onChange={handleInputChange}
-                  placeholder="your.email@example.com"
-                  disabled={loading}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="photoFile">Change Profile Picture</label>
-                <input
-                  id="photoFile"
-                  type="file"
-                  name="photoFile"
-                  accept="image/png,image/jpeg,image/jpg,image/webp"
-                  onChange={handleImageChange}
-                  className={styles.fileInput}
-                  disabled={loading}
-                />
-                <small>Max file size: 5MB. Supported formats: JPEG, PNG, WebP</small>
-              </div>
-
-              <div className={styles.formActions}>
-                <button className={styles.cancelButton} onClick={handleEditToggle} disabled={loading}>
-                  Cancel
-                </button>
-                <button className={styles.saveButton} onClick={handleSave} disabled={loading}>
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column - Activity Panel */}
-        <div className={styles.rightColumn}>
-          <div className={styles.activityPanel}>
-            <h3 className={styles.sectionTitle}>Recent Activity</h3>
-
-            {/* Streak Calendar */}
-            <div className={styles.activitySection}>
-              <h4>🔥 Current Streak - {currentStreak} days</h4>
-              <div className={styles.streakCalendar}>
-                <div className={styles.calendarGrid}>
-                  {streakCalendar.map((day, index) => (
-                    <div
-                      key={index}
-                      className={`${styles.calendarDay} ${day.isActive ? styles.active : ''}`}
-                      title={`${day.date}/${day.month + 1}`}
-                    >
-                      {day.date}
+        <section className={styles.topSection}>
+          <div className={styles.headerRow}>
+            {/* Identity & Stats Column */}
+            <div className={styles.identityAndStats}>
+              <div className={styles.profileCard}>
+                <div className={styles.profileIdentity}>
+                  <div className={styles.identityLeft}>
+                    <div className={styles.avatarWrapper}>
+                      <div className={styles.avatar}>
+                        <img
+                          src={previewUrl || profilePhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullname || user.username)}&background=f59e0b&color=fff&bold=true`}
+                          alt="Profile"
+                          className={styles.avatarImage}
+                          style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                        />
+                      </div>
                     </div>
-                  ))}
-                </div>
-                {streakDanger && (
-                  <div className={styles.streakWarningText}>
-                    ⚠️ Solve a problem today to maintain your {currentStreak}-day streak!
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Recent Submissions */}
-            <div className={styles.activitySection}>
-              <h4>Recent Submissions</h4>
-              <div className={styles.submissionsList}>
-                {submissions.length > 0 ? (
-                  submissions.map((sub) => {
-                    const date = sub.submittedAt?.toDate?.() || new Date(sub.submittedAt);
-                    const problemIndex = sub.problemId.split('_').pop();
-                    const problemLink = sub.platform.toLowerCase() === 'codeforces'
-                      ? `https://codeforces.com/contest/${sub.contestId}/problem/${problemIndex}`
-                      : null;
-
-                    return (
-                      <div key={sub.id} className={styles.submissionCard}>
-                        <div className={styles.submissionHeader}>
-                          <span className={styles.problemName}>
-                            {problemLink ? (
-                              <a
-                                href={problemLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.problemLink}
-                              >
-                                {sub.problemName}
-                              </a>
-                            ) : (
-                              sub.problemName
-                            )}
+                    <div className={styles.userRegistry}>
+                      <div className={styles.identityRow}>
+                        <h1 className={styles.username}>{user.username}</h1>
+                        <div className={styles.badgeArray}>
+                          <span className={styles.levelBadge}>
+                            <HiOutlineStar /> <span className={styles.badgeText}>LVL {level}</span>
                           </span>
-                          <span className={styles.submissionDate}>
-                            {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </span>
-                        </div>
-                        <div className={styles.submissionDetails}>
-                          <span className={styles.languageBadge}>{sub.language}</span>
-                          <span className={styles.verdictBadge}>
-                            <HiCheckCircle size={16} /> Accepted
+                          <span className={styles.streakBadge}>
+                            <HiOutlineFire /> <span className={styles.badgeText}>{currentStreak}D</span>
                           </span>
                         </div>
                       </div>
-                    );
-                  })
-                ) : (
-                  <p className={styles.noActivity}>No submissions yet. Start solving problems!</p>
-                )}
+                      <p className={styles.fullname}>{user.fullname}</p>
+                    </div>
+                  </div>
+
+                  {isOwnProfile && (
+                    <button className={styles.editButton} onClick={handleEditToggle}>
+                      <HiPencilSquare size={16} /> EDIT
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Stats Row below the profile card */}
+              <div className={styles.statsRow}>
+                <div className={styles.statsGrid}>
+                  <div className={styles.statModule}>
+                    <div className={styles.statIcon}><HiOutlinePuzzlePiece /></div>
+                    <div className={styles.statValue}>{solvedCount}</div>
+                    <div className={styles.statLabel}>Solved</div>
+                  </div>
+                  <div className={styles.statModule}>
+                    <div className={styles.statIcon}><HiOutlineCurrencyRupee /></div>
+                    <div className={styles.statValue}>{user.coins || 0}</div>
+                    <div className={styles.statLabel}>Coins</div>
+                  </div>
+                  <div className={styles.statModule}>
+                    <div className={styles.statIcon}><HiOutlineTag /></div>
+                    <div className={styles.statValue}>{accuracy}%</div>
+                    <div className={styles.statLabel}>Accuracy</div>
+                  </div>
+                  <div className={styles.statModule}>
+                    <div className={styles.statIcon}><HiOutlineUsers /></div>
+                    <div className={styles.statValue}>{user.followers?.length || 0}</div>
+                    <div className={styles.statLabel}>Followers</div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Quiz Performance */}
-            <div className={styles.activitySection}>
-              <h4> Quiz Performance</h4>
-              <div className={styles.quizStats}>
-                <div className={styles.quizStat}>
-                  <span>Played</span>
-                  <strong>{user.quizzesPlayed || 0}</strong>
+            {/* Mascot column */}
+            <div className={styles.mascotWrapper}>
+              <img
+                src="/images/foldHands.png"
+                alt="Mascot"
+                className={styles.separateAccentImg}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.bottomSection}>
+
+          {/* Recent Activity */}
+          <div className={styles.activityPanel}>
+            <h3 className={styles.moduleTitle}><HiOutlineChartBarSquare /> Recent Submissions</h3>
+            <div className={styles.submissionsList}>
+              {submissions.length > 0 ? (
+                submissions.map((sub) => {
+                  const date = sub.submittedAt?.toDate?.() || new Date(sub.submittedAt);
+                  return (
+                    <div key={sub.id} className={styles.submissionCard}>
+                      <div className={styles.submissionHeader}>
+                        <span className={styles.problemName}>{sub.problemName}</span>
+                        <HiCheckCircle className={styles.statusIcon} size={18} />
+                      </div>
+                      <div className={styles.subMeta}>
+                        <span>{sub.language}</span>
+                        <span className={styles.dotSeparator}>•</span>
+                        <span>
+                          {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className={styles.noActivity}>No Recent Submissions!!</p>
+              )}
+            </div>
+          </div>
+
+          {/* Column 2: Central Performance Stack */}
+          <div className={styles.performanceStack}>
+
+            {/* Quiz Metrics */}
+            <div className={styles.gridModule}>
+              <h3 className={styles.moduleTitle}><HiOutlineChartPie /> Quiz Performance</h3>
+              <div className={styles.quizStatGrid}>
+                <div className={styles.quizStatItem}>
+                  <span className={styles.quizStatLabel}>Played</span>
+                  <span className={styles.quizStatValue}>{user.quizzesPlayed || 0}</span>
                 </div>
-                <div className={styles.quizStat}>
-                  <span>Accuracy</span>
-                  <strong>{accuracy}%</strong>
+                <div className={styles.quizStatItem}>
+                  <span className={styles.quizStatLabel}>Accuracy</span>
+                  <span className={styles.quizStatValue}>{accuracy}%</span>
                 </div>
-                <div className={styles.quizStat}>
-                  <span>Correct</span>
-                  <strong>{user.correctAnswers || 0}/{user.totalAnswers || 0}</strong>
+                <div className={styles.quizStatItem}>
+                  <span className={styles.quizStatLabel}>Correct</span>
+                  <span className={styles.quizStatValue}>
+                    {user.correctAnswers || 0} / {user.totalAnswers || 0}
+                  </span>
                 </div>
               </div>
             </div>
+
+            {/* Codeforces Metrics*/}
+            <div className={styles.gridModule}>
+              <h3 className={styles.moduleTitle}><HiOutlineArrowTrendingUp /> Codeforces Stats</h3>
+              <div className={styles.quizStatGrid}>
+                <div className={styles.quizStatItem}>
+                  <span className={styles.quizStatLabel}>Rank</span>
+                  <span className={styles.quizStatValue} style={{ color: '#60a5fa', fontSize: '1rem' }}>
+                    {cfData?.rank || 'Unrated'}
+                  </span>
+                </div>
+                <div className={styles.quizStatItem}>
+                  <span className={styles.quizStatLabel}>Current</span>
+                  <span className={styles.quizStatValue}>{cfData?.rating || '--'}</span>
+                </div>
+                <div className={styles.quizStatItem}>
+                  <span className={styles.quizStatLabel}>Max Peak</span>
+                  <span className={styles.quizStatValue}>{cfData?.maxRating || '--'}</span>
+                </div>
+              </div>
+            </div>
+
           </div>
-        </div>
+
+          {/* Column 3: Sidebar Stack (Streak and Stats) */}
+          <div className={styles.sidebarStack}>
+            <div className={`${styles.gridModule} ${styles.navyCard}`}>
+              <div className={styles.calendarHeader}>
+                <span className={styles.monthName}>{monthName}</span>
+                <span className={styles.yearName}>{year}</span>
+              </div>
+              <div className={styles.calendarContainer}>
+                <div className={styles.calendarGrid}>
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
+                    <div key={`header-${idx}`} className={styles.dayLabel}>{day}</div>
+                  ))}
+                  {[...Array(firstDay)].map((_, i) => (
+                    <div key={`pad-${i}`} className={styles.calendarDayEmpty} />
+                  ))}
+                  {[...Array(daysInMonth)].map((_, i) => {
+                    const dayNum = i + 1;
+                    const isActive = activeDates.has(dayNum);
+                    return (
+                      <div key={dayNum} className={`${styles.calendarDay} ${isActive ? styles.active : ''}`}>
+                        {dayNum}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className={styles.tipsSection}>
+                <p style={{ fontSize: '0.8rem', color: 'white', fontStyle: 'italic', marginTop: '1rem', fontWeight: 'bold' }}>
+                  &quot;Consistency is the weapon of the elite.&quot;
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* --- Edit Form Modal --- */}
+        {isEditing && (
+          <div className={styles.editOverlay}>
+            <div className={styles.editFormModal}>
+              <h2 className={styles.moduleTitle}>Edit Profile</h2>
+              {uploadError && <div className={styles.errorMessage}>{uploadError}</div>}
+
+              <div className={styles.formGroup}>
+                <label>Full Name</label>
+                <input type="text" name="fullname" value={editForm.fullname} onChange={handleInputChange} />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>E-mail</label>
+                <input type="email" name="email" value={editForm.email} onChange={handleInputChange} />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Avatar</label>
+                <input type="file" accept="image/*" onChange={handleImageChange} />
+              </div>
+
+              <div className={styles.formActions}>
+                <button className={styles.cancelBtn} onClick={handleEditToggle} disabled={loading}>Abort</button>
+                <button className={styles.saveBtn} onClick={handleSave} disabled={loading}>
+                  {loading ? 'UPLOADING...' : 'SAVE CHANGES'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );

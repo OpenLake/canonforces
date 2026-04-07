@@ -1,20 +1,21 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { getPOTD } from "../services/potd_fetch";
-import { doc, getDoc, setDoc, onSnapshot, increment, runTransaction, collection, query, where } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot, increment, runTransaction, collection, query, where, getDocs, limit } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import styles from "../styles/POTDpage.module.css";
 import Image from "next/image";
 import { formatDescription } from "../utils/formatDescription";
 import { toast } from "sonner";
 import { checkCodeforcesSubmission } from "../services/codeforces_api";
-import { FiRefreshCw, FiCheck, FiAward, FiClock } from "react-icons/fi";
+import { FiCheck, FiAward, FiClock, FiExternalLink, FiZap, FiTarget, FiTrendingUp } from "react-icons/fi";
+import { BsLightningCharge } from "react-icons/bs";
 
-// ... [Interfaces remain the same] ...
 interface Solver {
   uid: string;
   username: string;
   solvedAt: string | Date;
   codeforcesUsername?: string;
+  isFallback?: boolean;
 }
 
 interface Problem {
@@ -35,9 +36,9 @@ interface UserData {
   lastWeeklyResetDate?: string;
   lastSolvedDate?: string;
   username?: string;
+  isFallback?: boolean;
 }
 
-// Returns a date string in YYYY-MM-DD using LOCAL timezone (matches HTML date inputs)
 const getLocalDateString = (date: Date = new Date()): string =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
@@ -63,17 +64,7 @@ const POTDPage: React.FC = () => {
   const todayDate = getLocalDateString();
   const displayDate = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
-  // ... [Keep truncateDescription, fetchPOTD, etc. logic SAME as before] ...
-  const truncateDescription = (desc: string, maxLength: number = 400): string => {
-    if (!desc) return "";
-    const stripped = desc.replace(/\*\*/g, '').replace(/`/g, '');
-    if (stripped.length <= maxLength) return desc;
-    const truncated = desc.substring(0, maxLength);
-    return truncated.substring(0, truncated.lastIndexOf(' ')) + '...';
-  };
-
   useEffect(() => {
-    // Fetch today's POTD problem
     async function fetchPOTD() {
       try {
         const id = await getPOTD();
@@ -89,40 +80,83 @@ const POTDPage: React.FC = () => {
     }
     fetchPOTD();
 
-    // Live weekly leaderboard using onSnapshot
     const currentStartOfWeek = getStartOfWeek(new Date());
     const weeklyQ = query(
       collection(db, "users"),
       where("lastWeeklyResetDate", "==", currentStartOfWeek)
     );
-    const unsubWeekly = onSnapshot(weeklyQ, (snap: any) => {
+    const unsubWeekly = onSnapshot(weeklyQ, async (snap: any) => {
       let solvers = snap.docs.map((d: any) => ({ ...d.data(), uid: d.id } as UserData));
+
+      if (solvers.length < 3) {
+        // Fallback: fetch additional users from Users collection to fill until at least 3
+        const fallbackQ = query(collection(db, "users"), limit(10));
+        const fallbackSnap = await getDocs(fallbackQ);
+        const fallbackUsers = fallbackSnap.docs
+          .map((d: any) => ({ ...d.data(), uid: d.id } as UserData))
+          .filter((u: UserData) => !solvers.some((s: UserData) => s.uid === u.uid));
+
+        while (solvers.length < 3 && fallbackUsers.length > 0) {
+          const nextUser = fallbackUsers.shift();
+          if (nextUser) {
+            solvers.push({
+              ...nextUser,
+              weeklyPotdSolves: 0,
+              streak: 0,
+              coins: 0,
+              isFallback: true
+            });
+          }
+        }
+      }
+
       solvers.sort((a: UserData, b: UserData) => (b.weeklyPotdSolves || 0) - (a.weeklyPotdSolves || 0));
-      setTopWeeklySolvers(solvers.slice(0, 15));
+      setTopWeeklySolvers(solvers.slice(0, 10));
     }, (err: any) => console.error("Error watching weekly solvers", err));
 
     return () => unsubWeekly();
   }, []);
 
-
   useEffect(() => {
     if (!problem?.id) return;
     const submissionRef = doc(db, "potd_submissions", todayDate);
-    const unsubscribe = onSnapshot(submissionRef, (docSnap) => {
+    const unsubscribe = onSnapshot(submissionRef, async (docSnap) => {
+      let solversArray: Solver[] = [];
       if (docSnap.exists()) {
         const data = docSnap.data();
-        if (data?.problemId !== problem?.id) return;
-        const solversArray: Solver[] = Object.entries(data?.solvers || {}).map(([uid, value]: [string, any]) => ({
-          uid, username: value.username, solvedAt: value.solvedAt, codeforcesUsername: value.codeforcesUsername
-        }));
-
-        solversArray.sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
-        setDailySolvers(solversArray);
-
-        setUserSolved(auth.currentUser ? solversArray.some((s) => s.uid === auth.currentUser?.uid) : false);
+        if (data?.problemId === problem?.id) {
+          solversArray = Object.entries(data?.solvers || {}).map(([uid, value]: [string, any]) => ({
+            uid, username: value.username, solvedAt: value.solvedAt, codeforcesUsername: value.codeforcesUsername
+          }));
+        }
       } else {
         setDoc(submissionRef, { problemId: problem?.id || "", solvers: {} }, { merge: true });
       }
+
+      if (solversArray.length < 3) {
+        // Fallback: fetch additional users to fill until at least 3
+        const fallbackQ = query(collection(db, "users"), limit(10));
+        const fallbackSnap = await getDocs(fallbackQ);
+        const fallbackUsers = fallbackSnap.docs
+          .map((d: any) => ({ uid: d.id, username: d.data().username || "User" }))
+          .filter((u: any) => !solversArray.some((s: Solver) => s.uid === u.uid));
+
+        while (solversArray.length < 3 && fallbackUsers.length > 0) {
+          const nextUser = fallbackUsers.shift();
+          if (nextUser) {
+            solversArray.push({
+              uid: nextUser.uid,
+              username: nextUser.username,
+              solvedAt: new Date().toISOString(), // Placeholder time for fallback
+              isFallback: true
+            });
+          }
+        }
+      }
+
+      solversArray.sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
+      setDailySolvers(solversArray);
+      setUserSolved(auth.currentUser ? solversArray.some((s) => s.uid === auth.currentUser?.uid) : false);
     });
     return () => unsubscribe();
   }, [todayDate, problem?.id]);
@@ -139,8 +173,6 @@ const POTDPage: React.FC = () => {
     });
     return () => unsubscribe();
   }, [auth.currentUser]);
-
-
 
   const handleCheckCFSubmission = useCallback(async () => {
     if (!auth.currentUser || !problem || userSolved || isCheckingCF) return;
@@ -199,160 +231,187 @@ const POTDPage: React.FC = () => {
     return "Hard";
   };
 
-  if (loading) return <div style={{ padding: '4rem', textAlign: 'center' }}>Loading...</div>;
-  if (error || !problem) return <div style={{ padding: '4rem', textAlign: 'center', color: 'red' }}>{error || "Problem not found"}</div>;
+  if (loading) return <div className={styles.pageContainer}><div className={styles.main}>Loading mission...</div></div>;
+  if (error || !problem) return <div className={styles.pageContainer}><div className={styles.main}>Error: {error || "Problem not found"}</div></div>;
 
   const difficulty = getDifficulty(problem.rating);
-  const truncatedDesc = truncateDescription(problem.description || "", 300);
+  // No longer truncating description to provide full mission details in the dashboard
+  const fullDesc = problem.description || "";
 
   return (
     <div className={styles.pageContainer}>
-      <div className={styles.contentWrapper}>
+      <main className={styles.main}>
+        <div className={styles.container}>
 
-        {/* --- Hero Section (Matches Practice Arena) --- */}
-        <div className={styles.heroSection}>
-          <div className={styles.heroContent}>
-            <div className={styles.titleRow}>
-              {/* 3D Icon matching your book style */}
-              <span className={styles.titleIcon}>📅</span>
-              <h1 className={styles.heroTitle}>Problem of the Day</h1>
+          {/* High-Impact Header */}
+          <header className={styles.header}>
+            <div className={styles.headerText}>
+              <h1 className={styles.title}>
+                <span className={styles.titleIcon}>🎯</span> Problem of the Day
+              </h1>
+              <p className={styles.subtitle}>{displayDate} — Complete your daily trial.</p>
+              <p className={styles.descriptionText}>
+                Master a new algorithmic challenge every 24 hours. Boost your rating,
+                earn coins, and maintain your streak to climb the elite leaderboard.
+              </p>
             </div>
+            <div className={styles.headerImage}>
+              <Image
+                src="/images/think.png"
+                alt="POTD Mascot"
+                width={300}
+                height={300}
+                priority
+                className={styles.mascotImage}
+              />
+            </div>
+          </header>
 
-            {/* Subtitle matching "Master algorithmic..." */}
-            <h2 className={styles.heroSubtitle}>
-              {displayDate} — Keep your streak alive!
-            </h2>
+          <div className={styles.mainGrid}>
 
-            {/* Description matching "Choose your difficulty..." */}
-            <p className={styles.heroText}>
-              Solve today&apos;s carefully curated challenge designed to enhance your coding skills.
-              Compete with peers and climb the daily leaderboard.
-            </p>
-          </div>
-
-          {/* Independent Image */}
-          <Image
-            src="/images/think.png"
-            alt="Mascot"
-            width={150}
-            height={150}
-            priority
-            className={styles.mascotImage}
-          />
-        </div>
-
-        <div className={styles.mainGrid}>
-          {/* Left Column */}
-          <div className={styles.leftColumn}>
-            <div className={styles.problemCard}>
-              <div className={styles.problemHeader}>
-                <h2 className={styles.problemTitle}>{problem.title}</h2>
-                <div className={styles.problemMeta}>
+            {/* Unified Mission Details */}
+            <section className={styles.missionCard}>
+              <div className={styles.missionHeader}>
+                <h2 className={styles.missionTitle}>{problem.title}</h2>
+                <div className={styles.missionMeta}>
                   <span className={`${styles.difficultyBadge} ${styles[difficulty.toLowerCase()]}`}>
                     {difficulty}
                   </span>
-                  {problem.rating && <span className={styles.ratingText}>Rating: {problem.rating}</span>}
+                  {problem.rating && (
+                    <span className={styles.ratingText}>
+                      <FiTarget /> Rating: {problem.rating}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              <div className={styles.description} dangerouslySetInnerHTML={{ __html: formatDescription(truncatedDesc) }} />
+              <div className={styles.missionContent}>
+                <div
+                  className={styles.problemDescription}
+                  dangerouslySetInnerHTML={{ __html: formatDescription(fullDesc) }}
+                />
 
-              {problem.tags && (
-                <div className={styles.tagsContainer}>
-                  {problem.tags.slice(0, 5).map((tag) => <span key={tag} className={styles.tag}>{tag}</span>)}
-                </div>
-              )}
-
-              <div className={styles.actionButtons}>
-                <a href={`/questions/${problem.id}`} className={styles.primaryButton}>Solve Challenge</a>
-                {problem.problemUrl && (
-                  <a href={problem.problemUrl} target="_blank" rel="noopener noreferrer" className={styles.secondaryButton}>
-                    View on Codeforces
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {/* Verification Card */}
-            {auth.currentUser && (
-              <div className={styles.verificationCard}>
-                <div className={styles.userStatsRow}>
-                  <div className={styles.userStat}>
-                    <span style={{ fontSize: '2rem' }}>💰</span>
-                    <div><div className={styles.statValue}>{userData.coins}</div><div className={styles.statLabel}>Coins</div></div>
-                  </div>
-                  <div className={styles.userStat}>
-                    <span style={{ fontSize: '2rem' }}>🔥</span>
-                    <div><div className={styles.statValue}>{userData.streak}</div><div className={styles.statLabel}>Day Streak</div></div>
-                  </div>
-                </div>
-                {userSolved ? (
-                  <div style={{ background: '#f0fdf4', color: '#166534', padding: '1rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '600' }}>
-                    <FiCheck /> Solved!
-                  </div>
-                ) : (
-                  <button onClick={handleCheckCFSubmission} disabled={isCheckingCF} className={styles.verifyButton}>
-                    {isCheckingCF ? "Verifying..." : "Verify Codeforces Submission"}
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Right Column */}
-          <div className={styles.rightColumn}>
-            {/* Top Solvers */}
-            <div className={styles.leaderboardCard} style={{ marginBottom: '1.5rem' }}>
-              <div className={styles.leaderboardHeader}>
-                <h3 className={styles.leaderboardTitle}><FiAward className={styles.awardIcon} /> Top Solvers</h3>
-                <span style={{ background: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '600' }}>{dailySolvers.length}</span>
-              </div>
-              <div className={styles.solversListContainer}>
-                {dailySolvers.length > 0 ? (
-                  <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {dailySolvers.map((s, i) => (
-                      <li key={s.uid} style={{ padding: '0.5rem', background: '#f8fafc', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                        <span>#{i + 1} <b>{s.username}</b></span>
-                        <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{new Date(s.solvedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      </li>
+                {problem.tags && (
+                  <div className={styles.tagsContainer}>
+                    {problem.tags.slice(0, 6).map((tag) => (
+                      <span key={tag} className={styles.tag}># {tag}</span>
                     ))}
-                  </ul>
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
-                    <Image src="/images/nosolver.png" alt="Empty" width={400} height={40} style={{ marginBottom: '1rem', objectFit: 'contain' }} />
-                    <p style={{ margin: 0 }}>No one has solved it yet.<br />Be the first!</p>
                   </div>
                 )}
               </div>
-            </div>
 
-            <div className={styles.leaderboardCard}>
-              <div className={styles.leaderboardHeader}>
-                <h3 className={styles.leaderboardTitle}><FiClock className={styles.awardIcon} style={{ color: '#8b5cf6' }} /> Top This Week</h3>
-                <span style={{ background: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '600' }}>{topWeeklySolvers.length}</span>
+              {/* Action & Stats Center */}
+              <div className={styles.actionSection}>
+                <div className={styles.userStatsGrid}>
+                  <div className={styles.miniStat}>
+                    <span className={styles.statIcon}>💰</span>
+                    <div className={styles.statInfo}>
+                      <span className={styles.statLabel}>Reward</span>
+                      <span className={styles.statValue}>{userData.coins} Coins</span>
+                    </div>
+                  </div>
+                  <div className={styles.miniStat}>
+                    <span className={styles.statIcon}>🔥</span>
+                    <div className={styles.statInfo}>
+                      <span className={styles.statLabel}>Current Streak</span>
+                      <span className={styles.statValue}>{userData.streak} Days</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.buttonGroup}>
+                  <a href={`/questions/${problem.id}`} className={styles.solveButton}>
+                    <FiZap /> Solve Challenge
+                  </a>
+                  {userSolved ? (
+                    <div className={styles.solvedBanner}>
+                      <FiCheck /> Verification Complete
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleCheckCFSubmission}
+                      disabled={isCheckingCF}
+                      className={styles.verifyButton}
+                    >
+                      <BsLightningCharge /> {isCheckingCF ? "Processing..." : "Verify Codeforces Submission"}
+                    </button>
+                  )}
+                  {problem.problemUrl && (
+                    <a
+                      href={problem.problemUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.tag}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white' }}
+                    >
+                      <FiExternalLink /> View on Codeforces
+                    </a>
+                  )}
+                </div>
               </div>
-              <div className={styles.solversListContainer}>
-                {topWeeklySolvers.length > 0 ? (
-                  <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {topWeeklySolvers.map((s, i) => (
-                      <li key={s.uid} style={{ padding: '0.5rem', background: '#f8fafc', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                        <span>#{i + 1} <b>{s.username || "User"}</b></span>
-                        <span style={{ color: '#f59e0b', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                          ✨ {s.weeklyPotdSolves} {s.weeklyPotdSolves === 1 ? 'Day' : 'Days'}
+            </section>
+
+            {/* Sidebar Leaderboards */}
+            <aside className={styles.rightColumn}>
+
+              {/* Daily Top Solvers */}
+              <div className={styles.sidebarCard}>
+                <div className={styles.sidebarHeader}>
+                  <h3 className={styles.sidebarTitle}><FiAward /> Top Solvers</h3>
+                  <span className={styles.countBadge}>{dailySolvers.length}</span>
+                </div>
+                <ul className={styles.solversList}>
+                  {dailySolvers.length > 0 ? (
+                    dailySolvers.slice(0, 5).map((s, i) => (
+                      <li key={s.uid} className={styles.solverItem}>
+                        <div className={styles.solverInfo}>
+                          <span className={styles.rank}>#{i + 1}</span>
+                          <span className={styles.username}>{s.username}</span>
+                        </div>
+                        <span className={styles.solveTime}>
+                          {s.isFallback ? "-" : new Date(s.solvedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
-                    <p style={{ margin: 0 }}>No solvers this week.<br />Be the first!</p>
-                  </div>
-                )}
+                    ))
+                  ) : (
+                    <li style={{ textAlign: 'center', padding: '1rem', color: '#94a3b8', fontSize: '0.9rem' }}>
+                      No solvers today yet.
+                    </li>
+                  )}
+                </ul>
               </div>
-            </div>
+
+              {/* Weekly Hall of Fame */}
+              <div className={styles.sidebarCard}>
+                <div className={styles.sidebarHeader}>
+                  <h3 className={styles.sidebarTitle}><FiTrendingUp style={{ color: '#8b5cf6' }} /> Weekly Top</h3>
+                  <span className={styles.countBadge}>{topWeeklySolvers.length}</span>
+                </div>
+                <ul className={styles.solversList}>
+                  {topWeeklySolvers.length > 0 ? (
+                    topWeeklySolvers.map((s, i) => (
+                      <li key={s.uid} className={styles.solverItem}>
+                        <div className={styles.solverInfo}>
+                          <span className={styles.rank}>#{i + 1}</span>
+                          <span className={styles.username}>{s.username || "User"}</span>
+                        </div>
+                        <span className={styles.solveCount}>
+                          {s.isFallback ? "-" : `${s.weeklyPotdSolves} ${s.weeklyPotdSolves === 1 ? 'Day' : 'Days'}`}
+                        </span>
+                      </li>
+                    ))
+                  ) : (
+                    <li style={{ textAlign: 'center', padding: '1rem', color: '#94a3b8', fontSize: '0.9rem' }}>
+                      Starting a new week!
+                    </li>
+                  )}
+                </ul>
+              </div>
+
+            </aside>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
