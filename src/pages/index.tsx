@@ -12,6 +12,7 @@ import {
 } from "react-icons/bs";
 import dynamic from "next/dynamic";
 import Loading from "../common/components/Loading/Loading";
+import Link from "next/link";
 
 const DynamicHeader = dynamic(() => import("../common/components/Header/Header"), {
   loading: () => <Loading />
@@ -44,15 +45,19 @@ export default function Home() {
             </p>
             <div className="flex flex-row gap-5 w-full">
               {/* Explore Button*/}
-              <button className={`${styles.button_blue} px-8 py-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-105`}>
-                Explore
-              </button>
+              <Link href="/signup">
+                <button className={`${styles.button_blue} px-8 py-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-105`}>
+                  Explore
+                </button>
+              </Link>
 
               {/* Dashboard Button*/}
-              <button className="bg-white hover:bg-gray-50 text-gray-900 border-gray-100 font-bold px-8 py-3 rounded-xl shadow-sm transition-all duration-200 hover:scale-105 flex items-center justify-center gap-3 w-1/2">
-                Dashboard
-                <BsArrowRightCircle size={"1.3em"} className="transition-transform duration-200 group-hover:translate-x-1" />
-              </button>
+              <Link href="/signup" className="w-1/2">
+                <button className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-100 font-bold px-8 py-3 rounded-xl shadow-sm transition-all duration-200 hover:scale-105 flex items-center justify-center gap-3 group">
+                  Dashboard
+                  <BsArrowRightCircle size={"1.3em"} className="transition-transform duration-200 group-hover:translate-x-1" />
+                </button>
+              </Link>
             </div>
           </div>
           {/* Image Section */}
@@ -147,20 +152,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Call to Action Buttons BELOW Features */}
-      <div className="w-full flex justify-center py-8 bg-white">
-        <div className="flex flex-col sm:flex-row gap-4">
-          {/* Start Competing Now Button (Blue) */}
-          <button className={`${styles.button_blue} hover:bg-blue-700 text-white font-semibold px-5 py-3 rounded-lg shadow transition-all duration-200 hover:scale-105`}>
-            Start Competing Now
-          </button>
-          {/* View Demo Button*/}
-          <button className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-3 rounded-lg shadow transition-all duration-200 hover:scale-105 flex items-center gap-2">
-            View Demo
-            <BsArrowRightCircle size={"1.3em"} />
-          </button>
-        </div>
-      </div>
 
       <DynamicFooter />
     </div>
