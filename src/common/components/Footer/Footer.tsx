@@ -1,6 +1,6 @@
 import styles from './Footer.module.css';
-import {AiFillTwitterCircle, AiFillLinkedin} from 'react-icons/ai';
-import {BsInstagram, BsFacebook} from 'react-icons/bs';
+import {AiFillTwitterCircle, AiFillLinkedin, AiFillGithub} from 'react-icons/ai';
+import {BsInstagram} from 'react-icons/bs';
 
 export default function Footer() {
   return (
@@ -25,10 +25,18 @@ export default function Footer() {
         <div className={styles.social}>
           <h4> Socials </h4>
           <div className={styles.socials}>
-            <AiFillTwitterCircle size={'1.8em'} />
-            <AiFillLinkedin size={'1.7em'} />
-            <BsInstagram size={'1.6em'} />
-            <BsFacebook size={'1.5em'} />
+            <a href='https://x.com/OpenLakeClub' target='_blank' rel='noopener noreferrer'>
+              <AiFillTwitterCircle size={'1.8em'} />
+            </a>
+            <a href='https://www.linkedin.com/company/openlake/' target='_blank' rel='noopener noreferrer'>
+              <AiFillLinkedin size={'1.7em'} />
+            </a>
+            <a href='https://github.com/OpenLake' target='_blank' rel='noopener noreferrer'>
+              <AiFillGithub size={'1.7em'} />
+            </a>
+            <a href='https://www.instagram.com/openlake_iitbhilai/' target='_blank' rel='noopener noreferrer'>
+              <BsInstagram size={'1.6em'} />
+            </a>
           </div>
         </div>
       </div>
