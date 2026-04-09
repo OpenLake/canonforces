@@ -1,6 +1,6 @@
 import styles from './Footer.module.css';
 import {AiFillTwitterCircle, AiFillLinkedin, AiFillGithub} from 'react-icons/ai';
-import {BsInstagram} from 'react-icons/bs';
+import {BsInstagram, BsDiscord} from 'react-icons/bs';
 
 export default function Footer() {
   return (
@@ -36,6 +36,9 @@ export default function Footer() {
             </a>
             <a href='https://www.instagram.com/openlake_iitbhilai/' target='_blank' rel='noopener noreferrer'>
               <BsInstagram size={'1.6em'} />
+            </a>
+            <a href='https://discord.gg/eDYPDK2y' target='_blank' rel='noopener noreferrer'>
+              <BsDiscord size={'1.6em'} />
             </a>
           </div>
         </div>
