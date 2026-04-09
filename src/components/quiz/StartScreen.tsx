@@ -109,11 +109,20 @@ const StartScreen: React.FC<Props> = ({ onStart }) => {
           count: totalQuestions,
         }),
       });
-      const { roomId } = await response.json();
-      router.push(`/quiz/lobby/${roomId}?host=true`);
+      const data = await response.json();
+      
+      if (response.ok && data.roomId && data.roomId !== 'undefined') {
+        console.log(`[START_SCREEN] Successfully created private battle: ${data.roomId}`);
+        router.push(`/quiz/lobby/${data.roomId}?host=true`);
+      } else {
+        const errorMsg = data.error || (data.roomId === 'undefined' ? 'Server returned an invalid lobby ID.' : 'Failed to create private battle.');
+        console.error('Room creation error:', errorMsg, 'Response Data:', data);
+        setErrorStatus(errorMsg);
+      }
 
     } catch (error) {
       console.error('Failed to create private battle:', error);
+      setErrorStatus('An unexpected error occurred. Please try again.');
     }
   };
 

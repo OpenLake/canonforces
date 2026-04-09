@@ -28,7 +28,18 @@ const LobbyPage = () => {
   }, [roomId]);
 
   useEffect(() => {
-    if (!socket || !isConnected || !user || !roomId) return;
+    // 1. Immediate check for invalid/undefined roomId string from URL
+    if (roomId === 'undefined') {
+      console.error("[LOBBY] Invalid roomId detected in URL");
+      setError('Invalid Lobby ID. Please create a new battle.');
+      return;
+    }
+
+    // 2. Wait for other dependencies
+    if (!socket || !isConnected || !user || !roomId) {
+      console.log("[LOBBY] Waiting for dependencies:", { socket: !!socket, isConnected, user: !!user, roomId });
+      return;
+    }
 
     // --- Socket Event Listeners (Register BEFORE emitting) ---
     socket.on('room_update', (data: { players: { id: string; username: string }[]; roomConfig?: any }) => {
