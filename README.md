@@ -124,14 +124,17 @@ Push it to Github
 git push origin feature/AmazingFeature
 ```
 
-And raise a PR adding @aviralsaxena16 as reviewer
+And raise a PR 
 
 ## 👨‍💻 Maintainer
 
 **Aviral Saxena**  
 GitHub: [@aviralsaxena16](https://github.com/aviralsaxena16)
+**Kamireddi Jaswanth Kumar**  
+GitHub: [@Jaswanth-Kumar-2007](https://github.com/Jaswanth-Kumar-2007)
 
-<div align="center">Built with ❤️ by Aviral Saxena .</div>
+
+<div align="center">Built with ❤️ by Aviral Saxena </div>
 
 
 
