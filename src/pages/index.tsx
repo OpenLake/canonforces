@@ -41,7 +41,7 @@ export default function Home() {
               A <span className="font text-blue-600">coding platform</span> where you can compete with
               fellow coders, friends and random people to learn and improve your coding skills.
               You can showcase your Codeforces profile in an amazing dashboard powered by
-              <span className="font text-blue-600"> CanonForces</span>.
+              <span className="font text-blue-600"> CanonForces</span>. Developed with 💙 by OpenLake IIT Bhilai.
             </p>
             <div className="flex flex-row gap-5 w-full">
               {/* Explore Button*/}

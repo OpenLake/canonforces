@@ -95,7 +95,7 @@ export default function NavigationMenu() {
             </li>
             <li className={isActive(ROUTES.CONTESTS) ? styles.active : ''}>
               <Link href={ROUTES.CONTESTS}>
-                <TbSwords size={"1.5em"} /> <span>Practise</span>
+                <TbSwords size={"1.5em"} /> <span>Practice</span>
               </Link>
             </li>
             <li className={isActive(ROUTES.POTD) ? styles.active : ''}>

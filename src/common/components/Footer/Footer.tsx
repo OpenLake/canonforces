@@ -10,18 +10,11 @@ export default function Footer() {
           <h4> Canonforces </h4>
           <p>
             {' '}
-            A paltform where you can showcase your codeforces profile in a more elegant way. 
+            A platform where you can showcase your codeforces profile in a more elegant way. 
             You can compete with other coders in a 1v1 match and improve your profile.{' '}
           </p>
         </div>
-        <div className={styles.company}>
-          <h4> Company </h4>
-          <ul>
-            <li> About </li>
-            <li> Privacy Policy </li>
-            <li> Terms and Conditions </li>
-          </ul>
-        </div>
+    
         <div className={styles.social}>
           <h4> Socials </h4>
           <div className={styles.socials}>
