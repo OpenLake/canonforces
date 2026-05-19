@@ -39,15 +39,7 @@
   cursor: pointer;
 }
 
-.company > ul {
-  list-style-type: none;
-}
 
-.company > ul > li {
-  margin-top: 10px;
-  font-weight: 600;
-  cursor: pointer;
-}
 
 .socials {
   margin-top: 10px;
