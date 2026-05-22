@@ -117,6 +117,11 @@ const QuestionBar = () => {
     setCodeValue(value || '');
   };
 
+  const handleResetCode = () => {
+    setCodeValue(CODE_SNIPPETS[language as keyof typeof CODE_SNIPPETS]);
+    toast.success('Code reset to default')
+  }
+
   const handleRun = async () => {
     if (isRunning) return;
     setIsRunning(true);
@@ -504,6 +509,7 @@ const QuestionBar = () => {
           codeValue={codeValue}
           onLanguageChange={onLanguageChange}
           onCodeChange={onCodeChange}
+          onResetCode={handleResetCode}
           output={output}
           isRunning={isRunning}
           submissionResult={submissionResult}
