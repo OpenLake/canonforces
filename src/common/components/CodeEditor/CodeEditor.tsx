@@ -38,6 +38,7 @@ type Props = {
   hintLevel?: number;
   isFetchingHint?: boolean;
   onGetHint?: () => void;
+  onResetCode?: () => void;
 };
 
 const CodeEditor = ({
@@ -59,6 +60,7 @@ const CodeEditor = ({
   hintLevel,
   isFetchingHint,
   onGetHint,
+  onResetCode,
 }: Props) => {
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const [isAiSidebarOpen, setIsAiSidebarOpen] = React.useState(false);
@@ -73,7 +75,9 @@ const CodeEditor = ({
   };
 
   const resetCode = () => {
-    console.log('Reset button clicked - state is in parent.');
+    if (onResetCode) {
+      onResetCode();
+    }
   };
 
   return (
