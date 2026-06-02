@@ -15,7 +15,7 @@
   </a>
 
   <a href="https://redis.io/">
-    <img src="https://img.shields.io/badge/Redis-Queues%20%26%20Leaderboards-red?style=for-the-badge&logo=redis" alt="Redis"/>
+    <img src="https://img.shields.io/badge/Redis-Queues-red?style=for-the-badge&logo=redis" alt="Redis"/>
   </a>
   
   <a href="https://deepmind.google/technologies/gemini/">
@@ -60,7 +60,6 @@
 - [Getting Started](#-getting-started)
 - [Environment Variables](#️-environment-variables)
 - [API Reference](#-api-reference)
-- [Feature Deep Dives](#-feature-deep-dives)
 - [Maintainers](#️-maintainers)
 
 ---
@@ -73,7 +72,6 @@
 **Why CanonForces?**
 
 - Your Codeforces submissions and rating history sync automatically
-- Stuck on a problem? An AI gives you progressive hints without spoiling the solution
 - Challenge friends or random opponents to real-time 1v1 coding duels
 - Compare your Codeforces *and* LeetCode stats side-by-side with visual charts
 - Stay consistent with daily POTD challenges, streaks, and leaderboards
@@ -98,7 +96,7 @@
 
 ## ✨ Key Features
 
-### 🎮 Gamified Arena
+### Gamified Arena
 
 | Feature | Description |
 |---|---|
@@ -107,7 +105,7 @@
 | **Coin & Streak System** | Earn coins for every problem solved, POTD completed, daily streak maintained, or past contest solution uploaded. |
 | **Global Leaderboard** | Multi-tiered: "Top Earners" (coins) and "Top Solvers" (problems). Includes a weekly POTD-specific board and a sticky "My Rank" footer for users outside the top 50. |
 
-### 🛠️ Integrated Practice Suite
+### Integrated Practice Suite
 
 | Feature | Description |
 |---|---|
@@ -116,7 +114,7 @@
 | **Rating-wise Problem Explorer** | Browse Codeforces problems filtered by difficulty band (800–1600+). Track per-rating and overall solve progress. |
 | **Practice Mode** | Progress bars, solved-problem tracking saved to Firestore, and a UI optimized for deep-focus sessions. |
 
-### 📊 Analytics & Growth
+### Analytics & Growth
 
 | Feature | Description |
 |---|---|
@@ -125,7 +123,7 @@
 | **PDF Export** | Download a full personal analytics report as a PDF. |
 | **Problem-of-the-Day (POTD)** | Auto-rotates daily based on a reference date. Admins can override. Solving POTD increments your streak and awards coins. |
 
-### 🌐 Social & Discovery
+### Social & Discovery
 
 | Feature | Description |
 |---|---|
@@ -413,12 +411,10 @@ POTD uses a deterministic daily rotation based on a reference date, so no cron j
   <tr>
     <td align="center">
       <strong>Aviral Saxena</strong><br/>
-      <sub>Lead Maintainer</sub><br/>
       <a href="https://github.com/aviralsaxena16">@aviralsaxena16</a>
     </td>
     <td align="center">
       <strong>Kamireddi Jaswanth Kumar</strong><br/>
-      <sub>Maintainer</sub><br/>
       <a href="https://github.com/Jaswanth-Kumar-2007">@Jaswanth-Kumar-2007</a>
     </td>
   </tr>
