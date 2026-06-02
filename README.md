@@ -361,8 +361,10 @@ All API routes live under `/src/app/api/`. Key endpoints:
 
 ---
 
-## 🔬 Feature Deep Dives
+<details>
+  <summary><b>Click to expand Feature Deep Dives</b></summary>
 
+  
 ### -> AI Hint System
 
 The IDE integrates a Gemini-powered hint engine designed to teach rather than reveal. Hints are tiered:
@@ -400,6 +402,8 @@ POTD uses a deterministic daily rotation based on a reference date, so no cron j
 - Increments your daily streak
 - Awards coins (scaled by difficulty rating)
 - Appears on the weekly POTD leaderboard
+</details>
+
 
 ---
 
