@@ -5,9 +5,6 @@
 
 **The Ultimate Gamified Codeforces Companion**
 <p align="center">
-  <a href="https://canonforces.openlake.in">
-    <img src="https://img.shields.io/badge/Live%20Demo-CanonForces-blue?style=for-the-badge&logo=vercel" alt="Live Demo"/>
-  </a>
 
   <a href="https://nextjs.org/">
     <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" alt="Next.js"/>
@@ -64,7 +61,6 @@
 - [Environment Variables](#️-environment-variables)
 - [API Reference](#-api-reference)
 - [Feature Deep Dives](#-feature-deep-dives)
-- [Contributing](#-contributing)
 - [Maintainers](#️-maintainers)
 
 ---
@@ -406,41 +402,6 @@ POTD uses a deterministic daily rotation based on a reference date, so no cron j
 - Appears on the weekly POTD leaderboard
 
 ---
-
-## 🤝 Contributing
-
-Contributions are what make open source incredible. Any contribution you make is **greatly appreciated**.
-
-1. **Find an issue** — Check the [Issues tab](https://github.com/OpenLake/canonforces/issues) for `good first issue`, `help wanted`, or program-specific tags like `foss-overflow`.
-
-2. **Fork & branch**
-
-```bash
-git fork https://github.com/OpenLake/canonforces.git
-git checkout -b feature/your-feature-name
-```
-
-3. **Make your changes** — Follow the existing code style. Run `npm run lint` before committing.
-
-4. **Write or update tests** if your change affects logic in `/src/lib/` or `/src/app/api/`.
-
-5. **Commit with a clear message**
-
-```bash
-git commit -m "feat: add problem tag filter to practice arena"
-```
-
-We follow [Conventional Commits](https://www.conventionalcommits.org/): `feat`, `fix`, `chore`, `docs`, `refactor`, `test`.
-
-6. **Push and open a PR**
-
-```bash
-git push origin feature/your-feature-name
-```
-
-7. Open a PR against `main`. Fill out the PR template — describe what you changed and why.
----
-
 
 ## 🛡️ Maintainers
 
