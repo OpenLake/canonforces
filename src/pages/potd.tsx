@@ -74,6 +74,12 @@ const POTDPage: React.FC = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
+
+      if (!user) {
+        setUserData({ coins: 0, streak: 0 });
+        setCfUsername("");
+        setUserSolved(false);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -172,7 +178,7 @@ const POTDPage: React.FC = () => {
         : { coins: 0, totalCoins: 0, streak: 0 };
 
       if (currentUserData.lastSolvedDate === todayDate) {
-        return; // Safe to return here because the transaction will still succeed without doing damage
+        throw new Error("You have already verified today's POTD.");
       }
 
       const yesterday = new Date();
@@ -187,7 +193,7 @@ const POTDPage: React.FC = () => {
       const resolvedUsername =
         userData.username ||
         currentUser.displayName ||
-        (currentUser.email ? currentUser.email.split("@") : "User");
+        (currentUser.email ? currentUser.email.split("@")[0] : "User");
 
       transaction.set(
         userRef,
