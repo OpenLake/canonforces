@@ -88,30 +88,9 @@ const POTDPage: React.FC = () => {
     const unsubWeekly = onSnapshot(weeklyQ, async (snap: any) => {
       let solvers = snap.docs.map((d: any) => ({ ...d.data(), uid: d.id } as UserData));
 
-      if (solvers.length < 3) {
-        // Fallback: fetch additional users from Users collection to fill until at least 3
-        const fallbackQ = query(collection(db, "users"), limit(10));
-        const fallbackSnap = await getDocs(fallbackQ);
-        const fallbackUsers = fallbackSnap.docs
-          .map((d: any) => ({ ...d.data(), uid: d.id } as UserData))
-          .filter((u: UserData) => !solvers.some((s: UserData) => s.uid === u.uid));
-
-        while (solvers.length < 3 && fallbackUsers.length > 0) {
-          const nextUser = fallbackUsers.shift();
-          if (nextUser) {
-            solvers.push({
-              ...nextUser,
-              weeklyPotdSolves: 0,
-              streak: 0,
-              coins: 0,
-              isFallback: true
-            });
-          }
-        }
-      }
-
+      
       solvers.sort((a: UserData, b: UserData) => (b.weeklyPotdSolves || 0) - (a.weeklyPotdSolves || 0));
-      setTopWeeklySolvers(solvers.slice(0, 10));
+      setTopWeeklySolvers(solvers);
     }, (err: any) => console.error("Error watching weekly solvers", err));
 
     return () => unsubWeekly();
@@ -133,26 +112,7 @@ const POTDPage: React.FC = () => {
         setDoc(submissionRef, { problemId: problem?.id || "", solvers: {} }, { merge: true });
       }
 
-      if (solversArray.length < 3) {
-        // Fallback: fetch additional users to fill until at least 3
-        const fallbackQ = query(collection(db, "users"), limit(10));
-        const fallbackSnap = await getDocs(fallbackQ);
-        const fallbackUsers = fallbackSnap.docs
-          .map((d: any) => ({ uid: d.id, username: d.data().username || "User" }))
-          .filter((u: any) => !solversArray.some((s: Solver) => s.uid === u.uid));
-
-        while (solversArray.length < 3 && fallbackUsers.length > 0) {
-          const nextUser = fallbackUsers.shift();
-          if (nextUser) {
-            solversArray.push({
-              uid: nextUser.uid,
-              username: nextUser.username,
-              solvedAt: new Date().toISOString(), // Placeholder time for fallback
-              isFallback: true
-            });
-          }
-        }
-      }
+      
 
       solversArray.sort((a, b) => new Date(a.solvedAt).getTime() - new Date(b.solvedAt).getTime());
       setDailySolvers(solversArray);
@@ -189,40 +149,65 @@ const POTDPage: React.FC = () => {
   }, [auth.currentUser, problem, cfUsername, userSolved, isCheckingCF]);
 
   const markAsSolved = async () => {
-    if (!auth.currentUser || !problem || userSolved) return;
-    try {
-      const submissionRef = doc(db, "potd_submissions", todayDate);
-      const userRef = doc(db, "users", auth.currentUser.uid);
-      await runTransaction(db, async (transaction) => {
-        const userDoc = await transaction.get(userRef);
-        const currentUserData = userDoc.exists() ? userDoc.data() as UserData : { coins: 0, totalCoins: 0, streak: 0 };
-        const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split("T")[0];
-        let newStreak = 1;
-        if (currentUserData.lastSolvedDate === yesterdayStr) newStreak = (currentUserData.streak || 0) + 1;
-        else if (currentUserData.lastSolvedDate === todayDate) return;
+  if (!auth.currentUser || !problem || userSolved) return;
+  
+  try {
+    const submissionRef = doc(db, "potd_submissions", todayDate);
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    
+    await runTransaction(db, async (transaction) => {
+      const userDoc = await transaction.get(userRef);
+      const currentUserData = userDoc.exists() ? (userDoc.data() as UserData) : { coins: 0, totalCoins: 0, streak: 0 };
+      
+      // 1. Calculate Yesterday's Date (Using your fixed local time helper)
+      const yesterday = new Date(); 
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = getLocalDateString(yesterday);
+      
+      // Prevent double-counting if somehow they trigger it twice today
+      if (currentUserData.lastSolvedDate === todayDate) return;
 
-        const currentStartOfWeek = getStartOfWeek(new Date());
-        let newWeeklySolves = 1;
-        if (currentUserData.lastWeeklyResetDate === currentStartOfWeek) {
-          newWeeklySolves = (currentUserData.weeklyPotdSolves || 0) + 1;
+      // 2. Calculate New Streak
+      let newStreak = 1;
+      if (currentUserData.lastSolvedDate === yesterdayStr) {
+        newStreak = (currentUserData.streak || 0) + 1;
+      }
+
+      // 3. Calculate Weekly Solves
+      const currentStartOfWeek = getStartOfWeek(new Date());
+      let newWeeklySolves = 1;
+      if (currentUserData.lastWeeklyResetDate === currentStartOfWeek) {
+        newWeeklySolves = (currentUserData.weeklyPotdSolves || 0) + 1;
+      }
+
+      // 4. Update the User Doc (Use SET with MERGE instead of UPDATE)
+      transaction.set(userRef, {
+        coins: (currentUserData.coins || 0) + 50,
+        totalCoins: (currentUserData.totalCoins || 0) + 50,
+        streak: newStreak,
+        lastSolvedDate: todayDate,
+        weeklyPotdSolves: newWeeklySolves,
+        lastWeeklyResetDate: currentStartOfWeek
+      }, { merge: true });
+
+      // 5. Update the Submissions Doc
+      transaction.set(submissionRef, {
+        problemId: problem.id,
+        solvers: { 
+          [auth.currentUser!.uid]: { 
+            uid: auth.currentUser!.uid, 
+            username: userData.username || auth.currentUser!.displayName || "User", 
+            solvedAt: new Date().toISOString() 
+          } 
         }
+      }, { merge: true });
+    });
 
-        transaction.update(userRef, {
-          coins: increment(50),
-          totalCoins: increment(50),
-          streak: newStreak,
-          lastSolvedDate: todayDate,
-          weeklyPotdSolves: newWeeklySolves,
-          lastWeeklyResetDate: currentStartOfWeek
-        });
-        transaction.set(submissionRef, {
-          problemId: problem.id,
-          solvers: { [auth.currentUser!.uid]: { uid: auth.currentUser!.uid, username: userData.username || auth.currentUser!.displayName || "User", solvedAt: new Date().toISOString() } }
-        }, { merge: true });
-      });
-    } catch (error) { toast.error('Failed to save progress.'); }
-  };
+  } catch (error) { 
+    console.error(error);
+    toast.error('Failed to save progress.'); 
+  }
+};
 
   const getDifficulty = (rating?: number) => {
     if (!rating) return "Unknown";
@@ -362,7 +347,7 @@ const POTDPage: React.FC = () => {
                 </div>
                 <ul className={styles.solversList}>
                   {dailySolvers.length > 0 ? (
-                    dailySolvers.slice(0, 5).map((s, i) => (
+                    dailySolvers.map((s, i) => (
                       <li key={s.uid} className={styles.solverItem}>
                         <div className={styles.solverInfo}>
                           <span className={styles.rank}>#{i + 1}</span>
