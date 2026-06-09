@@ -7,10 +7,18 @@
  * @param description - Raw problem description text
  * @returns Formatted HTML string
  */
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+
 export function formatDescription(description: string): string {
   if (!description) return "";
 
-  let formatted = description;
+  let formatted = escapeHtml(description);
 
   // Convert **text** to <strong>text</strong> for bold
   // This regex matches **text** but avoids matching *** or ****
