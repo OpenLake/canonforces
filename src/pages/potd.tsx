@@ -385,7 +385,6 @@
                   </ul>
                 </div>
 
-                // Changed the Name of the Leaderboard Weekly Top to Leaderboard Top 🎉
 
                 <div className={styles.sidebarCard}>
                   <div className={styles.sidebarHeader}>
