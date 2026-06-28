@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         // We use gemini-2.5-flash for complex coding logic and instruction following
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
 
         const prompt = `
       You are an expert competitive programming tutor. Provide exactly three structured hints for a student stuck on a problem.
