@@ -269,7 +269,7 @@ export default function Profile({ userId }: ProfileProps) {
 
                   {isOwnProfile && (
                     <button className={styles.editButton} onClick={handleEditToggle}>
-                      <HiPencilSquare size={16} /> EDIT
+                      {(isEditing) ? (<>Scroll Down 👇</>):<><HiPencilSquare size={16} /> EDIT</>}
                     </button>
                   )}
                 </div>
@@ -451,7 +451,7 @@ export default function Profile({ userId }: ProfileProps) {
               <div className={styles.formActions}>
                 <button className={styles.cancelBtn} onClick={handleEditToggle} disabled={loading}>Abort</button>
                 <button className={styles.saveBtn} onClick={handleSave} disabled={loading}>
-                  {loading ? 'UPLOADING...' : 'SAVE CHANGES'}
+                  {loading ? 'Uploading...' : 'Save Changes'}
                 </button>
               </div>
             </div>
