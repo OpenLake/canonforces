@@ -595,6 +595,51 @@
   font-family: ui-monospace, SFMono-Regular, Monaco, monospace;
 }
 
+/* Edit Profile CSS */
+.editOverlay{
+  border:2px solid black;
+  border-radius:30px;
+  padding:15px;
+}
+
+.formGroup{
+  margin:5px;
+}
+
+.formGroup input{
+  border:1px solid black;
+  margin-left: 5px;
+  border-radius: 25px;
+  padding:5px;
+  width:100%;
+}
+
+.cancelBtn{
+  border: 1px solid black;
+  padding:5px;
+  margin:5px;
+  border-radius: 30px;
+}
+
+.cancelBtn:hover{
+  background-color: lightcoral;
+}
+
+.saveBtn{
+  border: 1px solid black;
+  padding:5px;
+  margin:5px;
+  border-radius: 30px;
+}
+
+.saveBtn:hover{
+  background-color: lightgreen;
+}
+
+.errorMessage{
+  color:lightcoral;
+}
+
 /* Responsiveness */
 @media (max-width: 1280px) {
   .topSection {

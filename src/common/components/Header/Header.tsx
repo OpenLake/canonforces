@@ -4,8 +4,24 @@ import Image from "next/image";
 import * as ROUTES from "../../../constants/routes";
 import NotificationBell from "../NotificationBell/NotificationBell";
 import styles from "./Header.module.css";
+import { useState,useEffect } from "react";
 
 export default function Header() {
+
+  const [userDetails , setUserdetails] = useState<any>(null);
+
+  useEffect(() => {
+    try{
+      const data = localStorage.getItem("authUser");
+
+      if(data){
+        setUserdetails(JSON.parse(data));
+      };
+    }catch (e){
+      console.log(e);
+    }
+  },[])
+  
   return (
     <>
       <div className={`relative flex w-10/12 p-5 fc-black font-light max-w-screen-2xl mx-auto items-center`}>
@@ -31,10 +47,18 @@ export default function Header() {
           </div>
           
           <div className="flex items-center gap-10">
-            <ul className="flex flex-row items-center gap-8 pr-20">
-              <li> <Link href={ROUTES.SIGNUP}> Signup </Link> </li>
-              <li> <Link href={ROUTES.LOGIN}> Login </Link> </li>
-            </ul>
+              {(userDetails)?
+              (
+              <ul className="flex flex-row items-center gap-8 pr-20">
+                <li className="text-gray-dark hover:text-black transform hover:-translate-y-0.5"><Link href={ROUTES.DASHBOARD}> Dashboard : {userDetails.displayName} </Link></li>
+                </ul>
+                ) :
+              (<ul className="flex flex-row items-center gap-8 pr-20">
+                <li> <Link href={ROUTES.LOGIN}> Login </Link> </li>
+                <li> <Link href={ROUTES.SIGNUP}> Signup </Link> </li> 
+              </ul>
+              )
+            }
           </div>
         </nav>
       </div>
