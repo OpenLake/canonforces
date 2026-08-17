@@ -243,10 +243,12 @@ export default function Profile({ userId }: ProfileProps) {
                   <div className={styles.identityLeft}>
                     <div className={styles.avatarWrapper}>
                       <div className={styles.avatar}>
-                        <img
+                        <Image
                           src={previewUrl || profilePhotoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullname || user.username)}&background=f59e0b&color=fff&bold=true`}
                           alt="Profile"
                           className={styles.avatarImage}
+                          width = {100}
+                          height={100}
                           style={{ width: '100px', height: '100px', objectFit: 'cover' }}
                         />
                       </div>
@@ -304,9 +306,11 @@ export default function Profile({ userId }: ProfileProps) {
 
             {/* Mascot column */}
             <div className={styles.mascotWrapper}>
-              <img
+              <Image
                 src="/images/foldHands.png"
                 alt="Mascot"
+                width = {320}
+                height={420}
                 className={styles.separateAccentImg}
               />
             </div>
