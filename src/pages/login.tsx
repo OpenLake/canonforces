@@ -76,6 +76,11 @@ export default function Login() {
 
   return (
     <div className={styles.login}>
+      <Link href="/">
+          <button className="absolute top-5 left-5 w-auto bg-white hover:bg-gray-extra-light text-gray-900 border border-gray-100 font-bold px-8 py-3 text-align-center rounded-xl">
+            Back
+          </button>
+      </Link>
       <div className={`${styles.container} flex flex-col md:flex-row w-11/12 md:w-9/12 shadow-xl rounded-2xl bg-white overflow-hidden`}>
         {/* Left Side - Image */}
         <div className="hidden md:flex justify-center items-center w-6/12 bg-gray-50">
