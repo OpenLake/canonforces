@@ -53,7 +53,7 @@ export default function Header() {
               {(userDetail)?
               (
               <ul className="text-xs flex flex-row items-center gap-3 lg:text-base lg:gap-8">
-                <li className="text-gray-dark hover:text-black transform hover:-translate-y-0.5"><Link href={ROUTES.DASHBOARD}> Dashboard : {userDetail.displayName} </Link></li>
+                <li className="text-gray-dark hover:text-black transform hover:-translate-y-0.5"><Link href={ROUTES.DASHBOARD}> Dashboard </Link></li>
               </ul>
                 ) :
               (<ul className="text-xs flex flex-row items-center gap-3 lg:text-base lg:gap-8 lg:pr-20">
