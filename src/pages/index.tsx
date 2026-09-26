@@ -37,6 +37,9 @@ export default function Home() {
           console.log(e);
       }
   }, []);
+
+  const mobileMode = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
   return (
     <div className="flex flex-col w-full items-center">
       <DynamicHeader />
@@ -51,12 +54,19 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row w-9/12 justify-center items-center gap-8 mt-8">
           {/* Integrated Info Card */}
           <div className="mobile:flex flex-col items-start bg-white rounded-3xl border border-gray-200 shadow-[0_20px_50px_rgba(0,0,0,0.06)] px-3 py-5 w-7xl w-full mb-4 text-center laptop:flex flex-col items-start bg-white rounded-3xl border border-gray-200 shadow-[0_20px_50px_rgba(0,0,0,0.06)] px-10 py-10 max-w-2xl w-full mb-4 lg:mb-0 transition-transform duration-300 hover:shadow-[0_30px_60px_rgba(0,0,0,0.08)]">
-            <p className="text-gray-700 text-xl leading-relaxed mb-8 mobile:text-base">
+            {(!mobileMode)?
+            (<p className="text-gray-700 text-xl leading-relaxed mb-8 mobile:text-base">
               A <span className="font text-blue-600">coding platform</span> where you can compete with
               fellow coders, friends and random people to learn and improve your coding skills.
               You can showcase your Codeforces profile in an amazing dashboard powered by
               <span className="font text-blue-600"> CanonForces</span>. Developed with 💙 by OpenLake IIT Bhilai.
-            </p>
+            </p>)
+            :
+            (<p className="text-gray-700 text-lg text-left leading-relaxed mb-8 mobile:text-base">
+              Compete, learn, and improve your coding skills with friends, fellow coders, and random people.
+              Showcase your Codeforces profile with the CanonForces dashboard.
+              <span className="font text-blue-600"> CanonForces</span>. Developed with 💙 by OpenLake IIT Bhilai.
+            </p>)}
             <div className="flex flex-row gap-5 w-full">
               {/* Explore Button*/}
               <Link href={(userDetail)?"/dashboard":"/login"}>
