@@ -43,3 +43,16 @@
 .image > img {
     width: 90em;
 }
+
+@media (max-width:480px){
+    .fs_big{
+        font-size: 2.5em;
+    }
+
+    .button_blue {
+        width: 80px;
+        background-color: rgb(40, 101, 198);
+        border: none;
+        color: #ffffff;
+    }
+}

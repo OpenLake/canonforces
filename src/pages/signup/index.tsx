@@ -206,7 +206,7 @@ export default function Signup() {
   return (
     <div className={styles.signup}>
         <Link href="/">
-            <button className="absolute top-5 left-5 w-auto bg-white hover:bg-gray-extra-light text-gray-900 border border-gray-100 font-bold px-8 py-3 text-align-center rounded-xl">
+            <button className="absolute top-5 right-5 w-auto bg-white hover:bg-gray-extra-light text-gray-900 border border-gray-100 font-bold px-8 py-3 text-align-center rounded-xl lg:px-8 lg:py-3">
                 Back
             </button>
         </Link>

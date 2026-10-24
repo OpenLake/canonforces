@@ -50,3 +50,77 @@
   width: 150%;
   cursor: pointer;
 }
+
+
+@media(max-width:768px){
+  .footer {
+    display: flex;
+    background-color: #474545;
+    width: 100%;
+    height: auto;
+    font-family: Quicksand, sans-serif;
+    color: #eee;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+  }
+
+  .footer__footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top:20px;
+    width:100%;
+    transform: none;
+  }
+
+  .playerTwo > h4,
+  .company > h4,
+  .social > h4 {
+    font-size: 15px;
+    font-family: poppins;
+    color: #ffffff;
+    cursor: pointer;
+    width:100%;
+    text-align: center;
+  }
+
+  .social{
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  .socials a{
+    margin:5px;
+  }
+
+  .playerTwo > p {
+    margin-top: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    width:100%;
+    overflow-wrap:anywhere;
+  }
+
+  .socials {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 220px;
+    margin: 10px auto 0;
+}
+
+.playerTwo {
+  width: 90%;
+}
+
+  .footer__rights{
+    width:100%;
+    text-align: center;
+    font-size: 1rem;
+  }
+}
