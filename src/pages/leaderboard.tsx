@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import NavigationMenu from "../common/components/NavigationMenu/NavigationMenu";
+import Link from "next/link";
 import styles from "../styles/Leaderboard.module.css";
 import { collection, query, getDocs, getDoc, doc } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -191,7 +192,11 @@ export default function LeaderboardPage() {
                                                 #{index + 1}
                                             </div>
 
-                                            <div className={styles.userInfo}>
+                                            <Link
+                                                href={`/user/${user.uid ?? user.username}`}
+                                                className={styles.userInfo}
+                                                style={{ display: "flex", alignItems: "center", gap: "0.75rem", textDecoration: "none", color: "inherit" }}
+                                            >
                                                 <div className={styles.avatar}>
                                                     {user.photoURL ? (
                                                         <img
@@ -222,7 +227,7 @@ export default function LeaderboardPage() {
                                                         </span>
                                                     )}
                                                 </span>
-                                            </div>
+                                            </Link>
 
                                             <div className={styles.metricValue}>
                                                 {activeTab === "earners" ? (
