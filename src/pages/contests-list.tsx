@@ -4,6 +4,7 @@ import NavigationMenu from "../common/components/NavigationMenu/NavigationMenu";
 import PastContestsList from "../components/contests/PastContestsList";
 import styles from "../styles/ContestsList.module.css";
 import { BsTrophy, BsBook, BsCalendarEvent, BsClock, BsLink45Deg, BsExclamationTriangle, BsClockHistory } from "react-icons/bs";
+import Link from "next/link";
 
 interface Contest {
   platform: string;
@@ -86,9 +87,11 @@ const ContestsList = () => {
   // Define tabs based on available data or defaults
   const tabs = ["all", "codeforces", "leetcode", "codechef", "atcoder", "hackerearth"];
 
+  const mobileMode = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
   return (
     <div className="flex min-h-screen bg-[#f7f8fa]">
-      <NavigationMenu />
+      {(!mobileMode) ? (<NavigationMenu />) : ("")}
       <main className={styles.main}>
         <div className={styles.container}>
 
@@ -129,7 +132,7 @@ const ContestsList = () => {
             <button
               onClick={() => setView("upcoming")}
               className={`
-                px-6 py-2 min-w-[200px] rounded-md font-medium transition-all duration-200
+                px-6 py-2 min-w-[100px] rounded-md font-medium transition-all duration-200 text-xs sm:text-base
                 ${view === "upcoming"
                   ? "bg-white text-blue-600 shadow"
                   : "text-gray-600 hover:text-gray-900"}
@@ -141,7 +144,7 @@ const ContestsList = () => {
             <button
               onClick={() => setView("past")}
               className={`
-                px-6 py-2 min-w-[200px] rounded-md font-medium transition-all duration-200
+                px-6 py-2 min-w-[100px] rounded-md font-medium transition-all duration-200 text-xs sm:text-base
                 ${view === "past"
                   ? "bg-white text-blue-600 shadow"
                   : "text-gray-600 hover:text-gray-900"}

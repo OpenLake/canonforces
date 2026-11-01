@@ -26,3 +26,11 @@
   min-width: 0;
   box-sizing: border-box;
 }
+
+@media (max-width:768px){
+  .main{
+    margin-left: 0rem;
+    padding:0.5rem;
+    padding-top: 1rem;
+  }
+}

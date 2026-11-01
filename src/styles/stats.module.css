@@ -394,6 +394,19 @@
   .splitChart {
     min-height: 750px; /* Adjust height for vertical stacking */
   }
+
+  .statsPageWrapper{
+    padding:1.5rem 2rem;
+    padding-top: 20px;
+  }
+
+  .statCardTitle {
+    font-size: 0.9rem;
+  }
+
+  .statCardValue{
+    font-size: 1.25rem;
+  }
 }
 
 

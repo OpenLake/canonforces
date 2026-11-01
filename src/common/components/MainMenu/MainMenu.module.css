@@ -422,3 +422,142 @@
   font-size: 0.95rem;
   margin: 0;
 } 
+
+@media (max-width:768px){
+  .suggestions{
+    display: none;
+    width: 0%;
+  }
+
+  .teacherImg{
+    display: none;
+    width: 0%;
+  }
+
+  .languages_stat{
+    display: none;
+  }
+
+  .main{
+    background-color: #f7f8fa;
+    display: flex;
+    width: 100vw;
+    padding:2px;
+    padding-top: 30px;
+    padding-left: 15px;
+    border-radius: 30px;
+    height: 100vh;
+  }
+
+  .main_menu {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .questions,
+  .ranking,
+  .contest {
+    display: flex;
+    flex-direction: column;
+    background: rgb(102, 178, 245);
+    color: #ffffff;
+    height:20vh;
+    min-width: 0;
+    width:40vw;
+    border-radius: 20px;
+    padding: 2px;
+    align-items: center;
+    justify-content: center;
+    margin-left: 2px;
+    box-shadow: 0 4px 12px rgba(102, 178, 245, 0.15);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .statbar{
+    font-size: 0.8rem;
+  }
+
+  .number{
+    font-size: 0.8rem;
+  }
+
+  .notification_icon{
+    margin-left: 1px;
+  }
+
+  .search > input {
+    width:70vw;
+  }
+
+  .potd_card{
+    width:85vw;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .potd_container {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+
+  .potd_badge{
+    margin-right: 10px;
+    font-size: 0.5rem;
+    padding: 4px;
+    width: 50vw;
+  }
+
+  .potd_date {
+    font-size: 0.5rem;
+    color: #6b7280;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+  }
+
+  .potd_snippet {
+    font-size: 0.6rem;
+  }
+
+  .potd_actions{
+    flex-direction: column;
+  }
+
+  .btn_primary,.btn_codeforces{
+    width:60vw;
+  }
+
+  .main_menu_stats {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 40px;
+    margin-left: 5px;
+  }
+
+  .ranking {
+    background: rgb(220, 95, 68);
+    box-shadow: 0 4px 12px rgba(206, 86, 59, 0.15);
+  }
+
+  .ranking:hover {
+    box-shadow: 0 12px 28px rgba(206, 86, 59, 0.35);
+  }
+
+  .stats1,
+  .stats2 {
+    display: flex;
+    width: 100%;
+    align-items: center;
+  }
+
+  .stats2 {
+    margin-top: 20px;
+  }
+
+  .questions,.ranking,.contest{
+    margin:5px;
+  }
+}
