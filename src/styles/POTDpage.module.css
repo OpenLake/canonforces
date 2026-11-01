@@ -440,7 +440,8 @@
   }
 
   .main {
-    padding: 1.5rem;
+    padding: 0rem;
+    padding-top: 25px;
   }
 
   .title {
@@ -459,5 +460,17 @@
 
   .buttonGroup {
     flex-direction: column;
+  }
+
+  .userStatsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .username {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1e293b;
   }
 }

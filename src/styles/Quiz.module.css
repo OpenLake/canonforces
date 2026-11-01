@@ -1171,6 +1171,26 @@
   .fullscreen-mode .quiz-form {
     padding: 1.5rem;
   }
+
+  .quiz-page-wrapper{
+    padding:0.25rem;
+    margin-top: 20px;
+  }
+
+  .header-section{
+    padding:1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .difficulty-options {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 1.5rem;
+  }
 }
 
 @media (max-width: 480px) {

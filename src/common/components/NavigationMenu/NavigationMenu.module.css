@@ -112,7 +112,7 @@
   justify-content: space-between;
   border-top: 1px solid #f1f5f9;
   padding-top: 1rem;
-  margin-top: auto;
+  margin-top: 50px;
   gap: 0.8rem;
   min-height: 60px;
 }
@@ -187,18 +187,78 @@
   background: #cbd5e1;
 }
 
+.layoutset{
+  display: none;
+}
+
+.layoutset2{
+  display: none;
+}
+
+.navigationmobile{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 15rem;
+  height: 100vh;
+  background: #ffffff;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+  border-right: 1px solid #f1f5f9;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: 1.6rem;
+  overflow-y: auto;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .navigation {
-    width: 12rem;
     padding: 1.2rem;
+    overflow-x: hidden;
+    display: flex;
+  }
+
+  .navigationmobile{
+    width:0.1rem;
+    padding: 0.1rem;
+    overflow-x: hidden;
+    position: fixed;
+    z-index: 100;
+  }
+
+  .layoutset{
+    display: block;
+    position:fixed;
+    top:1rem;
+    left: 1rem;
+    z-index: 101;
   }
 
   .logo h3 {
     font-size: 1.1rem;
   }
 
+  .navbar{
+    overflow-y:hidden;
+  }
+
   .navbar ul li a span {
     font-size: 0.85rem;
+  }
+
+  .active{
+    width:10px;
+  }
+
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  .user_section{
+    margin-top: auto;
   }
 }

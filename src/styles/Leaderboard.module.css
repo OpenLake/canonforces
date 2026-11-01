@@ -4,6 +4,11 @@
     background-color: #f8fafc;
 }
 
+.leaderboardContent {
+    flex: 1;
+    min-width: 0;
+}
+
 .contentWrapper {
     flex: 1;
     display: flex;
@@ -137,6 +142,7 @@
     grid-template-columns: 60px 1fr 100px 100px;
     padding: 1rem 2rem;
     background: #f8fafc;
+    width:100%;
     color: #64748b;
     font-weight: 600;
     font-size: 0.9rem;
@@ -209,6 +215,8 @@
     overflow: hidden;
 }
 
+
+
 .username {
     font-weight: 600;
     color: #1e293b;
@@ -256,4 +264,97 @@
         transform: translateY(0);
         opacity: 1;
     }
+}
+
+@media (max-width: 768px) {
+
+    .pageContainer {
+        display: block;
+        min-height: 100vh;
+        width: 100%;
+        background-color: #f8fafc;
+        overflow-x: hidden;
+    }
+
+    .contentWrapper {
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+        padding: 10px;
+        padding-top: 25px;
+        max-width: none;
+        box-sizing: border-box;
+    }
+
+    .mainContentRow {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: auto;
+        gap: 0;
+    }
+
+    .leaderboardContent {
+        flex: 1;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .heroSection {
+        width: 100%;
+        box-sizing: border-box;
+
+        margin-top: 10px;
+        margin-bottom: 2rem;
+
+        padding: 2rem 1.5rem;
+
+        background: white;
+        border: 1px solid grey;
+        border-radius: 16px;
+    }
+
+    .leaderboardCard {
+        width: 100%;
+        overflow-x:auto;
+    }
+
+    .listHeader{
+        font-size: 0.7rem;
+    }
+
+    .listHeader,
+    .listItem {
+        grid-template-columns: 48px minmax(0, 1fr) 58px 52px;
+        padding: 0.75rem 0.5rem;
+        column-gap: 2px;
+    }
+
+    .userInfo {
+        min-width: 0;
+        gap: 0.4rem;
+        overflow: hidden;
+    }
+
+    .avatar {
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+    }
+
+    .username {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.8rem;
+    }
+
+    .metricValue,
+    .streakValue {
+        font-size: 0.8rem;
+        gap: 0.2rem;
+    }
+
+
 }
